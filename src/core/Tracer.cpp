@@ -3,8 +3,6 @@
 #include "Hitable.h"
 #include "Camera.h"
 #include "Material.h"
-#include "BVHNode.h"
-#include "Texture.h"
 #include "MeshHitable.h"
 #include "CosinePDF.h"
 #include "HitablePDF.h"
@@ -18,14 +16,12 @@ using namespace std;
 namespace Aurora
 {
 
-	Tracer::Tracer()
-		:m_image(nullptr), m_root(nullptr)
-	{
-	}
+	Tracer::Tracer() :m_image(nullptr) { }
 
 	Tracer::~Tracer()
 	{
-		if (m_image) delete m_image;
+		if (m_image) 
+			delete m_image;
 		m_image = nullptr;
 	}
 
@@ -53,10 +49,6 @@ namespace Aurora
 
 		// clear something.
 		endFrame();
-
-		// manager.
-		if (m_manager.m_textureMgr == nullptr)
-			m_manager.m_textureMgr = TextureMgr::getSingleton();
 	}
 
 	void Tracer::addImportantSampling(Hitable *target)
@@ -67,37 +59,29 @@ namespace Aurora
 
 	void Tracer::addObjects(Hitable * target)
 	{
-		m_objects.push_back(target);
+		m_scene.addObjects(target);
 	}
 
 	void Tracer::beginFrame()
 	{
-		for (int x = 0; x < m_objects.size(); ++x)
-		{
-			m_objects[x]->preRendering();
-		}
-		if (m_root) delete m_root;
-		m_root = new BVHNode(m_objects, 0, m_objects.size());
+		m_scene.preRendering();
+		//for (int x = 0; x < m_objects.size(); ++x)
+		//{
+		//	m_objects[x]->preRendering();
+		//}
+		//m_root = new BVHNode(m_objects, 0, m_objects.size());
 	}
 
 	void Tracer::endFrame()
 	{
 		// clear scene objects.
-		BVHNode::destoryBVHTree(m_root);
-		for (int x = 0; x < m_objects.size(); ++x)
-		{
-			delete m_objects[x];
-			m_objects[x] = nullptr;
-		}
 	}
 
 	unsigned char *Tracer::render(Float &totalTime)
 	{
 		m_config.startFrame = clock();
 
-		Hitable* hitableNode = reinterpret_cast<Hitable*>(m_root);
-
-		rawSerialRender(hitableNode);
+		rawSerialRender(/*dynamic_cast<Hitable*>(m_scene)*/&m_scene);
 
 		m_config.endFrame = clock();
 		m_config.totalFrameTime = static_cast<Float>(m_config.endFrame - m_config.startFrame) / CLOCKS_PER_SEC;

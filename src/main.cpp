@@ -1,6 +1,5 @@
 #include <iostream>
 #include "Tracer.h"
-#include "Texture.h"
 #include "Hitable.h"
 #include "Material.h"
 #include "MeshHitable.h"
@@ -16,12 +15,12 @@ Tracer tracer;
 
 void cornellBoxScene()
 {
-	TextureMgr::ptr texMgr = tracer.getTextureMgr();
-	unsigned int white_unit = texMgr->loadTexture(new ConstantTexture(AVector3f(0.73, 0.73, 0.73)));
-	unsigned int green_unit = texMgr->loadTexture(new ConstantTexture(AVector3f(0.12, 0.45, 0.15)));
-	unsigned int red_unit = texMgr->loadTexture(new ConstantTexture(AVector3f(0.65, 0.05, 0.05)));
-	unsigned int light_unit = texMgr->loadTexture(new ConstantTexture(AVector3f(4.0, 4.0, 4.0)));
-	unsigned int yellow_light_unit = texMgr->loadTexture(new ConstantTexture(AVector3f(1.0, 0.82, 0.53)));
+	const AVector3f white_unit = AVector3f(0.73, 0.73, 0.73);
+	const AVector3f green_unit = AVector3f(0.12, 0.45, 0.15);
+	const AVector3f red_unit = AVector3f(0.65, 0.05, 0.05);
+	const AVector3f light_unit = AVector3f(4.0, 4.0, 4.0);
+	const AVector3f yellow_light_unit = AVector3f(1.0, 0.82, 0.53);
+
 
 	Material::ptr whiteLambert_mat = std::make_shared<Lambertian>(white_unit);
 	Material::ptr greenLambert_mat = std::make_shared<Lambertian>(green_unit);

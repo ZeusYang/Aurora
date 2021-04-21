@@ -2,7 +2,6 @@
 #define HITABLE_H
 
 #include "Ray.h"
-#include "AABB.h"
 #include "Material.h"
 #include "ArMathUtils.h"
 #include <vector>
@@ -38,7 +37,6 @@ namespace Aurora
 		virtual void preRendering() {}
 
 		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const = 0;
-		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const = 0;
 
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const { return 0.0f; }
 
@@ -57,7 +55,6 @@ namespace Aurora
 		virtual ~Sphere() = default;
 
 		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
-		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const override;
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
 		virtual AVector3f random(const AVector3f &o) const override;
 	};
@@ -76,7 +73,6 @@ namespace Aurora
 		virtual ~TTriangle() = default;
 
 		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
-		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const override;
 
 	};
 
@@ -88,9 +84,17 @@ namespace Aurora
 	public:
 		HitableList() : Hitable(nullptr) {}
 		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
-		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const override;
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
 		virtual AVector3f random(const AVector3f &o) const override;
+
+		virtual void preRendering() override 
+		{
+			for (int x = 0; x < m_list.size(); ++x)
+			{
+				m_list[x]->preRendering();
+			}
+		}
+
 
 		bool isEmpty() const { return m_list.empty(); }
 		void addObjects(Hitable *target) { m_list.push_back(target); }

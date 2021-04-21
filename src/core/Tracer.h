@@ -5,7 +5,6 @@
 
 #include "Ray.h"
 #include "Hitable.h"
-#include "TextureMgr.h"
 
 namespace Aurora
 {
@@ -23,11 +22,6 @@ namespace Aurora
 	class Tracer
 	{
 	private:
-		class Manager
-		{
-		public:
-			TextureMgr::ptr m_textureMgr;
-		};
 
 		class Setting
 		{
@@ -48,12 +42,11 @@ namespace Aurora
 				m_camera = nullptr;
 			}
 		};
-		BVHNode *m_root;								// BVH tree root node.
+		//BVHNode *m_root;								// BVH tree root node.
 		Setting m_config;								// configuration.
-		Manager m_manager;								// manager component.
 		unsigned char *m_image;							// Render target.
 		HitableList m_samplingList;                     // Important sampling list.
-		std::vector<Hitable*> m_objects;				// Scene object lists.
+		HitableList m_scene;				// Scene object lists.
 
 	public:
 		Tracer();
@@ -71,7 +64,6 @@ namespace Aurora
 		unsigned int getRecursionDepth() const { return m_config.m_maxDepth; }
 		unsigned char *getImage() const { return m_image; }
 		Camera *getCamera() const { return m_config.m_camera; }
-		TextureMgr::ptr getTextureMgr() const { return m_manager.m_textureMgr; }
 
 		void addImportantSampling(Hitable *target);
 		void addObjects(Hitable *target);

@@ -11,7 +11,6 @@ namespace Aurora
 	class MeshHitable : public Hitable
 	{
 	public:
-		AABB m_box;
 		Transform3D m_transformation;
 		std::vector<Vertex> m_vertices;
 		std::vector<unsigned int> m_indices;
@@ -33,7 +32,6 @@ namespace Aurora
 
 		virtual void preRendering();
 		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const;
-		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const;
 
 	private:
 		bool triangleHit(const Ray &ray, const Float &t_min, const Float &t_max,

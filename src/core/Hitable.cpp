@@ -41,13 +41,6 @@ namespace Aurora
 		return false;
 	}
 
-	bool Sphere::boundingBox(const Float &t0, const Float &t1, AABB &box) const
-	{
-		box = AABB(m_center - AVector3f(fabs(m_radius), fabs(m_radius), fabs(m_radius)),
-			m_center + AVector3f(fabs(m_radius), fabs(m_radius), fabs(m_radius)));
-		return true;
-	}
-
 	Float Sphere::pdfValue(const AVector3f &o, const AVector3f &v) const
 	{
 		HitRecord rec;
@@ -101,19 +94,6 @@ namespace Aurora
 		return true;
 	}
 
-	bool TTriangle::boundingBox(const Float &t0, const Float &t1, AABB &box) const
-	{
-		AVector3f minp, maxp;
-		minp.x = fmin(m_p0.x, fmin(m_p1.x, m_p2.x));
-		minp.y = fmin(m_p0.y, fmin(m_p1.y, m_p2.y));
-		minp.z = fmin(m_p0.z, fmin(m_p1.z, m_p2.z));
-		maxp.x = fmax(m_p0.x, fmax(m_p1.x, m_p2.x));
-		maxp.y = fmax(m_p0.y, fmax(m_p1.y, m_p2.y));
-		maxp.z = fmax(m_p0.z, fmax(m_p1.z, m_p2.z));
-		box = AABB(minp, maxp);
-		return true;
-	}
-
 	bool HitableList::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
 		HitRecord temp_rec;
@@ -128,25 +108,6 @@ namespace Aurora
 			}
 		}
 		return hit_anything;
-	}
-
-	bool HitableList::boundingBox(const Float &t0, const Float &t1, AABB &box) const
-	{
-		if (m_list.size() < 1) return false;
-		AABB temp_box;
-		bool first_true = m_list[0]->boundingBox(t0, t1, temp_box);
-		if (!first_true)
-			return false;
-		else
-			box = temp_box;
-		for (int i = 1; i < m_list.size(); i++)
-		{
-			if (m_list[0]->boundingBox(t0, t1, temp_box))
-				box = AABB::surroundingBox(box, temp_box);
-			else
-				return false;
-		}
-		return true;
 	}
 
 	Float HitableList::pdfValue(const AVector3f &o, const AVector3f &v) const

@@ -2,7 +2,6 @@
 #define MATERIAL_H
 
 #include "Ray.h"
-#include "Texture.h"
 #include <memory>
 
 namespace Aurora
@@ -46,12 +45,12 @@ namespace Aurora
 	class Lambertian : public Material
 	{
 	private:
-		unsigned int m_albedo;
+		AVector3f m_albedo;
 
 	public:
 		typedef std::shared_ptr<Lambertian> ptr;
 
-		Lambertian(unsigned int a) : m_albedo(a) {}
+		Lambertian(const AVector3f &a) : m_albedo(a) {}
 		virtual ~Lambertian() = default;
 
 		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const;
@@ -65,12 +64,12 @@ namespace Aurora
 	{
 	private:
 		Float m_fuzz;
-		unsigned int m_albedo;
+		AVector3f m_albedo;
 
 	public:
 		typedef std::shared_ptr<Metal> ptr;
 
-		Metal(unsigned int a, const Float &f) : m_albedo(a), m_fuzz(f)
+		Metal(const AVector3f &a, const Float &f) : m_albedo(a), m_fuzz(f)
 		{
 			if (f > 1.0f)m_fuzz = 1.0f;
 		}
@@ -103,13 +102,13 @@ namespace Aurora
 	class DiffuseLight : public Material
 	{
 	private:
-		unsigned int m_emitTex;
-		unsigned int m_albedo;
+		AVector3f m_emitTex;
+		AVector3f m_albedo;
 
 	public:
 		typedef std::shared_ptr<DiffuseLight> ptr;
 
-		DiffuseLight(unsigned int a, unsigned int b) : m_emitTex(a), m_albedo(b) { }
+		DiffuseLight(const AVector3f &a, const AVector3f &b) : m_emitTex(a), m_albedo(b) { }
 
 		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const;
 

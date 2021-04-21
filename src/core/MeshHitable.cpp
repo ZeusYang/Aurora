@@ -56,7 +56,6 @@ namespace Aurora
 				,m_vertices[index2].m_position - m_vertices[index0].m_position));
 			m_faceNormal.push_back(normal);
 		}
-		m_box = AABB(minPoint, maxPoint);
 	}
 
 	bool MeshHitable::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
@@ -84,14 +83,6 @@ namespace Aurora
 		}
 
 		return hitAny;
-	}
-
-	bool MeshHitable::boundingBox(const Float &t0, const Float &t1, AABB &box) const
-	{
-		(void)t0;
-		(void)t1;
-		box = m_box;
-		return true;
 	}
 
 	bool MeshHitable::triangleHit(const Ray &ray, const Float &t_min, const Float &t_max,

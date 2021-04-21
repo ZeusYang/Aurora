@@ -1,6 +1,5 @@
 #include "Material.h"
 
-#include "TextureMgr.h"
 #include "ONB.h"
 #include "Hitable.h"
 #include "CosinePDF.h"
@@ -10,8 +9,7 @@ namespace Aurora
 	bool Lambertian::scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const
 	{
 		srec.m_isSpecular = false;
-		srec.m_attenuation = TextureMgr::getSingleton()->getTexture(m_albedo)
-			->sample(rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);
+		srec.m_attenuation = m_albedo;
 		srec.m_pdf.reset(new CosinePDF(rec.m_normal));
 		return true;
 	}
@@ -28,8 +26,7 @@ namespace Aurora
 	{
 		AVector3f reflectedDir = reflect(in.getDirection(), rec.m_normal);
 		srec.m_scatterRay = Ray(rec.m_position, reflectedDir + randomInUnitSphere() * m_fuzz);
-		srec.m_attenuation = TextureMgr::getSingleton()->getTexture(m_albedo)
-			->sample(rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);
+		srec.m_attenuation = m_albedo;
 		srec.m_isSpecular = true;
 		srec.m_pdf = nullptr;
 		return true;
@@ -83,8 +80,7 @@ namespace Aurora
 	{
 		return false;
 		srec.m_isSpecular = false;
-		srec.m_attenuation = TextureMgr::getSingleton()->getTexture(m_albedo)
-			->sample(rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);
+		srec.m_attenuation = m_albedo;
 		srec.m_pdf.reset(new CosinePDF(rec.m_normal));
 		return true;
 	}
@@ -92,6 +88,6 @@ namespace Aurora
 	AVector3f DiffuseLight::emitted(const Ray &in, const HitRecord &rec, const Float & u,
 		const Float & v, const AVector3f & p) const
 	{
-		return TextureMgr::getSingleton()->getTexture(m_emitTex)->sample(u, v, p);
+		return m_emitTex;
 	}
 }
