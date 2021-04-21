@@ -1,23 +1,16 @@
 #ifndef PDF_H
 #define PDF_H
 
-#include "Vector3D.h"
+#include "ArMathUtils.h"
 
-/**
- * @projectName   RayTracer
- * @brief         Posibility Density Function.
- * @author        YangWC
- * @date          2019-05-18
- */
-
-namespace RayTracer
+namespace Aurora
 {
 
 	class PDF
 	{
 	public:
-		virtual float value(const Vector3D &driection) const = 0;
-		virtual Vector3D generate() const = 0;
+		virtual Float value(const AVector3f &driection) const = 0;
+		virtual AVector3f generate() const = 0;
 	};
 
 }

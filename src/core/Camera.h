@@ -2,51 +2,44 @@
 #define CAMERA_H
 
 #include "Ray.h"
-#include "Vector3D.h"
+#include "ArMathUtils.h"
 
-/**
- * @projectName   RayTracer
- * @brief         Camera class. (right-hand coordinate system)
- * @author        YangWC
- * @date          2019-05-06
- */
-
-namespace RayTracer
+namespace Aurora
 {
 
 	class Camera
 	{
 	public:
-		Vector3D m_pos;
-		Vector3D m_target;
-		Vector3D m_lowerLeftCorner;
-		Vector3D m_horizontal;
-		Vector3D m_vertical;
-		float m_fovy, m_aspect;
-		float m_lensRadius, m_focusDist;
-		Vector3D m_axisX, m_axisY, m_axisZ;
+		AVector3f m_pos;
+		AVector3f m_target;
+		AVector3f m_lowerLeftCorner;
+		AVector3f m_horizontal;
+		AVector3f m_vertical;
+		Float m_fovy, m_aspect;
+		Float m_lensRadius, m_focusDist;
+		AVector3f m_axisX, m_axisY, m_axisZ;
 
-		Camera(const Vector3D &cameraPos, const Vector3D &target, float vfov,
-			float aspect, float aperture, float focus_dist);
+		Camera(const AVector3f &cameraPos, const AVector3f &target, Float vfov,
+			Float aspect, Float aperture, Float focus_dist);
 
 		// Getter.
-		Ray getRay(const float &s, const float &t) const;
-		Vector3D getPosition() const { return m_pos; }
-		Vector3D getTarget() const { return m_target; }
-		Vector3D getAxisX() const { return m_axisX; }
-		Vector3D getAxisY() const { return m_axisY; }
-		Vector3D getAxisZ() const { return m_axisZ; }
+		Ray getRay(const Float &s, const Float &t) const;
+		AVector3f getPosition() const { return m_pos; }
+		AVector3f getTarget() const { return m_target; }
+		AVector3f getAxisX() const { return m_axisX; }
+		AVector3f getAxisY() const { return m_axisY; }
+		AVector3f getAxisZ() const { return m_axisZ; }
 
 		// Setter.
-		void setPosition(const Vector3D &pos) { m_pos = pos; update(); }
-		void setLenradius(const float &radius) { m_lensRadius = radius; update(); }
-		void setTarget(const Vector3D &_tar) { m_target = _tar; update(); }
-		void setFovy(const float &fov) { m_fovy = fov; update(); }
-		void setAspect(const float &asp) { m_aspect = asp; update(); }
-		void setFoucusDist(const float &fdist) { m_focusDist = fdist; update(); }
+		void setPosition(const AVector3f &pos) { m_pos = pos; update(); }
+		void setLenradius(const Float &radius) { m_lensRadius = radius; update(); }
+		void setTarget(const AVector3f &_tar) { m_target = _tar; update(); }
+		void setFovy(const Float &fov) { m_fovy = fov; update(); }
+		void setAspect(const Float &asp) { m_aspect = asp; update(); }
+		void setFoucusDist(const Float &fdist) { m_focusDist = fdist; update(); }
 
 	private:
-		Vector3D randomInUnitDisk() const;
+		AVector3f randomInUnitDisk() const;
 
 		void update();
 	};

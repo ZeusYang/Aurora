@@ -1,6 +1,6 @@
 #include "TextureMgr.h"
 
-namespace RayTracer
+namespace Aurora
 {
 	template<> TextureMgr::ptr Singleton<TextureMgr>::_instance = nullptr;
 

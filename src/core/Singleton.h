@@ -3,14 +3,7 @@
 
 #include <memory>
 
-/**
- * @projectName   RayTracer
- * @brief         A signleton abstract class.
- * @author        YangWC
- * @date          2019-05-15
- */
-
-namespace RayTracer
+namespace Aurora
 {
 
 	template<typename T>

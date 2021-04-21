@@ -1,6 +1,6 @@
 #include "Ray.h"
 
-namespace RayTracer
+namespace Aurora
 {
 
 

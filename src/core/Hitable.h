@@ -3,84 +3,80 @@
 
 #include "Ray.h"
 #include "AABB.h"
-#include "Vector2D.h"
+#include "Material.h"
+#include "ArMathUtils.h"
 #include <vector>
 
-/**
- * @projectName   RayTracer
- * @brief         An object that could be hit by a given ray.
- * @author        YangWC
- * @date          2019-05-06
- */
 
-namespace RayTracer
+namespace Aurora
 {
 
-	class Material;
 	struct HitRecord
 	{
-		float m_t;
-		Vector2D m_texcoord;
-		Vector3D m_position;
-		Vector3D m_normal;
-		unsigned int m_material;
+		Float m_t;
+		AVector2f m_texcoord;
+		AVector3f m_position;
+		AVector3f m_normal;
+		Material* m_material;
 	};
 
 	struct Vertex
 	{
-		Vector3D m_position;
-		Vector3D m_normal;
-		Vector2D m_texcoord;
+		AVector3f m_position;
+		AVector3f m_normal;
+		AVector2f m_texcoord;
 	};
 
 	class Hitable
 	{
 	public:
-		Hitable() = default;
+		Material::ptr m_material;
+
+		Hitable(const Material::ptr &mat) : m_material(mat) {}
 		virtual ~Hitable() = default;
 		virtual bool isLeaf() const { return true; }
 		virtual void preRendering() {}
-		virtual bool hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const = 0;
-		virtual bool boundingBox(const float &t0, const float &t1, AABB &box) const = 0;
-		virtual float pdfValue(const Vector3D &o, const Vector3D &v) const { return 0.0f; }
-		virtual Vector3D random(const Vector3D &o) const { return Vector3D(1.0f, 0.0f, 0.0f); }
+
+		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const = 0;
+		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const = 0;
+
+		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const { return 0.0f; }
+
+		virtual AVector3f random(const AVector3f &o) const { return AVector3f(1.0f, 0.0f, 0.0f); }
 		virtual std::string getName() const { return "Hitable"; }
 	};
 
-	class Sphere : public Hitable
+	class Sphere final : public Hitable
 	{
 	public:
-		float m_radius;
-		Vector3D m_center;
-		unsigned int m_material;
+		Float m_radius;
+		AVector3f m_center;
 
-		Sphere(const Vector3D &cen, const float r, unsigned int mat)
-			:m_center(cen), m_radius(r), m_material(mat) {}
+		Sphere(const Material::ptr &mat, const AVector3f &cen, const Float r)
+			:Hitable(mat), m_center(cen), m_radius(r) {}
 		virtual ~Sphere() = default;
 
-		virtual bool hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const;
-		virtual bool boundingBox(const float &t0, const float &t1, AABB &box) const;
-		virtual float pdfValue(const Vector3D &o, const Vector3D &v) const;
-		virtual Vector3D random(const Vector3D &o) const;
+		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const override;
+		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
+		virtual AVector3f random(const AVector3f &o) const override;
 	};
 
-	class TTriangle : public Hitable
+	class TTriangle final : public Hitable
 	{
 	public:
-		Vector3D m_normal;
-		Vector3D m_p0, m_p1, m_p2;
-		unsigned int m_material;
+		AVector3f m_normal;
+		AVector3f m_p0, m_p1, m_p2;
 
-		TTriangle(Vector3D p0, Vector3D p1, Vector3D p2, unsigned int mat)
-			:m_p0(p0), m_p1(p1), m_p2(p2), m_material(mat)
+		TTriangle(const Material::ptr &mat, AVector3f p0, AVector3f p1, AVector3f p2)
+			: Hitable(mat), m_p0(p0), m_p1(p1), m_p2(p2)
 		{
-			m_normal = (p1 - p0).crossProduct(p2 - p0);
-			m_normal.normalize();
+			m_normal = normalize(cross((p1 - p0), (p2 - p0)));
 		}
 		virtual ~TTriangle() = default;
 
-		virtual bool hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const;
-		virtual bool boundingBox(const float &t0, const float &t1, AABB &box) const;
+		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const override;
 
 	};
 
@@ -90,11 +86,11 @@ namespace RayTracer
 		std::vector<Hitable*> m_list;
 
 	public:
-		HitableList() = default;
-		virtual bool hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const;
-		virtual bool boundingBox(const float &t0, const float &t1, AABB &box) const;
-		virtual float pdfValue(const Vector3D &o, const Vector3D &v) const;
-		virtual Vector3D random(const Vector3D &o) const;
+		HitableList() : Hitable(nullptr) {}
+		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const override;
+		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
+		virtual AVector3f random(const AVector3f &o) const override;
 
 		bool isEmpty() const { return m_list.empty(); }
 		void addObjects(Hitable *target) { m_list.push_back(target); }

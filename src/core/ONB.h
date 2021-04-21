@@ -1,42 +1,35 @@
 #ifndef ONB_H
 #define ONB_H
 
-#include "Vector3D.h"
+#include "ArMathUtils.h"
 
-/**
- * @projectName   RayTracer
- * @brief         Ortho normal basis.
- * @author        YangWC
- * @date          2019-05-18
- */
-
-namespace RayTracer
+namespace Aurora
 {
 
 	class ONB
 	{
 	private:
-		Vector3D m_axis[3];
+		AVector3f m_axis[3];
 
 	public:
 		ONB() = default;
-		Vector3D u() const { return m_axis[0]; }
-		Vector3D v() const { return m_axis[1]; }
-		Vector3D w() const { return m_axis[2]; }
+		AVector3f u() const { return m_axis[0]; }
+		AVector3f v() const { return m_axis[1]; }
+		AVector3f w() const { return m_axis[2]; }
 
-		Vector3D operator[](int i) const { return m_axis[i]; }
+		AVector3f operator[](int i) const { return m_axis[i]; }
 
-		Vector3D local(float a, float b, float c) const
+		AVector3f local(Float a, Float b, Float c) const
 		{
 			return u() * a + v() * b + w() * c;
 		}
 
-		Vector3D local(const Vector3D &a) const
+		AVector3f local(const AVector3f &a) const
 		{
 			return u() * a.x + v() * a.y + w() * a.z;
 		}
 
-		void buildFromW(const Vector3D &n);
+		void buildFromW(const AVector3f &n);
 
 	};
 

@@ -1,23 +1,20 @@
 #include "ONB.h"
 
-namespace RayTracer
+namespace Aurora
 {
 
-	void ONB::buildFromW(const Vector3D &n)
+	void ONB::buildFromW(const AVector3f &n)
 	{
-		m_axis[2] = n;
-		m_axis[2].normalize();
+		m_axis[2] = normalize(n);
 
-		Vector3D a;
+		AVector3f a;
 		if (fabs(w().x) > 0.9f)
-			a = Vector3D(0, 1, 0);
+			a = AVector3f(0, 1, 0);
 		else
-			a = Vector3D(1, 0, 0);
-		m_axis[1] = w().crossProduct(a);
-		m_axis[1].normalize();
+			a = AVector3f(1, 0, 0);
+		m_axis[1] = normalize(cross(w(), a));
 
-		m_axis[0] = w().crossProduct(v());
-		m_axis[0].normalize();
+		m_axis[0] = normalize(cross(w(), v()));
 	}
 
 }

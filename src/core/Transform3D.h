@@ -1,60 +1,52 @@
 #ifndef TRANSFORM3D_H
 #define TRANSFORM3D_H
 
-#include "Quaternion.h"
-#include "Matrix4x4.h"
+#include "ArMathUtils.h"
 
-/**
- * @projectName   SoftRenderer
- * @brief         A 3D transformation class.
- * @author        YangWC
- * @date          2019-05-04
- */
-
-namespace RayTracer
+namespace Aurora
 {
 
 	class Transform3D
 	{
 	private:
 		mutable bool m_dirty;       // Should update or not.
-		Vector3D m_scale;           // Object's scale.
-		Quaternion m_rotation;      // Object's rotation.
-		Vector3D m_translation;     // Object's translation.
-		Matrix4x4 m_world;          // Object's model matrix.
-		Matrix4x4 m_invWorld;       // Object's normal matrix;
+		AVector3f m_scale;           // Object's scale.
+		AQuaterion m_rotation;      // Object's rotation.
+		AVector3f m_translation;     // Object's translation.
+		AMatrix4x4 m_world;          // Object's model matrix.
+		AMatrix4x4 m_invWorld;       // Object's normal matrix;
 
 	public:
 		// Object's local axis.
-		static const Vector3D LocalForward;
-		static const Vector3D LocalUp;
-		static const Vector3D LocalRight;
+		static const AVector3f LocalForward;
+		static const AVector3f LocalUp;
+		static const AVector3f LocalRight;
 
 		// ctor/dtor
 		Transform3D();
 		~Transform3D() = default;
 
 		// Getter.
-		Matrix4x4 toMatrix();
-		Matrix4x4 toInvMatrix();
+		AMatrix4x4 toMatrix();
+		AMatrix4x4 toInvMatrix();
 
 		// Transformation.
-		void scale(const Vector3D &ds);
-		void translate(const Vector3D &dt);
-		void rotate(const Vector3D &axis, float angle);
-		void setScale(const Vector3D &s);
-		void setRotation(const Quaternion &r);
-		void setTranslation(const Vector3D &t);
+		void scale(const AVector3f &ds);
+		void translate(const AVector3f &dt);
+		void rotate(const AVector3f &axis, Float angle);
+		void setScale(const AVector3f &s);
+		void setRotation(const AQuaterion &r);
+		void setTranslation(const AVector3f &t);
 
 		// Query object's axis.
-		Vector3D forward() const;
-		Vector3D up() const;
-		Vector3D right() const;
+		AVector3f forward() const;
+		AVector3f up() const;
+		AVector3f right() const;
 
 		// Transformation getter.
-		Vector3D translation() const { return m_translation; }
-		Quaternion rotation() const { return m_rotation; }
-		Vector3D scale() const { return m_scale; }
+		AVector3f translation() const { return m_translation; }
+		AQuaterion rotation() const { return m_rotation; }
+		AVector3f scale() const { return m_scale; }
 		bool getDirtry() const { return m_dirty; }
 	};
 

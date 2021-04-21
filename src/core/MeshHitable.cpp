@@ -1,6 +1,6 @@
 #include "MeshHitable.h"
 
-namespace RayTracer
+namespace Aurora
 {
 
 	void MeshHitable::preRendering()
@@ -8,24 +8,21 @@ namespace RayTracer
 		// transform and calculate aabb box.
 		if (!m_transformation.getDirtry() || m_indices.empty())
 			return;
-		Vector3D minPoint(+FLT_MAX, +FLT_MAX, +FLT_MAX);
-		Vector3D maxPoint(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-		Matrix4x4 modelMatrix = m_transformation.toMatrix();
-		Matrix4x4 invModelMatrix = m_transformation.toInvMatrix();
-		Vector4D pos, nor;
+		AVector3f minPoint(+FLT_MAX, +FLT_MAX, +FLT_MAX);
+		AVector3f maxPoint(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+		AMatrix4x4 modelMatrix = m_transformation.toMatrix();
+		AMatrix4x4 invModelMatrix = m_transformation.toInvMatrix();
+		AVector3f pos, nor;
 		unsigned int p0, p1, p2;
 		for (int x = 0; x < m_vertices.size(); ++x)
 		{
 			int index = x;
 			pos = m_vertices[index].m_position;
 			nor = m_vertices[index].m_normal;
-			pos.w = 1.0f;
-			nor.w = 0.0f;
-			pos = modelMatrix * pos;
-			nor = invModelMatrix * nor;
+			pos = modelMatrix * glm::vec4(pos, 1.0f);
+			nor = invModelMatrix * glm::vec4(nor, 0.0f);
 			m_vertices[index].m_position = pos;
-			m_vertices[index].m_normal = nor;
-			m_vertices[index].m_normal.normalize();
+			m_vertices[index].m_normal = normalize(nor);
 			minPoint.x = fmin(minPoint.x, pos.x);
 			minPoint.y = fmin(minPoint.y, pos.y);
 			minPoint.z = fmin(minPoint.z, pos.z);
@@ -55,76 +52,41 @@ namespace RayTracer
 			int index0 = m_indices[x + 0];
 			int index1 = m_indices[x + 1];
 			int index2 = m_indices[x + 2];
-			Vector3D normal = (m_vertices[index1].m_position - m_vertices[index0].m_position)
-				.crossProduct(m_vertices[index2].m_position - m_vertices[index0].m_position);
-			normal.normalize();
+			AVector3f normal = normalize(cross((m_vertices[index1].m_position - m_vertices[index0].m_position)
+				,m_vertices[index2].m_position - m_vertices[index0].m_position));
 			m_faceNormal.push_back(normal);
 		}
 		m_box = AABB(minPoint, maxPoint);
-
-		//! if the number of triangles is more than a threshold, build a octree for 
-		if (m_indices.size() > 100 * 3)
-		{
-			m_octree = std::shared_ptr<Octree>(new Octree(minPoint, maxPoint, 10));
-			m_octree->build(this);
-		}
-		else
-			m_octree = nullptr;
 	}
 
-	bool MeshHitable::hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const
+	bool MeshHitable::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
 		HitRecord tmpRec;
 		bool hitAny = false;
-
-		//! octree for accelerating intersection detection.
-		if (m_octree != nullptr)
+		
+		//! brute-force algorithm.
+		Float closestSoFar = t_max;
+		for (int x = 0; x < m_indices.size(); x += 3)
 		{
-			m_octree->visit(ray, t_min, t_max, 
-				[&](unsigned int i1, unsigned int i2, unsigned int i3, float &tMax) -> bool
+			int index1 = m_indices[x + 0];
+			int index2 = m_indices[x + 1];
+			int index3 = m_indices[x + 2];
+			if (triangleHit(ray, t_min, closestSoFar, tmpRec,
+				m_vertices[index1],
+				m_vertices[index2],
+				m_vertices[index3],
+				m_faceNormal[x / 3]))
 			{
-				Vector3D normal = (m_vertices[i2].m_position - m_vertices[i1].m_position)
-					.crossProduct(m_vertices[i3].m_position - m_vertices[i1].m_position);
-				normal.normalize();
-				if (triangleHit(ray, t_min, tMax, tmpRec,
-					m_vertices[i1],
-					m_vertices[i2],
-					m_vertices[i3],
-					normal))
-				{
-					hitAny = true;
-					tMax = tmpRec.m_t;
-					ret = tmpRec;
-					return true;
-				}
-				return false;
-			});
-		}
-		else
-		{
-			//! brute-force algorithm.
-			float closestSoFar = t_max;
-			for (int x = 0; x < m_indices.size(); x += 3)
-			{
-				int index1 = m_indices[x + 0];
-				int index2 = m_indices[x + 1];
-				int index3 = m_indices[x + 2];
-				if (triangleHit(ray, t_min, closestSoFar, tmpRec,
-					m_vertices[index1],
-					m_vertices[index2],
-					m_vertices[index3],
-					m_faceNormal[x / 3]))
-				{
-					hitAny = true;
-					closestSoFar = tmpRec.m_t;
-					ret = tmpRec;
-				}
+				hitAny = true;
+				closestSoFar = tmpRec.m_t;
+				ret = tmpRec;
 			}
 		}
+
 		return hitAny;
 	}
 
-	bool MeshHitable::boundingBox(const float &t0, const float &t1, AABB &box) const
+	bool MeshHitable::boundingBox(const Float &t0, const Float &t1, AABB &box) const
 	{
 		(void)t0;
 		(void)t1;
@@ -132,41 +94,107 @@ namespace RayTracer
 		return true;
 	}
 
-	bool MeshHitable::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+	bool MeshHitable::triangleHit(const Ray &ray, const Float &t_min, const Float &t_max,
 		HitRecord &ret, const Vertex &p0, const Vertex &p1,
-		const Vertex &p2, const Vector3D &normal) const
+		const Vertex &p2, const AVector3f &normal) const
 	{
-		float n_dot_dir = normal.dotProduct(ray.getDirection());
+		Float n_dot_dir = dot(normal, ray.getDirection());
 		// no intersection.
 		if (equal(n_dot_dir, 0.0))
 			return false;
-		float d = -normal.dotProduct(p0.m_position);
-		float t = -(normal.dotProduct(ray.getOrigin()) + d) / n_dot_dir;
+		Float d = -dot(normal, p0.m_position);
+		Float t = -(dot(normal, ray.getOrigin()) + d) / n_dot_dir;
 		if (t < t_min || t > t_max)
 			return false;
 		ret.m_t = t;
 		ret.m_position = ray.pointAt(t);
-		ret.m_material = m_material;
+		ret.m_material = m_material.get();
 		// judge inside or not.
-		Vector3D r = ret.m_position - p0.m_position;
-		Vector3D q1 = p1.m_position - p0.m_position;
-		Vector3D q2 = p2.m_position - p0.m_position;
-		float q1_squaredLen = q1.getSquaredLength();
-		float q2_squaredLen = q2.getSquaredLength();
-		float q1_dot_q2 = q1.dotProduct(q2);
-		float r_dot_q1 = r.dotProduct(q1);
-		float r_dot_q2 = r.dotProduct(q2);
-		float determinant = 1.0f / (q1_squaredLen * q2_squaredLen - q1_dot_q2 * q1_dot_q2);
+		AVector3f r = ret.m_position - p0.m_position;
+		AVector3f q1 = p1.m_position - p0.m_position;
+		AVector3f q2 = p2.m_position - p0.m_position;
+		Float q1_squaredLen = lengthSquared(q1);
+		Float q2_squaredLen = lengthSquared(q2);
+		Float q1_dot_q2 = dot(q1, q2);
+		Float r_dot_q1 = dot(r, q1);
+		Float r_dot_q2 = dot(r, q2);
+		Float determinant = 1.0f / (q1_squaredLen * q2_squaredLen - q1_dot_q2 * q1_dot_q2);
 
-		float omega1 = determinant * (q2_squaredLen * r_dot_q1 - q1_dot_q2 * r_dot_q2);
-		float omega2 = determinant * (-q1_dot_q2 * r_dot_q1 + q1_squaredLen * r_dot_q2);
+		Float omega1 = determinant * (q2_squaredLen * r_dot_q1 - q1_dot_q2 * r_dot_q2);
+		Float omega2 = determinant * (-q1_dot_q2 * r_dot_q1 + q1_squaredLen * r_dot_q2);
 		if (omega1 + omega2 > 1.0f || omega1 < 0.0f || omega2 < 0.0f)
 			return false;
 		ret.m_normal = p0.m_normal * (1.0f - omega1 - omega2) + p1.m_normal * omega1 + p2.m_normal * omega2;
 		ret.m_texcoord = p0.m_texcoord * (1.0f - omega1 - omega2) + p1.m_texcoord * omega1 + p2.m_texcoord * omega2;
-		if (ret.m_normal.dotProduct(ray.getDirection()) > 0.0f)
+		if (dot(ret.m_normal, ray.getDirection()) > 0.0f)
 			ret.m_normal = -ret.m_normal;
 		return true;
+	}
+
+	Plane::Plane(const Material::ptr &mat, AVector3f pos, AVector3f len)
+		: MeshHitable(mat)
+	{
+		translate(pos);
+		scale(len);
+		std::vector<Vertex> vertices(4);
+		std::vector<unsigned int> indices(6);
+		vertices[0].m_position = AVector3f(-1, 0, -1);
+		vertices[0].m_normal = AVector3f(0, 1, 0);
+		vertices[0].m_texcoord = AVector2f(0.0, 1.0);
+
+		vertices[1].m_position = AVector3f(-1, 0, +1);
+		vertices[1].m_normal = AVector3f(0, 1, 0);
+		vertices[1].m_texcoord = AVector2f(0.0, 0.0);
+
+		vertices[2].m_position = AVector3f(+1, 0, -1);
+		vertices[2].m_normal = AVector3f(0, 1, 0);
+		vertices[2].m_texcoord = AVector2f(1.0, 1.0);
+
+		vertices[3].m_position = AVector3f(+1, 0, +1);
+		vertices[3].m_normal = AVector3f(0, 1, 0);
+		vertices[3].m_texcoord = AVector2f(1.0, 0.0);
+
+		indices[0] = 0;
+		indices[1] = 1;
+		indices[2] = 2;
+
+		indices[3] = 2;
+		indices[4] = 1;
+		indices[5] = 3;
+
+		setVertices(vertices, indices);
+
+		m_material = mat;
+	}
+
+	AVector3f Plane::random(const AVector3f &o) const
+	{
+		AVector3f center = m_transformation.translation();
+		AVector3f leftCorner;
+		Float width = m_transformation.scale().x * 2.0f;
+		Float height = m_transformation.scale().z * 2.0f;
+		leftCorner.x = center.x - m_transformation.scale().x;
+		leftCorner.z = center.z - m_transformation.scale().z;
+		leftCorner.y = center.y;
+		AVector3f random_point(leftCorner.x + drand48() * width, leftCorner.y,
+			leftCorner.z + drand48() * height);
+		return random_point - o;
+	}
+
+	Float Plane::pdfValue(const AVector3f &o, const AVector3f &v) const
+	{
+
+		HitRecord rec;
+		if (this->hit(Ray(o, v), 0.001f, FLT_MAX, rec))
+		{
+			Float area = m_transformation.scale().x * 2.0f * m_transformation.scale().z * 2.0f;
+			Float distance_squared = lengthSquared(v);
+			Float cosine = fabs(dot(v, rec.m_normal) / length(v));
+			Float ret = distance_squared / (cosine * area);
+			return ret;
+		}
+		else
+			return 0.0f;
 	}
 
 }

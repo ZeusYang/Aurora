@@ -1,16 +1,13 @@
 #ifndef BVHNODE_H
 #define BVHNODE_H
 
+#include "ArAurora.h"
 #include "AABB.h"
 #include "Hitable.h"
 
-/**
- * @projectName   RayTracer
- * @brief         Bounding volume hierachy node.
- * @author        YangWC
- * @date          2019-05-10
- */
-namespace RayTracer
+#include <iostream>
+
+namespace Aurora
 {
 
 	class BVHNode : public Hitable
@@ -21,15 +18,15 @@ namespace RayTracer
 		AABB m_box;
 
 	public:
-		BVHNode() = default;
+		BVHNode() : Hitable(nullptr) {}
 		BVHNode(std::vector<Hitable*> &list, int start, int end);
 
 		Hitable *getLeftChild() { return m_left; }
 		Hitable *getRightChild() { return m_right; }
 
 		virtual bool isLeaf() const { return false; }
-		virtual bool hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const;
-		virtual bool boundingBox(const float &t0, const float &t1, AABB &box) const;
+		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const;
+		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const;
 
 		static void destoryBVHTree(Hitable *root);
 

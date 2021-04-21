@@ -1,13 +1,15 @@
 #include "BVHNode.h"
 
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
-namespace RayTracer
+namespace Aurora
 {
 
 	BVHNode::BVHNode(std::vector<Hitable *> &list, int start, int end)
+		: Hitable(nullptr)
 	{
 		// sort it randomly depend on
 		int axis = static_cast<int>(3 * drand48());
@@ -37,7 +39,7 @@ namespace RayTracer
 		m_box = AABB::surroundingBox(boxLeft, boxRight);
 	}
 
-	bool BVHNode::hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const
+	bool BVHNode::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
 		if (m_box.hit(ray, t_min, t_max))
 		{
@@ -71,7 +73,7 @@ namespace RayTracer
 			return false;
 	}
 
-	bool BVHNode::boundingBox(const float &t0, const float &t1, AABB &box) const
+	bool BVHNode::boundingBox(const Float &t0, const Float &t1, AABB &box) const
 	{
 		box = m_box;
 		return true;

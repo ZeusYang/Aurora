@@ -1,6 +1,6 @@
 #include "PDF.h"
 
-namespace RayTracer
+namespace Aurora
 {
 
 

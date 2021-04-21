@@ -1,18 +1,11 @@
 #ifndef MESHHITABLE_H
 #define MESHHITABLE_H
 
-#include "Octree.h"
 #include "Hitable.h"
 #include "Transform3D.h"
 
-/**
- * @projectName   RayTracer
- * @brief         Triangle mesh.
- * @author        YangWC
- * @date          2019-05-12
- */
 
-namespace RayTracer
+namespace Aurora
 {
 
 	class MeshHitable : public Hitable
@@ -20,12 +13,11 @@ namespace RayTracer
 	public:
 		AABB m_box;
 		Transform3D m_transformation;
-		unsigned int m_material;
 		std::vector<Vertex> m_vertices;
 		std::vector<unsigned int> m_indices;
-		std::vector<Vector3D> m_faceNormal;
+		std::vector<AVector3f> m_faceNormal;
 
-		MeshHitable() = default;
+		MeshHitable(const Material::ptr &mat) : Hitable(mat) {}
 		virtual ~MeshHitable() = default;
 
 		void setVertices(const std::vector<Vertex> &ver, const std::vector<unsigned int> &ind)
@@ -35,20 +27,37 @@ namespace RayTracer
 		std::vector<Vertex> getVertices() const { return m_vertices; }
 		std::vector<unsigned int> getIndices() const { return m_indices; }
 
-		void scale(const Vector3D &ds) { m_transformation.scale(ds); }
-		void translate(const Vector3D &dt) { m_transformation.translate(dt); }
-		void rotate(const Vector3D &axis, float angle) { m_transformation.rotate(axis, angle); }
+		void scale(const AVector3f &ds) { m_transformation.scale(ds); }
+		void translate(const AVector3f &dt) { m_transformation.translate(dt); }
+		void rotate(const AVector3f &axis, Float angle) { m_transformation.rotate(axis, angle); }
 
 		virtual void preRendering();
-		virtual bool hit(const Ray &ray, const float &t_min, const float &t_max, HitRecord &ret) const;
-		virtual bool boundingBox(const float &t0, const float &t1, AABB &box) const;
+		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const;
+		virtual bool boundingBox(const Float &t0, const Float &t1, AABB &box) const;
 
 	private:
-		bool triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+		bool triangleHit(const Ray &ray, const Float &t_min, const Float &t_max,
 			HitRecord &ret, const Vertex &p0, const Vertex &p1,
-			const Vertex &p2, const Vector3D &normal) const;
+			const Vertex &p2, const AVector3f &normal) const;
 
-		Octree::ptr m_octree = nullptr;
+	};
+
+	class Plane : public MeshHitable
+	{
+	private:
+		std::string m_name;
+
+	public:
+		Plane(const Material::ptr &mat, AVector3f pos, AVector3f len);
+		virtual ~Plane() = default;
+
+		void setName(std::string target) { m_name = target; }
+
+		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
+		virtual AVector3f random(const AVector3f &o) const override;
+
+		virtual std::string getName() const { return m_name; }
+
 	};
 
 }

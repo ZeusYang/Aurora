@@ -1,6 +1,6 @@
 #include "HitablePDF.h"
 
-namespace RayTracer
+namespace Aurora
 {
 
 

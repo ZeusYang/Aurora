@@ -1,22 +1,21 @@
 #include "CosinePDF.h"
 
-namespace RayTracer
+namespace Aurora
 {
 
-	float CosinePDF::value(const Vector3D &direction) const
+	Float CosinePDF::value(const AVector3f &direction) const
 	{
-		Vector3D dir = direction;
-		dir.normalize();
-		float cosine = dir.dotProduct(uvw.w());
+		AVector3f dir = normalize(direction);
+		Float cosine = dot(dir, uvw.w());
 		if (cosine > 0.0f)
-			return cosine / M_PI;
+			return cosine / aPi;
 		else
 			return 0.0f;
 	}
 
-	Vector3D CosinePDF::generate() const
+	AVector3f CosinePDF::generate() const
 	{
-		return uvw.local(Vector3D::randomCosineDir());
+		return uvw.local(randomCosineDir());
 	}
 
 

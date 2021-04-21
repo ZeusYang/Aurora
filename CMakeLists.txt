@@ -9,7 +9,7 @@ include_directories(src/core/)
 include_directories(src/math/)
 include_directories(${PROJECT_SOURCE_DIR}/external/include)
 
-link_directories(${PROJECT_SOURCE_DIR}/external/lib)
+#link_directories(${PROJECT_SOURCE_DIR}/external/lib)
 
 
 file(GLOB_RECURSE SRCS ./src/core/*.cpp ./src/math/*.cpp ./src/*.cpp)
@@ -18,7 +18,7 @@ source_group("Header Files" FILES ${HEADERS})
 
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
-target_link_libraries( ${PROJECT_NAME} 
-    PUBLIC 
-	tbb
-)
+#target_link_libraries( ${PROJECT_NAME} 
+#    PUBLIC 
+#	tbb
+#)

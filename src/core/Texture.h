@@ -1,16 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "Vector3D.h"
-
-/**
- * @projectName   RayTracer
- * @brief         Texture abstract class.
- * @author        YangWC
- * @date          2019-05-11
- */
-
-namespace RayTracer
+#include "ArMathUtils.h"
+namespace Aurora
 {
 
 	class Texture
@@ -20,22 +12,22 @@ namespace RayTracer
 
 		Texture() = default;
 		virtual ~Texture() = default;
-		virtual Vector3D sample(const float &u, const float &v, const Vector3D &p) const = 0;
+		virtual AVector3f sample(const Float &u, const Float &v, const AVector3f &p) const = 0;
 	};
 
 	class ConstantTexture : public Texture
 	{
 	private:
-		Vector3D m_color;
+		AVector3f m_color;
 
 	public:
 		typedef std::shared_ptr<ConstantTexture> ptr;
 
 		ConstantTexture() = default;
-		ConstantTexture(Vector3D c) : m_color(c) {}
+		ConstantTexture(AVector3f c) : m_color(c) {}
 		virtual ~ConstantTexture() = default;
 
-		virtual Vector3D sample(const float &u, const float &v, const Vector3D &p) const
+		virtual AVector3f sample(const Float &u, const Float &v, const AVector3f &p) const
 		{
 			(void)u;
 			(void)v;
@@ -61,9 +53,9 @@ namespace RayTracer
 			m_odd = m_even = nullptr;
 		}
 
-		virtual Vector3D sample(const float &u, const float &v, const Vector3D &p) const
+		virtual AVector3f sample(const Float &u, const Float &v, const AVector3f &p) const
 		{
-			float sines = sin(10 * p.x)*sin(10 * p.y)*sin(10 * p.z);
+			Float sines = sin(10 * p.x)*sin(10 * p.y)*sin(10 * p.z);
 			if (sines < 0.0f)
 				return m_odd->sample(u, v, p);
 			else
@@ -85,7 +77,7 @@ namespace RayTracer
 		ImageTexture(const std::string &path);
 		virtual ~ImageTexture();
 
-		virtual Vector3D sample(const float &u, const float &v, const Vector3D &p) const;
+		virtual AVector3f sample(const Float &u, const Float &v, const AVector3f &p) const;
 
 	};
 

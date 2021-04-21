@@ -4,33 +4,27 @@
 #include <vector>
 
 #include "Ray.h"
-#include "Vector3D.h"
+#include "ArMathUtils.h"
 
-/**
- * @projectName   RayTracer
- * @brief         AABB bounding box.
- * @author        YangWC
- * @date          2019-05-10
- */
-namespace RayTracer
+namespace Aurora
 {
 
-	inline float ffmin(const float &a, const float &b) { return a < b ? a : b; }
-	inline float ffmax(const float &a, const float &b) { return a > b ? a : b; }
+	inline Float ffmin(const Float &a, const Float &b) { return a < b ? a : b; }
+	inline Float ffmax(const Float &a, const Float &b) { return a > b ? a : b; }
 
 	class AABB
 	{
 	private:
-		Vector3D m_min, m_max;
+		AVector3f m_min, m_max;
 
 	public:
 		AABB() = default;
-		AABB(const Vector3D &a, const Vector3D &b) { m_min = a; m_max = b; }
+		AABB(const AVector3f &a, const AVector3f &b) { m_min = a; m_max = b; }
 
-		Vector3D getMin() const { return m_min; }
-		Vector3D getMax() const { return m_max; }
+		AVector3f getMin() const { return m_min; }
+		AVector3f getMax() const { return m_max; }
 
-		bool isInside(const Vector3D &point) const
+		bool isInside(const AVector3f &point) const
 		{
 			return (
 				(point.x <= m_max.x && point.x >= m_min.x) &&
@@ -40,10 +34,10 @@ namespace RayTracer
 
 		std::vector<AABB> getEightSubAABB() const;
 
-		bool hit(const Ray &ray, float tmin, float tmax) const
+		bool hit(const Ray &ray, Float tmin, Float tmax) const
 		{
 			//£¡whether the ray intersects with the box or not.
-			float t0, t1, invD;
+			Float t0, t1, invD;
 
 			// x
 			invD = 1.0f / ray.getDirection().x;
@@ -80,10 +74,10 @@ namespace RayTracer
 
 		static AABB surroundingBox(const AABB &box0, const AABB &box1)
 		{
-			Vector3D small(fmin(box0.getMin().x, box1.getMin().x),
+			AVector3f small(fmin(box0.getMin().x, box1.getMin().x),
 				fmin(box0.getMin().y, box1.getMin().y),
 				fmin(box0.getMin().z, box1.getMin().z));
-			Vector3D big(fmax(box0.getMax().x, box1.getMax().x),
+			AVector3f big(fmax(box0.getMax().x, box1.getMax().x),
 				fmax(box0.getMax().y, box1.getMax().y),
 				fmax(box0.getMax().z, box1.getMax().z));
 			return AABB(small, big);

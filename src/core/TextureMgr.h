@@ -5,14 +5,7 @@
 #include "Texture.h"
 #include "Singleton.h"
 
-/**
- * @projectName   RayTracer
- * @brief         Texture manager.
- * @author        YangWC
- * @date          2019-05-15
- */
-
-namespace RayTracer
+namespace Aurora
 {
 
 	class TextureMgr : public Singleton<TextureMgr>
