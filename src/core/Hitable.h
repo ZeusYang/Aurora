@@ -1,7 +1,6 @@
 #ifndef HITABLE_H
 #define HITABLE_H
 
-#include "Ray.h"
 #include "Material.h"
 #include "ArMathUtils.h"
 #include <vector>
@@ -36,7 +35,7 @@ namespace Aurora
 		virtual bool isLeaf() const { return true; }
 		virtual void preRendering() {}
 
-		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const = 0;
+		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const = 0;
 
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const { return 0.0f; }
 
@@ -54,7 +53,7 @@ namespace Aurora
 			:Hitable(mat), m_center(cen), m_radius(r) {}
 		virtual ~Sphere() = default;
 
-		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
 		virtual AVector3f random(const AVector3f &o) const override;
 	};
@@ -72,7 +71,7 @@ namespace Aurora
 		}
 		virtual ~TTriangle() = default;
 
-		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
 
 	};
 
@@ -83,7 +82,7 @@ namespace Aurora
 
 	public:
 		HitableList() : Hitable(nullptr) {}
-		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
 		virtual AVector3f random(const AVector3f &o) const override;
 

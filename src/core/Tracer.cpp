@@ -112,7 +112,7 @@ namespace Aurora
 				{
 					Float u = static_cast<Float>(col + drand48()) / static_cast<Float>(m_config.m_width);
 					Float v = static_cast<Float>(row + drand48()) / static_cast<Float>(m_config.m_height);
-					Ray ray = m_config.m_camera->getRay(u, v);
+					ARay ray = m_config.m_camera->getRay(u, v);
 					color += deNan(tracing(ray, scene, &m_samplingList, 0));
 				}
 				color /= static_cast<Float>(m_config.m_samplings);
@@ -135,7 +135,7 @@ namespace Aurora
 		return temp;
 	}
 
-	AVector3f Tracer::tracing(const Ray &r, Hitable *world, Hitable *light, int depth)
+	AVector3f Tracer::tracing(const ARay &r, Hitable *world, Hitable *light, int depth)
 	{
 		HitRecord rec;
 		if (world->hit(r, 0.001f, FLT_MAX, rec))
@@ -166,7 +166,7 @@ namespace Aurora
 						dir = srec.m_pdf->generate();
 						pdf_val = srec.m_pdf->value(dir);
 					}
-					Ray scattered = Ray(rec.m_position, dir);
+					ARay scattered = ARay(rec.m_position, normalize(dir));
 
 					return emitted + srec.m_attenuation * material->scattering_pdf(r, rec, scattered)
 						* tracing(scattered, world, light, depth + 1) / pdf_val;
@@ -188,7 +188,7 @@ namespace Aurora
 			//}
 			//case LERP:
 			{
-				Float t = 0.5f * (r.getDirection().y + 1.0f);
+				Float t = 0.5f * (r.direction().y + 1.0f);
 				ret = AVector3f(1.0f, 1.0f, 1.0f) * (1.0f - t) + AVector3f(0.5f, 0.7f, 1.0f) * t;
 				//break;
 			}

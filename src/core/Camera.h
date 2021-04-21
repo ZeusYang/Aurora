@@ -1,7 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "Ray.h"
 #include "ArMathUtils.h"
 
 namespace Aurora
@@ -23,7 +22,7 @@ namespace Aurora
 			Float aspect, Float aperture, Float focus_dist);
 
 		// Getter.
-		Ray getRay(const Float &s, const Float &t) const;
+		ARay getRay(const Float &s, const Float &t) const;
 		AVector3f getPosition() const { return m_pos; }
 		AVector3f getTarget() const { return m_target; }
 		AVector3f getAxisX() const { return m_axisX; }

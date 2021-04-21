@@ -3,16 +3,13 @@
 
 #include <vector>
 
-#include "Ray.h"
 #include "Hitable.h"
 
 namespace Aurora
 {
 
-	class Skybox;
 	class Camera;
 	class Hitable;
-	class BVHNode;
 
 	enum Background
 	{
@@ -76,7 +73,7 @@ namespace Aurora
 		unsigned char *render(Float &totalTime);
 
 	private:
-		AVector3f tracing(const Ray &r, Hitable *world, Hitable *light, int depth);
+		AVector3f tracing(const ARay &r, Hitable *world, Hitable *light, int depth);
 		void drawPixel(unsigned int x, unsigned int y, const AVector3f &color);
 
 		void rawSerialRender(Hitable *scene);

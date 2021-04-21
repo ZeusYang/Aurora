@@ -1,8 +1,8 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "Ray.h"
-#include <memory>
+#include "ArAurora.h"
+#include "ArMathUtils.h"
 
 namespace Aurora
 {
@@ -10,7 +10,7 @@ namespace Aurora
 	class HitRecord;
 	struct ScatterRecord
 	{
-		Ray m_scatterRay;
+		ARay m_scatterRay;
 		bool m_isSpecular;
 		AVector3f m_attenuation;
 		std::shared_ptr<PDF> m_pdf;
@@ -24,25 +24,25 @@ namespace Aurora
 		Material() = default;
 		virtual ~Material() = default;
 
-		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const
+		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const
 		{
 			return false;
 		}
 
-		virtual Float scattering_pdf(const Ray &in, const HitRecord &rec,
-			const Ray &scattered) const
+		virtual Float scattering_pdf(const ARay &in, const HitRecord &rec,
+			const ARay &scattered) const
 		{
 			return 1.0f;
 		}
 
-		virtual AVector3f emitted(const Ray &in, const HitRecord &rec, const Float &u,
+		virtual AVector3f emitted(const ARay &in, const HitRecord &rec, const Float &u,
 			const Float &v, const AVector3f &p) const
 		{
 			return AVector3f(0.0f, 0.0f, 0.0f);
 		}
 	};
 
-	class Lambertian : public Material
+	class Lambertian final : public Material
 	{
 	private:
 		AVector3f m_albedo;
@@ -53,14 +53,13 @@ namespace Aurora
 		Lambertian(const AVector3f &a) : m_albedo(a) {}
 		virtual ~Lambertian() = default;
 
-		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const;
+		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const override;
 
-		virtual Float scattering_pdf(const Ray &in, const HitRecord &rec,
-			const Ray &scattered) const;
+		virtual Float scattering_pdf(const ARay &in, const HitRecord &rec, const ARay &scattered) const override;
 
 	};
 
-	class Metal : public Material
+	class Metal final : public Material
 	{
 	private:
 		Float m_fuzz;
@@ -75,10 +74,10 @@ namespace Aurora
 		}
 		virtual ~Metal() = default;
 
-		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const;
+		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const override;
 	};
 
-	class Dielectric : public Material
+	class Dielectric final : public Material
 	{
 	private:
 		Float refIdx;
@@ -96,10 +95,10 @@ namespace Aurora
 		Dielectric(Float ri) : refIdx(ri) {}
 		virtual ~Dielectric() = default;
 
-		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const;
+		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const override;
 	};
 
-	class DiffuseLight : public Material
+	class DiffuseLight final : public Material
 	{
 	private:
 		AVector3f m_emitTex;
@@ -110,9 +109,9 @@ namespace Aurora
 
 		DiffuseLight(const AVector3f &a, const AVector3f &b) : m_emitTex(a), m_albedo(b) { }
 
-		virtual bool scatter(const Ray &in, const HitRecord &rec, ScatterRecord &srec) const;
+		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const override;
 
-		virtual AVector3f emitted(const Ray &in, const HitRecord &rec, const Float &u,
+		virtual AVector3f emitted(const ARay &in, const HitRecord &rec, const Float &u,
 			const Float &v, const AVector3f &p) const;
 	};
 

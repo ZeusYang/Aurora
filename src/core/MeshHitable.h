@@ -31,10 +31,10 @@ namespace Aurora
 		void rotate(const AVector3f &axis, Float angle) { m_transformation.rotate(axis, angle); }
 
 		virtual void preRendering();
-		virtual bool hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const;
+		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const;
 
 	private:
-		bool triangleHit(const Ray &ray, const Float &t_min, const Float &t_max,
+		bool triangleHit(const ARay &ray, const Float &t_min, const Float &t_max,
 			HitRecord &ret, const Vertex &p0, const Vertex &p1,
 			const Vertex &p2, const AVector3f &normal) const;
 

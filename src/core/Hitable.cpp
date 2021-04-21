@@ -5,11 +5,11 @@
 namespace Aurora
 {
 
-	bool Sphere::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
+	bool Sphere::hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
-		AVector3f oc = ray.getOrigin() - m_center;
-		Float a = dot(ray.getDirection(), ray.getDirection());
-		Float b = dot(oc, ray.getDirection());
+		AVector3f oc = ray.origin() - m_center;
+		Float a = dot(ray.direction(), ray.direction());
+		Float b = dot(oc, ray.direction());
 		Float c = dot(oc, oc) - m_radius * m_radius;
 		// discriminant
 		Float discriminant = b * b - a * c;
@@ -19,7 +19,7 @@ namespace Aurora
 			if (temp > t_min && temp < t_max)
 			{
 				ret.m_t = temp;
-				ret.m_position = ray.pointAt(ret.m_t);
+				ret.m_position = ray(ret.m_t);
 				//AVector3f::getSphereUV((ret.m_position - m_center) / m_radius, ret.m_texcoord);
 				ret.m_texcoord = AVector2f(0.0f);
 				ret.m_normal = (ret.m_position - m_center) / m_radius;
@@ -30,7 +30,7 @@ namespace Aurora
 			if (temp > t_min && temp < t_max)
 			{
 				ret.m_t = temp;
-				ret.m_position = ray.pointAt(ret.m_t);
+				ret.m_position = ray(ret.m_t);
 				//AVector3f::getSphereUV((ret.m_position - m_center) / m_radius, ret.m_texcoord);
 				ret.m_texcoord = AVector2f(0.0f);
 				ret.m_normal = (ret.m_position - m_center) / m_radius;
@@ -44,7 +44,7 @@ namespace Aurora
 	Float Sphere::pdfValue(const AVector3f &o, const AVector3f &v) const
 	{
 		HitRecord rec;
-		if (this->hit(Ray(o, v), 0.001f, FLT_MAX, rec))
+		if (this->hit(ARay(o, v), 0.001f, FLT_MAX, rec))
 		{
 			Float cos_theta_max = sqrt(1 - m_radius * m_radius / lengthSquared(m_center - o));
 			Float solid_angle = 2 * aPi * (1 - cos_theta_max);
@@ -63,18 +63,18 @@ namespace Aurora
 		return uvw.local(randomToSphere(m_radius, distance_squared));
 	}
 
-	bool TTriangle::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
+	bool TTriangle::hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
-		Float n_dot_dir = dot(m_normal, ray.getDirection());
+		Float n_dot_dir = dot(m_normal, ray.direction());
 		// no intersection.
 		if (equal(n_dot_dir, 0.0))
 			return false;
 		Float d = dot(-m_normal, m_p0);
-		Float t = -(dot(m_normal, ray.getOrigin()) + d) / n_dot_dir;
+		Float t = -(dot(m_normal, ray.origin()) + d) / n_dot_dir;
 		if (t < t_min || t > t_max)
 			return false;
 		ret.m_t = t;
-		ret.m_position = ray.pointAt(t);
+		ret.m_position = ray(t);
 		ret.m_material = m_material.get();
 		// judge inside or not.
 		AVector3f r = ret.m_position - m_p0;
@@ -94,12 +94,13 @@ namespace Aurora
 		return true;
 	}
 
-	bool HitableList::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
+	bool HitableList::hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
 		HitRecord temp_rec;
 		bool hit_anything = false;
 		Float closest_so_far = t_max;
-		for (int i = 0; i < m_list.size(); i++) {
+		for (int i = 0; i < m_list.size(); i++)
+		{
 			if (m_list[i]->hit(ray, t_min, closest_so_far, temp_rec))
 			{
 				hit_anything = true;

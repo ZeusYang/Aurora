@@ -281,7 +281,7 @@ namespace Aurora
 		ARay() : m_tMax(aInfinity) {}
 
 		ARay(const AVector3f &o, const AVector3f &d, Float tMax = aInfinity)
-			: m_origin(o), m_dir(d), m_tMax(tMax) {}
+			: m_origin(o), m_dir(normalize(d)), m_tMax(tMax) {}
 
 		const AVector3f &origin() const { return m_origin; }
 		const AVector3f &direction() const { return m_dir; }

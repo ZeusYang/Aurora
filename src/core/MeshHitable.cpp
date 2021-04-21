@@ -8,6 +8,7 @@ namespace Aurora
 		// transform and calculate aabb box.
 		if (!m_transformation.getDirtry() || m_indices.empty())
 			return;
+
 		AVector3f minPoint(+FLT_MAX, +FLT_MAX, +FLT_MAX);
 		AVector3f maxPoint(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 		AMatrix4x4 modelMatrix = m_transformation.toMatrix();
@@ -58,7 +59,7 @@ namespace Aurora
 		}
 	}
 
-	bool MeshHitable::hit(const Ray &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
+	bool MeshHitable::hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const
 	{
 		HitRecord tmpRec;
 		bool hitAny = false;
@@ -85,20 +86,20 @@ namespace Aurora
 		return hitAny;
 	}
 
-	bool MeshHitable::triangleHit(const Ray &ray, const Float &t_min, const Float &t_max,
+	bool MeshHitable::triangleHit(const ARay &ray, const Float &t_min, const Float &t_max,
 		HitRecord &ret, const Vertex &p0, const Vertex &p1,
 		const Vertex &p2, const AVector3f &normal) const
 	{
-		Float n_dot_dir = dot(normal, ray.getDirection());
+		Float n_dot_dir = dot(normal, ray.direction());
 		// no intersection.
 		if (equal(n_dot_dir, 0.0))
 			return false;
 		Float d = -dot(normal, p0.m_position);
-		Float t = -(dot(normal, ray.getOrigin()) + d) / n_dot_dir;
+		Float t = -(dot(normal, ray.origin()) + d) / n_dot_dir;
 		if (t < t_min || t > t_max)
 			return false;
 		ret.m_t = t;
-		ret.m_position = ray.pointAt(t);
+		ret.m_position = ray(t);
 		ret.m_material = m_material.get();
 		// judge inside or not.
 		AVector3f r = ret.m_position - p0.m_position;
@@ -117,7 +118,7 @@ namespace Aurora
 			return false;
 		ret.m_normal = p0.m_normal * (1.0f - omega1 - omega2) + p1.m_normal * omega1 + p2.m_normal * omega2;
 		ret.m_texcoord = p0.m_texcoord * (1.0f - omega1 - omega2) + p1.m_texcoord * omega1 + p2.m_texcoord * omega2;
-		if (dot(ret.m_normal, ray.getDirection()) > 0.0f)
+		if (dot(ret.m_normal, ray.direction()) > 0.0f)
 			ret.m_normal = -ret.m_normal;
 		return true;
 	}
@@ -176,7 +177,7 @@ namespace Aurora
 	{
 
 		HitRecord rec;
-		if (this->hit(Ray(o, v), 0.001f, FLT_MAX, rec))
+		if (this->hit(ARay(o, v), 0.001f, FLT_MAX, rec))
 		{
 			Float area = m_transformation.scale().x * 2.0f * m_transformation.scale().z * 2.0f;
 			Float distance_squared = lengthSquared(v);

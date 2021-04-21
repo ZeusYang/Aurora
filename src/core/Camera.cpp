@@ -14,12 +14,12 @@ namespace Aurora
 		update();
 	}
 
-	Ray Camera::getRay(const Float &s, const Float &t) const
+	ARay Camera::getRay(const Float &s, const Float &t) const
 	{
 		AVector3f rd = randomInUnitDisk() * m_lensRadius;
 		AVector3f offset = m_axisX * rd.x + m_axisY * rd.y;
-		return Ray(m_pos + offset, m_lowerLeftCorner + m_horizontal * s
-			+ m_vertical * t - m_pos - offset);
+		return ARay(m_pos + offset, normalize(m_lowerLeftCorner + m_horizontal * s
+			+ m_vertical * t - m_pos - offset));
 	}
 
 	AVector3f Camera::randomInUnitDisk() const
