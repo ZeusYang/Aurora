@@ -67,35 +67,6 @@ namespace Aurora
 
 	bool Triangle::hit(const ARay &ray, HitRecord &ret) const
 	{
-		//Float n_dot_dir = dot(m_normal, ray.direction());
-		//// no intersection.
-		//if (equal(n_dot_dir, 0.0))
-		//	return false;
-		//Float d = dot(-m_normal, m_p0);
-		//Float t = -(dot(m_normal, ray.origin()) + d) / n_dot_dir;
-		//if (t <= 0.0f || t > ray.m_tMax)
-		//	return false;
-		//ret.m_t = t;
-		//ret.m_position = ray(t);
-		//ret.m_material = m_material.get();
-		//// judge inside or not.
-		//AVector3f r = ret.m_position - m_p0;
-		//AVector3f q1 = m_p1 - m_p0;
-		//AVector3f q2 = m_p2 - m_p0;
-		//Float q1_squaredLen = lengthSquared(q1);
-		//Float q2_squaredLen = lengthSquared(q2);
-		//Float q1_dot_q2 = dot(q1, q2);
-		//Float r_dot_q1 = dot(r, q1);
-		//Float r_dot_q2 = dot(r, q2);
-		//Float determinant = 1.0f / (q1_squaredLen * q2_squaredLen - q1_dot_q2 * q1_dot_q2);
-
-		//Float omega1 = determinant * (q2_squaredLen * r_dot_q1 - q1_dot_q2 * r_dot_q2);
-		//Float omega2 = determinant * (-q1_dot_q2 * r_dot_q1 + q1_squaredLen * r_dot_q2);
-		//if (omega1 + omega2 > 1.0f || omega1 < 0.0f || omega2 < 0.0f)
-		//	return false;
-
-		//ray.m_tMax = t;
-
 		AVector3f E1 = m_p1 - m_p0;
 		AVector3f E2 = m_p2 - m_p0;
 
@@ -152,13 +123,11 @@ namespace Aurora
 	{
 		HitRecord temp_rec;
 		bool hit_anything = false;
-		//Float closest_so_far = ray.m_tMax;
 		for (int i = 0; i < m_objects.size(); i++)
 		{
 			if (m_objects[i]->hit(ray, temp_rec))
 			{
 				hit_anything = true;
-				//closest_so_far = temp_rec.m_t;
 				ret = temp_rec;
 			}
 		}

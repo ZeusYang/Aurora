@@ -44,6 +44,7 @@ namespace Aurora
 
 		Float uniformFloat()
 		{
+			//[0, 1)
 			return glm::min(aOneMinusEpsilon, Float(uniformUInt32() * 2.3283064365386963e-10f));
 		}
 

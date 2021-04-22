@@ -18,12 +18,16 @@ namespace Aurora
 
 	Tracer::~Tracer() {}
 
-	void Tracer::initialize(int w, int h, int c)
+	void Tracer::initialize(int w, int h, int samplingNum, int depth)
 	{
 		// Image width and height.
 		m_config.m_width = w;
 		m_config.m_height = h;
 
+		//Sampler
+		m_sampler = std::make_shared<ARandomSampler>(samplingNum);
+
+		//Scene
 		m_scene = std::make_shared<HitableList>();
 
 		AVector2i res(w, h);
@@ -66,17 +70,22 @@ namespace Aurora
 			for (int x = 0; x < m_config.m_width; ++x)
 			{
 				ASpectrum Li;
-				for (int sps = 0; sps < m_config.m_samplings; ++sps)
+				AVector2i pRaster(x, y);
+				m_sampler->startPixel(pRaster);
+				//for (int sps = 0; sps < m_config.m_samplings; ++sps)
+				do
 				{
-					Float u = static_cast<Float>(x + drand48()) / static_cast<Float>(m_config.m_width);
-					Float v = static_cast<Float>(y + drand48()) / static_cast<Float>(m_config.m_height);
+					auto sample = m_sampler->getCameraSample(pRaster);
+					Float u = sample.pFilm.x / static_cast<Float>(m_config.m_width);
+					Float v = sample.pFilm.y / static_cast<Float>(m_config.m_height);
 					ARay ray = m_config.m_camera->getRay(u, v);
 					Li += deNan(tracing(ray, m_scene.get(), 0));
-				}
+				} while (m_sampler->startNextSample());
 
 				// gamma correction & box filtering
-				Li = sqrt(Li / static_cast<Float>(m_config.m_samplings));
-				m_config.m_camera->m_film->setSpectrum(AVector2i(x, y), Li);
+				Li = sqrt(Li / m_sampler->getSamplingNumber());
+
+				m_config.m_camera->m_film->setSpectrum(pRaster, Li);
 			}
 		}
 

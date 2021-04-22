@@ -6,6 +6,10 @@
 
 namespace Aurora
 {
+	struct ACameraSample
+	{
+		AVector2f pFilm;
+	};
 
 	class Camera
 	{

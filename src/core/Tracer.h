@@ -5,6 +5,7 @@
 
 #include "Hitable.h"
 #include "Camera.h"
+#include "ArSampler.h"
 
 namespace Aurora
 {
@@ -28,13 +29,11 @@ namespace Aurora
 
 		Setting m_config;								// configuration.
 		HitableList::ptr m_scene;						// Scene object lists.
+		ASampler::ptr m_sampler;
 
 	public:
 		Tracer();
 		~Tracer();
-
-		void setSamplingNums(unsigned int samp) { m_config.m_samplings = samp; }
-		void setRecursionDepth(unsigned int depth) { m_config.m_maxDepth = depth; }
 
 		int getWidth() const { return m_config.m_width; }
 		int getHeight() const { return m_config.m_height; }
@@ -45,7 +44,7 @@ namespace Aurora
 		Camera *getCamera() const { return m_config.m_camera.get(); }
 
 		void addObjects(const Hitable::ptr &object);
-		void initialize(int w, int h, int c = 4);
+		void initialize(int w, int h, int samplingNum, int depth);
 		void beginFrame();
 		void endFrame();
 
