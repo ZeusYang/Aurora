@@ -35,7 +35,6 @@ namespace Aurora
 			}
 		}
 
-		stbi_flip_vertically_on_write(1);
 		stbi_write_png(m_filename.c_str(),
 			m_resolution.x,
 			m_resolution.y,

@@ -2,7 +2,6 @@
 #include "Tracer.h"
 #include "Hitable.h"
 #include "Material.h"
-#include "Camera.h"
 
 using namespace std;
 using namespace Aurora;
@@ -88,17 +87,14 @@ void cornellBoxScene()
 
 	tracer.addObjects(sphere1);
 	tracer.addObjects(sphere2);
-
-	Camera *camera = tracer.getCamera();
-	camera->setPosition(AVector3f(0, 5, 18));
-	camera->setTarget(AVector3f(0, 5, 0));
-	camera->setFovy(45.0f);
 }
 
 int main()
 {
 	// initialize.
-	tracer.initialize(666, 500, 32, 10);
+	AVector3f eye(0, 5, 18);
+	AVector3f center(0, 5, 0);
+	tracer.initialize(666, 500, 32, 10, eye, center, 45.0f);
 
 	// create scene.
 	cornellBoxScene();
@@ -112,5 +108,6 @@ int main()
 
 	cout << "Rendering over!!\n";
 	cout << "Total->" << totalTime << std::endl;
+
 	return 0;
 }

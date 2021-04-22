@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Hitable.h"
-#include "Camera.h"
+#include "ArCamera.h"
 #include "ArSampler.h"
 
 namespace Aurora
@@ -17,18 +17,17 @@ namespace Aurora
 		class Setting
 		{
 		public:
-			Camera::ptr m_camera;
 			unsigned int m_maxDepth;
-			unsigned int m_samplings;
 			int m_width, m_height, m_channel;
 			Float startFrame, endFrame, totalFrameTime;
 
-			Setting() :m_maxDepth(50), m_samplings(10), m_channel(4), m_camera(nullptr) {}
+			Setting() :m_maxDepth(10), m_channel(4) {}
 
 		};
 
 		Setting m_config;								// configuration.
 		HitableList::ptr m_scene;						// Scene object lists.
+		ACamera::ptr m_camera;
 		ASampler::ptr m_sampler;
 
 	public:
@@ -39,12 +38,13 @@ namespace Aurora
 		int getHeight() const { return m_config.m_height; }
 		int getChannel() const { return m_config.m_channel; }
 		Float getTotalFrameTime() const { return m_config.totalFrameTime; }
-		unsigned int getSamplings() const { return m_config.m_samplings; }
 		unsigned int getRecursionDepth() const { return m_config.m_maxDepth; }
-		Camera *getCamera() const { return m_config.m_camera.get(); }
+
+		void initialize(int w, int h, int samplingNum, int depth,
+			const AVector3f &eye, const AVector3f &target, Float fovy);
 
 		void addObjects(const Hitable::ptr &object);
-		void initialize(int w, int h, int samplingNum, int depth);
+
 		void beginFrame();
 		void endFrame();
 

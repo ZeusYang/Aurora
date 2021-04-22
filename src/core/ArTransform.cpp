@@ -66,8 +66,8 @@ namespace Aurora
 		AMatrix4x4 persp(
 			1, 0, 0, 0,
 			0, 1, 0, 0,
-			0, 0, f / (f - n), -f * n / (f - n),
-			0, 0, 1, 0);
+			0, 0, f / (f - n), 1,
+			0, 0, -f * n / (f - n), 0);
 		// Scale canonical perspective view to specified field of view
 		Float invTanAng = 1 / glm::tan(glm::radians(fov) / 2);
 		return scale(invTanAng, invTanAng, 1) * ATransform(persp);

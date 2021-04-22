@@ -1,7 +1,6 @@
 #include "Tracer.h"
 
 #include "Hitable.h"
-#include "Camera.h"
 #include "Material.h"
 #include "CosinePDF.h"
 #include "HitablePDF.h"
@@ -18,11 +17,13 @@ namespace Aurora
 
 	Tracer::~Tracer() {}
 
-	void Tracer::initialize(int w, int h, int samplingNum, int depth)
+	void Tracer::initialize(int w, int h, int samplingNum, int depth,
+		const AVector3f &eye, const AVector3f &target, Float fovy)
 	{
 		// Image width and height.
 		m_config.m_width = w;
 		m_config.m_height = h;
+		m_config.m_maxDepth = depth;
 
 		//Sampler
 		m_sampler = std::make_shared<ARandomSampler>(samplingNum);
@@ -30,17 +31,32 @@ namespace Aurora
 		//Scene
 		m_scene = std::make_shared<HitableList>();
 
+		//Film
 		AVector2i res(w, h);
 		AFilm::ptr film = std::make_shared<AFilm>(res, "../result.png");
 
-		// Camera initialization.
-		AVector3f lookfrom(0, 6, 21);
-		AVector3f lookat(0, 0, 0);
-		Float dist_to_focus = 10.0f;
-		Float aperture = 0.0f;
-		m_config.m_camera = std::make_shared<Camera>(film, lookfrom, lookat, 45,
-			static_cast<Float>(m_config.m_width) / m_config.m_height,
-			aperture, dist_to_focus);
+		//Camera
+		{
+			ABounds2f screen;
+			Float frame = (Float)(w) / h;
+			if (frame > 1.f)
+			{
+				screen.m_pMin.x = -frame;
+				screen.m_pMax.x = frame;
+				screen.m_pMin.y = -1.f;
+				screen.m_pMax.y = 1.f;
+			}
+			else
+			{
+				screen.m_pMin.x = -1.f;
+				screen.m_pMax.x = 1.f;
+				screen.m_pMin.y = -1.f / frame;
+				screen.m_pMax.y = 1.f / frame;
+			}
+
+			auto cameraToWorld = inverse(lookAt(eye, target, AVector3f(0, 1, 0)));
+			m_camera = std::make_shared<APerspectiveCamera>(cameraToWorld, screen, fovy, film);
+		}
 
 		// clear something.
 		endFrame();
@@ -71,21 +87,23 @@ namespace Aurora
 			{
 				ASpectrum Li;
 				AVector2i pRaster(x, y);
+
 				m_sampler->startPixel(pRaster);
-				//for (int sps = 0; sps < m_config.m_samplings; ++sps)
 				do
 				{
 					auto sample = m_sampler->getCameraSample(pRaster);
-					Float u = sample.pFilm.x / static_cast<Float>(m_config.m_width);
-					Float v = sample.pFilm.y / static_cast<Float>(m_config.m_height);
-					ARay ray = m_config.m_camera->getRay(u, v);
+					
+					//Casting a ray to scene
+					ARay ray;
+					Float rayWeight = m_camera->rayCasting(sample, ray);
+
 					Li += deNan(tracing(ray, m_scene.get(), 0));
 				} while (m_sampler->startNextSample());
 
 				// gamma correction & box filtering
 				Li = sqrt(Li / m_sampler->getSamplingNumber());
 
-				m_config.m_camera->m_film->setSpectrum(pRaster, Li);
+				m_camera->m_film->setSpectrum(pRaster, Li);
 			}
 		}
 
@@ -93,7 +111,7 @@ namespace Aurora
 		m_config.totalFrameTime = static_cast<Float>(m_config.endFrame - m_config.startFrame) / CLOCKS_PER_SEC;
 		totalTime = m_config.totalFrameTime;
 
-		m_config.m_camera->m_film->writeImageToFile();
+		m_camera->m_film->writeImageToFile();
 	}
 
 	ASpectrum Tracer::deNan(const ASpectrum &c)

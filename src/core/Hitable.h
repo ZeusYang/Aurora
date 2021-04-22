@@ -42,7 +42,6 @@ namespace Aurora
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const { return 0.0f; }
 
 		virtual AVector3f random(const AVector3f &o) const { return AVector3f(1.0f, 0.0f, 0.0f); }
-		virtual std::string getName() const { return "Hitable"; }
 	};
 
 	class Sphere final : public Hitable

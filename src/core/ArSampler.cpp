@@ -1,6 +1,6 @@
 #include "ArSampler.h"
 
-#include "Camera.h"
+#include "ArCamera.h"
 
 namespace Aurora
 {
