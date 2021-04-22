@@ -2,7 +2,6 @@
 #include "Tracer.h"
 #include "Hitable.h"
 #include "Material.h"
-#include "MeshHitable.h"
 #include "Camera.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -21,7 +20,6 @@ void cornellBoxScene()
 	const AVector3f light_unit = AVector3f(4.0, 4.0, 4.0);
 	const AVector3f yellow_light_unit = AVector3f(1.0, 0.82, 0.53);
 
-
 	Material::ptr whiteLambert_mat = std::make_shared<Lambertian>(white_unit);
 	Material::ptr greenLambert_mat = std::make_shared<Lambertian>(green_unit);
 	Material::ptr redLambert_mat = std::make_shared<Lambertian>(red_unit);
@@ -30,45 +28,66 @@ void cornellBoxScene()
 	Material::ptr bottle_mat = std::make_shared<Dielectric>(1.5f);
 	Material::ptr board_mat = std::make_shared<Metal>(white_unit, 0.0f);
 
-	Plane *bottom = new Plane(whiteLambert_mat, AVector3f(0, 0, 0), AVector3f(5, 5, 5));
-	Plane *top = new Plane(whiteLambert_mat, AVector3f(0, 0, 0), AVector3f(5, 5, 5));
-	Plane *back = new Plane(whiteLambert_mat, AVector3f(0, 0, 0), AVector3f(5, 5, 5));
-	Plane *left = new Plane(greenLambert_mat, AVector3f(0, 0, 0), AVector3f(5, 5, 5));
-	Plane *right = new Plane(redLambert_mat, AVector3f(0, 0, 0), AVector3f(5, 5, 5));
-	Plane *light = new Plane(lightDiffuse_mat, AVector3f(0, 0, 0), AVector3f(2, 2, 2));
-	//Plane *light = new Plane(Vector3D(0,0,0), Vector3D(2,2,2), redLambert_mat);
-	//Cube *cube1 = new Cube(AVector3f(-2, 3, -2), AVector3f(1.5, 3.0, 1.5), whiteMetal_mat);
-	//Cube *cube2 = new Cube(AVector3f(+2.5, 1.5, +2), AVector3f(1.5, 1.5, 1.5), whiteLambert_mat);
-	Sphere *sphere1 = new Sphere(bottle_mat, AVector3f(+1.5, 1.5, +2), +1.5f);
-	Sphere *sphere2 = new Sphere(whiteLambert_mat, AVector3f(-1.5, 2.5, +0), +2.5f);
-	//Sphere *sphereLight = new Sphere(AVector3f(+0,0.5,+3.9), +0.5f, lightDiffuse_mat1);
+	Sphere::ptr sphere1(new Sphere(bottle_mat, AVector3f(+1.5, 1.5, +2), +1.5f));
+	Sphere::ptr sphere2(new Sphere(whiteLambert_mat, AVector3f(-1.5, 2.5, +0), +2.5f));
 
-	//cube1->rotate(AVector3f(0, 1, 0), -18.0f);
-	//cube2->rotate(AVector3f(0, 1, 0), -15.0f);
-	//dragon->rotate(Vector3D(0, 1, 0), +25);
-	top->translate(AVector3f(0, 10, 0));
-	back->rotate(AVector3f(1, 0, 0), 90.0f);
-	back->translate(AVector3f(0, 5, -5));
-	left->rotate(AVector3f(0, 0, 1), 90.0f);
-	left->translate(AVector3f(-5, 5, 0));
-	right->rotate(AVector3f(0, 0, 1), 90.0f);
-	right->translate(AVector3f(+5, 5, 0));
-	light->translate(AVector3f(0, 10, 0));
-	//person->rotate(Vector3D(0,1,0), 30.0f);
-	light->setName("light");
-	right->setName("right");
+	//Bottom wall
+	Triangle::ptr bot1(new Triangle(whiteLambert_mat, AVector3f(-5, 0, -5), AVector3f(-5, 0, +5),
+		AVector3f(+5, 0, -5)));
+	Triangle::ptr bot2(new Triangle(whiteLambert_mat, AVector3f(+5, 0, -5), AVector3f(-5, 0, +5),
+		AVector3f(+5, 0, +5)));
+	
+	//Top wall
+	Triangle::ptr top1(new Triangle(whiteLambert_mat, AVector3f(-5, 10, -5), AVector3f(+5, 10, -5),
+		AVector3f(-5, 10, +5)));
+	Triangle::ptr top2(new Triangle(whiteLambert_mat, AVector3f(+5, 10, -5), AVector3f(+5, 10, +5),
+		AVector3f(-5, 10, +5)));
 
-	tracer.addObjects(bottom);
-	tracer.addObjects(top);
-	tracer.addObjects(back);
-	tracer.addObjects(left);
-	tracer.addObjects(right);
-	//tracer.addObjects(cube1);
-	//tracer.addObjects(cube2);
-	tracer.addImportantSampling(light);
-	tracer.addImportantSampling(sphere1);
-	tracer.addImportantSampling(sphere2);
-	//tracer.addImportantSampling(sphereLight);
+	//Left wall
+	Triangle::ptr lef1(new Triangle(greenLambert_mat, AVector3f(-5, 10, +5), AVector3f(-5, 0, +5),
+		AVector3f(-5, 10, -5)));
+	Triangle::ptr lef2(new Triangle(greenLambert_mat, AVector3f(-5, 10, -5), AVector3f(-5, 0, +5),
+		AVector3f(-5, 0, -5)));
+
+	//Right wall
+	Triangle::ptr rig1(new Triangle(redLambert_mat, AVector3f(+5, 10, +5), AVector3f(+5, 10, -5),
+		AVector3f(+5, 0, +5)));
+	Triangle::ptr rig2(new Triangle(redLambert_mat, AVector3f(+5, 10, -5), AVector3f(+5, 0, -5),
+		AVector3f(+5, 0, +5)));
+
+	//Back wall
+	Triangle::ptr bak1(new Triangle(whiteLambert_mat, AVector3f(-5, 10, -5), AVector3f(-5, 0, -5),
+		AVector3f(+5, 10, -5)));
+	Triangle::ptr bak2(new Triangle(whiteLambert_mat, AVector3f(+5, 10, -5), AVector3f(-5, 0, -5),
+		AVector3f(+5, 0, -5)));
+
+	//lamp
+	Triangle::ptr lamp1(new Triangle(lightDiffuse_mat, AVector3f(-2, 10, -2), AVector3f(+2, 10, -2),
+		AVector3f(-2, 10, +2)));
+	Triangle::ptr lamp2(new Triangle(lightDiffuse_mat, AVector3f(+2, 10, -2), AVector3f(+2, 10, +2),
+		AVector3f(-2, 10, +2)));
+
+	//tracer.addObjects(bottom);
+	tracer.addObjects(bot1);
+	tracer.addObjects(bot2);
+
+	tracer.addObjects(top1);
+	tracer.addObjects(top2);
+
+	tracer.addObjects(lef1);
+	tracer.addObjects(lef2);
+
+	tracer.addObjects(rig1);
+	tracer.addObjects(rig2);
+
+	tracer.addObjects(bak1);
+	tracer.addObjects(bak2);
+
+	tracer.addObjects(lamp1);
+	tracer.addObjects(lamp2);
+
+	tracer.addObjects(sphere1);
+	tracer.addObjects(sphere2);
 
 	Camera *camera = tracer.getCamera();
 	camera->setPosition(AVector3f(0, 5, 18));

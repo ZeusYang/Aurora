@@ -28,6 +28,8 @@ namespace Aurora
 	class Hitable
 	{
 	public:
+		typedef std::shared_ptr<Hitable> ptr;
+		
 		Material::ptr m_material;
 
 		Hitable(const Material::ptr &mat) : m_material(mat) {}
@@ -35,7 +37,7 @@ namespace Aurora
 		virtual bool isLeaf() const { return true; }
 		virtual void preRendering() {}
 
-		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const = 0;
+		virtual bool hit(const ARay &ray, HitRecord &ret) const = 0;
 
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const { return 0.0f; }
 
@@ -46,6 +48,8 @@ namespace Aurora
 	class Sphere final : public Hitable
 	{
 	public:
+		typedef std::shared_ptr<Sphere> ptr;
+
 		Float m_radius;
 		AVector3f m_center;
 
@@ -53,50 +57,55 @@ namespace Aurora
 			:Hitable(mat), m_center(cen), m_radius(r) {}
 		virtual ~Sphere() = default;
 
-		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool hit(const ARay &ray, HitRecord &ret) const override;
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
 		virtual AVector3f random(const AVector3f &o) const override;
 	};
 
-	class TTriangle final : public Hitable
+	class Triangle final : public Hitable
 	{
 	public:
+		typedef std::shared_ptr<Triangle> ptr;
+
 		AVector3f m_normal;
 		AVector3f m_p0, m_p1, m_p2;
 
-		TTriangle(const Material::ptr &mat, AVector3f p0, AVector3f p1, AVector3f p2)
+		Triangle(const Material::ptr &mat, AVector3f p0, AVector3f p1, AVector3f p2)
 			: Hitable(mat), m_p0(p0), m_p1(p1), m_p2(p2)
 		{
 			m_normal = normalize(cross((p1 - p0), (p2 - p0)));
 		}
-		virtual ~TTriangle() = default;
 
-		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual ~Triangle() = default;
+
+		virtual bool hit(const ARay &ray, HitRecord &ret) const override;
 
 	};
 
 	class HitableList : public Hitable
 	{
 	private:
-		std::vector<Hitable*> m_list;
+		std::vector<Hitable::ptr> m_objects;
 
 	public:
+		typedef std::shared_ptr<HitableList> ptr;
+
 		HitableList() : Hitable(nullptr) {}
-		virtual bool hit(const ARay &ray, const Float &t_min, const Float &t_max, HitRecord &ret) const override;
+		virtual bool hit(const ARay &ray, HitRecord &ret) const override;
 		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
 		virtual AVector3f random(const AVector3f &o) const override;
 
 		virtual void preRendering() override 
 		{
-			for (int x = 0; x < m_list.size(); ++x)
+			for (int x = 0; x < m_objects.size(); ++x)
 			{
-				m_list[x]->preRendering();
+				m_objects[x]->preRendering();
 			}
 		}
 
 
-		bool isEmpty() const { return m_list.empty(); }
-		void addObjects(Hitable *target) { m_list.push_back(target); }
+		bool isEmpty() const { return m_objects.empty(); }
+		void addObjects(const Hitable::ptr &object) { m_objects.push_back(object); }
 	};
 
 }

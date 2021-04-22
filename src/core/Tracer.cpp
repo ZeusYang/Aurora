@@ -3,10 +3,8 @@
 #include "Hitable.h"
 #include "Camera.h"
 #include "Material.h"
-#include "MeshHitable.h"
 #include "CosinePDF.h"
 #include "HitablePDF.h"
-#include "MixturePDF.h"
 
 #include <random>
 #include <time.h>
@@ -35,6 +33,8 @@ namespace Aurora
 		if (m_config.m_camera != nullptr)
 			delete m_config.m_camera;
 
+		m_scene = std::make_shared<HitableList>();
+
 		// Camera initialization.
 		AVector3f lookfrom(0, 6, 21);
 		AVector3f lookat(0, 0, 0);
@@ -51,25 +51,14 @@ namespace Aurora
 		endFrame();
 	}
 
-	void Tracer::addImportantSampling(Hitable *target)
+	void Tracer::addObjects(const Hitable::ptr &object)
 	{
-		m_samplingList.addObjects(target);
-		addObjects(target);
-	}
-
-	void Tracer::addObjects(Hitable * target)
-	{
-		m_scene.addObjects(target);
+		m_scene->addObjects(object);
 	}
 
 	void Tracer::beginFrame()
 	{
-		m_scene.preRendering();
-		//for (int x = 0; x < m_objects.size(); ++x)
-		//{
-		//	m_objects[x]->preRendering();
-		//}
-		//m_root = new BVHNode(m_objects, 0, m_objects.size());
+		m_scene->preRendering();
 	}
 
 	void Tracer::endFrame()
@@ -81,8 +70,27 @@ namespace Aurora
 	{
 		m_config.startFrame = clock();
 
-		rawSerialRender(/*dynamic_cast<Hitable*>(m_scene)*/&m_scene);
-
+		for (int row = m_config.m_height - 1; row >= 0; --row)
+		{
+			for (int col = 0; col < m_config.m_width; ++col)
+			{
+				AVector3f color;
+				for (int sps = 0; sps < m_config.m_samplings; ++sps)
+				{
+					Float u = static_cast<Float>(col + drand48()) / static_cast<Float>(m_config.m_width);
+					Float v = static_cast<Float>(row + drand48()) / static_cast<Float>(m_config.m_height);
+					ARay ray = m_config.m_camera->getRay(u, v);
+					color += deNan(tracing(ray, m_scene.get(), 0));
+				}
+				color /= static_cast<Float>(m_config.m_samplings);
+				// gamma correction.
+				color = AVector3f(sqrt(color.x), sqrt(color.y), sqrt(color.z));
+				if (color.x > 1.0f) color.x = 1.0f;
+				if (color.y > 1.0f) color.y = 1.0f;
+				if (color.z > 1.0f) color.z = 1.0f;
+				drawPixel(col, row, color);
+			}
+		}
 		m_config.endFrame = clock();
 		m_config.totalFrameTime = static_cast<Float>(m_config.endFrame - m_config.startFrame) / CLOCKS_PER_SEC;
 		totalTime = m_config.totalFrameTime;
@@ -101,31 +109,6 @@ namespace Aurora
 		m_image[index + 3] = static_cast<unsigned char>(255.0f);
 	}
 
-	void Tracer::rawSerialRender(Hitable *scene)
-	{
-		for (int row = m_config.m_height - 1; row >= 0; --row)
-		{
-			for (int col = 0; col < m_config.m_width; ++col)
-			{
-				AVector3f color;
-				for (int sps = 0; sps < m_config.m_samplings; ++sps)
-				{
-					Float u = static_cast<Float>(col + drand48()) / static_cast<Float>(m_config.m_width);
-					Float v = static_cast<Float>(row + drand48()) / static_cast<Float>(m_config.m_height);
-					ARay ray = m_config.m_camera->getRay(u, v);
-					color += deNan(tracing(ray, scene, &m_samplingList, 0));
-				}
-				color /= static_cast<Float>(m_config.m_samplings);
-				// gamma correction.
-				color = AVector3f(sqrt(color.x), sqrt(color.y), sqrt(color.z));
-				if (color.x > 1.0f) color.x = 1.0f;
-				if (color.y > 1.0f) color.y = 1.0f;
-				if (color.z > 1.0f) color.z = 1.0f;
-				drawPixel(col, row, color);
-			}
-		}
-	}
-
 	AVector3f Tracer::deNan(const AVector3f &c)
 	{
 		AVector3f temp = c;
@@ -135,10 +118,10 @@ namespace Aurora
 		return temp;
 	}
 
-	AVector3f Tracer::tracing(const ARay &r, Hitable *world, Hitable *light, int depth)
+	AVector3f Tracer::tracing(const ARay &r, Hitable *world, int depth)
 	{
 		HitRecord rec;
-		if (world->hit(r, 0.001f, FLT_MAX, rec))
+		if (world->hit(r, rec))
 		{
 			ScatterRecord srec;
 			Material* material = rec.m_material;
@@ -147,29 +130,18 @@ namespace Aurora
 			{
 				if (srec.m_isSpecular)
 				{
-					return srec.m_attenuation * tracing(srec.m_scatterRay, world, light, depth + 1);
+					return srec.m_attenuation * tracing(srec.m_scatterRay, world, depth + 1);
 				}
 				else
 				{
-
 					AVector3f dir;
 					Float pdf_val;
-					if (!m_samplingList.isEmpty())
-					{
-						HitablePDF light_pdf(light, rec.m_position);
-						MixturePDF mix_pdf(&light_pdf, srec.m_pdf.get());
-						dir = mix_pdf.generate();
-						pdf_val = mix_pdf.value(dir);
-					}
-					else
-					{
-						dir = srec.m_pdf->generate();
-						pdf_val = srec.m_pdf->value(dir);
-					}
+					dir = srec.m_pdf->generate();
+					pdf_val = srec.m_pdf->value(dir);
 					ARay scattered = ARay(rec.m_position, normalize(dir));
 
 					return emitted + srec.m_attenuation * material->scattering_pdf(r, rec, scattered)
-						* tracing(scattered, world, light, depth + 1) / pdf_val;
+						* tracing(scattered, world, depth + 1) / pdf_val;
 				}
 			}
 			else
@@ -179,28 +151,8 @@ namespace Aurora
 		{
 			// background color.
 			AVector3f ret;
-			//switch (m_config.m_background)
-			//{
-			//case PURE:
-			//{
-				//ret = AVector3f(0, 0, 0);
-				//break;
-			//}
-			//case LERP:
-			{
-				Float t = 0.5f * (r.direction().y + 1.0f);
-				ret = AVector3f(1.0f, 1.0f, 1.0f) * (1.0f - t) + AVector3f(0.5f, 0.7f, 1.0f) * t;
-				//break;
-			}
-			//case SKYBOX:
-			//{
-			//	AVector3f tr = m_skyBox->sampleBackground(r);
-			//	ret.x = tr.x;
-			//	ret.y = tr.y;
-			//	ret.z = tr.z;
-			//	break;
-			//}
-			//}
+			Float t = 0.5f * (r.direction().y + 1.0f);
+			ret = AVector3f(1.0f, 1.0f, 1.0f) * (1.0f - t) + AVector3f(0.5f, 0.7f, 1.0f) * t;
 			return ret;
 		}
 	}
