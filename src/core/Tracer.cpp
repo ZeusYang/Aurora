@@ -61,22 +61,22 @@ namespace Aurora
 	{
 		m_config.startFrame = clock();
 
-		for (int row = m_config.m_height - 1; row >= 0; --row)
+		for (int y = 0; y < m_config.m_height; ++y)
 		{
-			for (int col = 0; col < m_config.m_width; ++col)
+			for (int x = 0; x < m_config.m_width; ++x)
 			{
 				ASpectrum Li;
 				for (int sps = 0; sps < m_config.m_samplings; ++sps)
 				{
-					Float u = static_cast<Float>(col + drand48()) / static_cast<Float>(m_config.m_width);
-					Float v = static_cast<Float>(row + drand48()) / static_cast<Float>(m_config.m_height);
+					Float u = static_cast<Float>(x + drand48()) / static_cast<Float>(m_config.m_width);
+					Float v = static_cast<Float>(y + drand48()) / static_cast<Float>(m_config.m_height);
 					ARay ray = m_config.m_camera->getRay(u, v);
 					Li += deNan(tracing(ray, m_scene.get(), 0));
 				}
 
 				// gamma correction & box filtering
 				Li = sqrt(Li / static_cast<Float>(m_config.m_samplings));
-				m_config.m_camera->m_film->setSpectrum(AVector2i(col, row), Li);
+				m_config.m_camera->m_film->setSpectrum(AVector2i(x, y), Li);
 			}
 		}
 

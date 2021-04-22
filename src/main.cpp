@@ -100,7 +100,7 @@ int main()
 	// initialize.
 	tracer.initialize(666, 500);
 	tracer.setRecursionDepth(10);
-	tracer.setSamplingNums(256);
+	tracer.setSamplingNums(32);
 
 	// create scene.
 	cornellBoxScene();
