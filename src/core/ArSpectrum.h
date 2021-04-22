@@ -216,6 +216,17 @@ namespace Aurora
 			return YWeight[0] * c[0] + YWeight[1] * c[1] + YWeight[2] * c[2];
 		}
 	};
+
+	// Spectrum Inline Functions
+	template <int nSpectrumSamples>
+	inline ACoefficientSpectrum<nSpectrumSamples> pow(
+		const ACoefficientSpectrum<nSpectrumSamples> &s, Float e) 
+	{
+		CoefficientSpectrum<nSpectrumSamples> ret;
+		for (int i = 0; i < nSpectrumSamples; ++i) ret.c[i] = std::pow(s.c[i], e);
+		DCHECK(!ret.HasNaNs());
+		return ret;
+	}
 }
 
 #endif

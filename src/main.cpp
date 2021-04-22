@@ -98,7 +98,7 @@ void cornellBoxScene()
 int main()
 {
 	// initialize.
-	tracer.initialize(666, 500, 512, 10);
+	tracer.initialize(666, 500, 32, 10);
 
 	// create scene.
 	cornellBoxScene();
