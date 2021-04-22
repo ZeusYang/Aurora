@@ -39,7 +39,7 @@ namespace Aurora
 		AVector3f outward_normal;
 		AVector3f reflected = reflect(in.direction(), rec.m_normal);
 		Float ni_over_nt;
-		srec.m_attenuation = AVector3f(1.0f, 1.0f, 1.0f);
+		srec.m_attenuation = ASpectrum(1.0f);
 		AVector3f refracted;
 		Float reflect_prob;
 		Float cosine;
@@ -85,7 +85,7 @@ namespace Aurora
 		return true;
 	}
 
-	AVector3f DiffuseLight::emitted(const ARay &in, const HitRecord &rec, const Float & u,
+	ASpectrum DiffuseLight::emitted(const ARay &in, const HitRecord &rec, const Float & u,
 		const Float & v, const AVector3f & p) const
 	{
 		return m_emitTex;

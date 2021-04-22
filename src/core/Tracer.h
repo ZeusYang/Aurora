@@ -4,12 +4,10 @@
 #include <vector>
 
 #include "Hitable.h"
+#include "Camera.h"
 
 namespace Aurora
 {
-
-	class Camera;
-	class Hitable;
 
 	class Tracer
 	{
@@ -18,7 +16,7 @@ namespace Aurora
 		class Setting
 		{
 		public:
-			Camera *m_camera;
+			Camera::ptr m_camera;
 			unsigned int m_maxDepth;
 			unsigned int m_samplings;
 			int m_width, m_height, m_channel;
@@ -26,15 +24,9 @@ namespace Aurora
 
 			Setting() :m_maxDepth(50), m_samplings(10), m_channel(4), m_camera(nullptr) {}
 
-			~Setting()
-			{
-				if (m_camera)delete m_camera;
-				m_camera = nullptr;
-			}
 		};
 
 		Setting m_config;								// configuration.
-		unsigned char *m_image;							// Render target.
 		HitableList::ptr m_scene;						// Scene object lists.
 
 	public:
@@ -50,21 +42,19 @@ namespace Aurora
 		Float getTotalFrameTime() const { return m_config.totalFrameTime; }
 		unsigned int getSamplings() const { return m_config.m_samplings; }
 		unsigned int getRecursionDepth() const { return m_config.m_maxDepth; }
-		unsigned char *getImage() const { return m_image; }
-		Camera *getCamera() const { return m_config.m_camera; }
+		Camera *getCamera() const { return m_config.m_camera.get(); }
 
 		void addObjects(const Hitable::ptr &object);
 		void initialize(int w, int h, int c = 4);
 		void beginFrame();
 		void endFrame();
 
-		unsigned char *render(Float &totalTime);
+		void render(Float &totalTime);
 
 	private:
-		AVector3f tracing(const ARay &r, Hitable *world, int depth);
-		void drawPixel(unsigned int x, unsigned int y, const AVector3f &color);
+		ASpectrum tracing(const ARay &r, Hitable *world, int depth);
 
-		AVector3f deNan(const AVector3f &c);
+		ASpectrum deNan(const ASpectrum &c);
 	};
 
 }

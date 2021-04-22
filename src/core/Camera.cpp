@@ -2,8 +2,9 @@
 
 namespace Aurora
 {
-	Camera::Camera(const AVector3f &cameraPos, const AVector3f &target,
+	Camera::Camera(AFilm::ptr film, const AVector3f &cameraPos, const AVector3f &target,
 		Float vfov, Float aspect, Float aperture, Float focus_dist)
+		: m_film(film)
 	{
 		m_pos = cameraPos;
 		m_target = target;

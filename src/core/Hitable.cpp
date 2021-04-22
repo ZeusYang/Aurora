@@ -15,7 +15,7 @@ namespace Aurora
 		Float discriminant = b * b - a * c;
 		if (discriminant > 0)
 		{
-			Float temp = (-b - sqrt(discriminant)) / a;
+			Float temp = (-b - glm::sqrt(discriminant)) / a;
 			if (temp > 0.0f && temp <= ray.m_tMax)
 			{
 				ret.m_t = temp;
@@ -27,7 +27,7 @@ namespace Aurora
 				ret.m_material = m_material.get();
 				return true;
 			}
-			temp = (-b + sqrt(discriminant)) / a;
+			temp = (-b + glm::sqrt(discriminant)) / a;
 			if (temp > 0.0f && temp <= ray.m_tMax)
 			{
 				ret.m_t = temp;
@@ -48,7 +48,7 @@ namespace Aurora
 		HitRecord rec;
 		if (this->hit(ARay(o, v), rec))
 		{
-			Float cos_theta_max = sqrt(1 - m_radius * m_radius / lengthSquared(m_center - o));
+			Float cos_theta_max = glm::sqrt(1 - m_radius * m_radius / lengthSquared(m_center - o));
 			Float solid_angle = 2 * aPi * (1 - cos_theta_max);
 			return 1.0f / solid_angle;
 		}

@@ -4,9 +4,6 @@
 #include "Material.h"
 #include "Camera.h"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 using namespace std;
 using namespace Aurora;
 
@@ -14,11 +11,15 @@ Tracer tracer;
 
 void cornellBoxScene()
 {
-	const AVector3f white_unit = AVector3f(0.73, 0.73, 0.73);
-	const AVector3f green_unit = AVector3f(0.12, 0.45, 0.15);
-	const AVector3f red_unit = AVector3f(0.65, 0.05, 0.05);
-	const AVector3f light_unit = AVector3f(4.0, 4.0, 4.0);
-	const AVector3f yellow_light_unit = AVector3f(1.0, 0.82, 0.53);
+	Float white[] = { 0.73f, 0.73f, 0.73f };
+	Float green[] = { 0.12, 0.45, 0.15 };
+	Float red[] = { 0.65, 0.05, 0.05 };
+	Float light[] = { 4.0, 4.0, 4.0 };
+
+	const ASpectrum white_unit = ASpectrum::fromRGB(white);
+	const ASpectrum green_unit = ASpectrum::fromRGB(green);
+	const ASpectrum red_unit = ASpectrum::fromRGB(red);
+	const ASpectrum light_unit = ASpectrum::fromRGB(light);
 
 	Material::ptr whiteLambert_mat = std::make_shared<Lambertian>(white_unit);
 	Material::ptr greenLambert_mat = std::make_shared<Lambertian>(green_unit);
@@ -67,7 +68,6 @@ void cornellBoxScene()
 	Triangle::ptr lamp2(new Triangle(lightDiffuse_mat, AVector3f(+2, 10, -2), AVector3f(+2, 10, +2),
 		AVector3f(-2, 10, +2)));
 
-	//tracer.addObjects(bottom);
 	tracer.addObjects(bot1);
 	tracer.addObjects(bot2);
 
@@ -100,28 +100,18 @@ int main()
 	// initialize.
 	tracer.initialize(666, 500);
 	tracer.setRecursionDepth(10);
-	tracer.setSamplingNums(32);
+	tracer.setSamplingNums(256);
 
 	// create scene.
 	cornellBoxScene();
 
 	// render.
 	Float totalTime = 0.0f;
-	unsigned char * ret = nullptr;
+
 	tracer.beginFrame();
-	{
-		ret = tracer.render(totalTime);
-	}
+	tracer.render(totalTime);
 	tracer.endFrame();
 
-	// write to png image.
-	stbi_flip_vertically_on_write(1);
-	stbi_write_png("./result.png",
-		tracer.getWidth(),
-		tracer.getHeight(),
-		4,
-		static_cast<void*>(tracer.getImage()),
-		tracer.getWidth() * 4);
 	cout << "Rendering over!!\n";
 	cout << "Total->" << totalTime << std::endl;
 	return 0;

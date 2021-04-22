@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "ArFilm.h"
 #include "ArMathUtils.h"
 
 namespace Aurora
@@ -9,6 +10,10 @@ namespace Aurora
 	class Camera
 	{
 	public:
+		typedef std::shared_ptr<Camera> ptr;
+
+		AFilm::ptr m_film = nullptr;
+
 		AVector3f m_pos;
 		AVector3f m_target;
 		AVector3f m_lowerLeftCorner;
@@ -18,7 +23,7 @@ namespace Aurora
 		Float m_lensRadius, m_focusDist;
 		AVector3f m_axisX, m_axisY, m_axisZ;
 
-		Camera(const AVector3f &cameraPos, const AVector3f &target, Float vfov,
+		Camera(AFilm::ptr film, const AVector3f &cameraPos, const AVector3f &target, Float vfov,
 			Float aspect, Float aperture, Float focus_dist);
 
 		// Getter.

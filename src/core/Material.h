@@ -3,6 +3,7 @@
 
 #include "ArAurora.h"
 #include "ArMathUtils.h"
+#include "ArSpectrum.h"
 
 namespace Aurora
 {
@@ -12,7 +13,7 @@ namespace Aurora
 	{
 		ARay m_scatterRay;
 		bool m_isSpecular;
-		AVector3f m_attenuation;
+		ASpectrum m_attenuation;
 		std::shared_ptr<PDF> m_pdf;
 	};
 
@@ -35,22 +36,22 @@ namespace Aurora
 			return 1.0f;
 		}
 
-		virtual AVector3f emitted(const ARay &in, const HitRecord &rec, const Float &u,
+		virtual ASpectrum emitted(const ARay &in, const HitRecord &rec, const Float &u,
 			const Float &v, const AVector3f &p) const
 		{
-			return AVector3f(0.0f, 0.0f, 0.0f);
+			return ASpectrum(0.0f);
 		}
 	};
 
 	class Lambertian final : public Material
 	{
 	private:
-		AVector3f m_albedo;
+		ASpectrum m_albedo;
 
 	public:
 		typedef std::shared_ptr<Lambertian> ptr;
 
-		Lambertian(const AVector3f &a) : m_albedo(a) {}
+		Lambertian(const ASpectrum &a) : m_albedo(a) {}
 		virtual ~Lambertian() = default;
 
 		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const override;
@@ -63,12 +64,12 @@ namespace Aurora
 	{
 	private:
 		Float m_fuzz;
-		AVector3f m_albedo;
+		ASpectrum m_albedo;
 
 	public:
 		typedef std::shared_ptr<Metal> ptr;
 
-		Metal(const AVector3f &a, const Float &f) : m_albedo(a), m_fuzz(f)
+		Metal(const ASpectrum &a, const Float &f) : m_albedo(a), m_fuzz(f)
 		{
 			if (f > 1.0f)m_fuzz = 1.0f;
 		}
@@ -86,7 +87,7 @@ namespace Aurora
 		{
 			Float r0 = (1.0f - ref_idx) / (1.0f + ref_idx);
 			r0 = r0 * r0;
-			return r0 + (1.0f - r0) * pow((1.0f - cosine), 5.0f);
+			return r0 + (1.0f - r0) * glm::pow((1.0f - cosine), 5.0f);
 		}
 
 	public:
@@ -101,17 +102,17 @@ namespace Aurora
 	class DiffuseLight final : public Material
 	{
 	private:
-		AVector3f m_emitTex;
-		AVector3f m_albedo;
+		ASpectrum m_emitTex;
+		ASpectrum m_albedo;
 
 	public:
 		typedef std::shared_ptr<DiffuseLight> ptr;
 
-		DiffuseLight(const AVector3f &a, const AVector3f &b) : m_emitTex(a), m_albedo(b) { }
+		DiffuseLight(const ASpectrum &a, const ASpectrum &b) : m_emitTex(a), m_albedo(b) { }
 
 		virtual bool scatter(const ARay &in, const HitRecord &rec, ScatterRecord &srec) const override;
 
-		virtual AVector3f emitted(const ARay &in, const HitRecord &rec, const Float &u,
+		virtual ASpectrum emitted(const ARay &in, const HitRecord &rec, const Float &u,
 			const Float &v, const AVector3f &p) const;
 	};
 
