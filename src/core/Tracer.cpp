@@ -2,8 +2,7 @@
 
 #include "Hitable.h"
 #include "Material.h"
-#include "CosinePDF.h"
-#include "HitablePDF.h"
+#include "PDF.h"
 
 #include <random>
 #include <time.h>
@@ -20,10 +19,9 @@ namespace Aurora
 	void Tracer::initialize(int w, int h, int samplingNum, int depth,
 		const AVector3f &eye, const AVector3f &target, Float fovy)
 	{
-		// Image width and height.
-		m_config.m_width = w;
-		m_config.m_height = h;
-		m_config.m_maxDepth = depth;
+		//Depth
+		m_maxDepth = depth;
+		m_width = w, m_height = h;
 
 		//Sampler
 		m_sampler = std::make_shared<ARandomSampler>(samplingNum);
@@ -79,11 +77,11 @@ namespace Aurora
 
 	void Tracer::render(Float &totalTime)
 	{
-		m_config.startFrame = clock();
+		auto startFrame = clock();
 
-		for (int y = 0; y < m_config.m_height; ++y)
+		for (int y = 0; y < m_height; ++y)
 		{
-			for (int x = 0; x < m_config.m_width; ++x)
+			for (int x = 0; x < m_width; ++x)
 			{
 				ASpectrum Li;
 				AVector2i pRaster(x, y);
@@ -107,9 +105,8 @@ namespace Aurora
 			}
 		}
 
-		m_config.endFrame = clock();
-		m_config.totalFrameTime = static_cast<Float>(m_config.endFrame - m_config.startFrame) / CLOCKS_PER_SEC;
-		totalTime = m_config.totalFrameTime;
+		auto endFrame = clock();
+		totalTime = static_cast<Float>(endFrame - startFrame) / CLOCKS_PER_SEC;
 
 		m_camera->m_film->writeImageToFile();
 	}
@@ -133,7 +130,7 @@ namespace Aurora
 			ScatterRecord srec;
 			Material* material = rec.m_material;
 			ASpectrum emitted = material->emitted(r, rec, rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);
-			if (depth < m_config.m_maxDepth && material->scatter(r, rec, srec))
+			if (depth < m_maxDepth && material->scatter(r, rec, srec))
 			{
 				if (srec.m_isSpecular)
 				{

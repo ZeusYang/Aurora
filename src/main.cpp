@@ -119,7 +119,7 @@ int main()
 	// initialize.
 	AVector3f eye(0, 5, 18);
 	AVector3f center(0, 5, 0);
-	tracer.initialize(666, 500, 256, 10, eye, center, 45.0f);
+	tracer.initialize(666, 500, 32, 10, eye, center, 45.0f);
 
 	// create scene.
 	cornellBoxScene();
