@@ -108,8 +108,8 @@ namespace Aurora
 
 		ABounds2(const AVector2<T> &p1, const AVector2<T> &p2)
 		{
-			m_pMin = AVector2<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
-			m_pMax = AVector2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
+			m_pMin = AVector2<T>(glm::min(p1.x, p2.x), glm::min(p1.y, p2.y));
+			m_pMax = AVector2<T>(glm::max(p1.x, p2.x), glm::max(p1.y, p2.y));
 		}
 
 		template <typename U>

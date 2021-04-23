@@ -49,8 +49,7 @@ namespace Aurora
 	{
 	public:
 		// WhittedIntegrator Public Methods
-		AWhittedIntegrator(int maxDepth, ACamera::ptr camera,
-			std::shared_ptr<ASampler> sampler,
+		AWhittedIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
 			const ABounds2i &pixelBounds)
 			: ASamplerIntegrator(camera, sampler, pixelBounds), m_maxDepth(maxDepth) {}
 
@@ -65,7 +64,7 @@ namespace Aurora
 		MemoryArena &arena, ASampler &sampler, const std::vector<int> &nLightSamples);
 
 	ASpectrum uniformSampleOneLight(const AInteraction &it, const AScene &scene,
-		MemoryArena &arena, ASampler &sampler);
+		MemoryArena &arena, ASampler &sampler, const ADistribution1D *lightDistrib);
 
 	ASpectrum estimateDirect(const AInteraction &it, const AVector2f &uShading, const ALight &light,
 		const AVector2f &uLight, const AScene &scene, ASampler &sampler, MemoryArena &arena, bool specular = false);

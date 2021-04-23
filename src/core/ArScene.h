@@ -13,11 +13,11 @@ namespace Aurora
 	class AScene final
 	{
 	public:
-		// Scene Public Methods
-		AScene(const std::vector<ALight::ptr> &lights)
-			: m_lights(lights)
+		typedef std::shared_ptr<AScene> ptr;
+
+		AScene(const AHitableAggregate::ptr &hitables, const std::vector<ALight::ptr> &lights) 
+			: m_lights(lights), m_aggreShape(hitables)
 		{
-			// Scene Constructor Implementation
 			for (const auto &light : lights)
 			{
 				light->preprocess(*this);
@@ -40,7 +40,7 @@ namespace Aurora
 	private:
 		// Scene Private Data
 		ABounds3f m_worldBound;
-		AHitableList::ptr m_aggreShape;
+		AHitableAggregate::ptr m_aggreShape;
 	};
 }
 

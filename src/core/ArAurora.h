@@ -63,6 +63,7 @@ namespace Aurora
 	class ACameraSample;
 	class ARGBSpectrum;
 	class AInteraction;
+	class ADistribution1D;
 	class AVisibilityTester;
 	class ASurfaceInteraction;
 

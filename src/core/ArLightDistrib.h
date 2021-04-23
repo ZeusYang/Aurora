@@ -123,6 +123,9 @@ namespace Aurora
 		std::unique_ptr<ADistribution1D> distrib;
 	};
 
+	std::unique_ptr<ALightDistribution> createLightSampleDistribution(
+		const std::string &name, const AScene &scene);
+
 }
 
 #endif

@@ -3,6 +3,7 @@
 #include "ArBSDF.h"
 #include "ArScene.h"
 #include "ArMemory.h"
+#include "ArLightDistrib.h"
 
 namespace Aurora
 {
@@ -193,7 +194,7 @@ namespace Aurora
 	}
 
 	ASpectrum uniformSampleOneLight(const AInteraction &it, const AScene &scene,
-		MemoryArena &arena, ASampler &sampler)
+		MemoryArena &arena, ASampler &sampler, const ADistribution1D *lightDistrib)
 	{
 		// Randomly choose a single light to sample, _light_
 		int nLights = int(scene.m_lights.size());
@@ -204,9 +205,17 @@ namespace Aurora
 		int lightNum;
 		Float lightPdf;
 
-		lightNum = glm::min((int)(sampler.get1D() * nLights), nLights - 1);
-
-		lightPdf = Float(1) / nLights;
+		if (lightDistrib != nullptr) 
+		{
+			lightNum = lightDistrib->sampleDiscrete(sampler.get1D(), &lightPdf);
+			if (lightPdf == 0) 
+				return ASpectrum(0.f);
+		}
+		else 
+		{
+			lightNum = glm::min((int)(sampler.get1D() * nLights), nLights - 1);
+			lightPdf = Float(1) / nLights;
+		}
 
 		const ALight::ptr &light = scene.m_lights[lightNum];
 		AVector2f uLight = sampler.get2D();
