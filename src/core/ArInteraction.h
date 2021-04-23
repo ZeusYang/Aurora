@@ -37,9 +37,9 @@ namespace Aurora
 		}
 
 	public:
-		AVector3f p;			//Surface point
-		AVector3f wo;			//Outgoing direction
-		AVector3f n;			//Normal vector
+		AVector3f p;			//surface point
+		AVector3f wo;			//outgoing direction
+		AVector3f n;			//normal vector
 	};
 
 	class ASurfaceInteraction final : public AInteraction
@@ -56,7 +56,6 @@ namespace Aurora
 			bool allowMultipleLobes = false, ATransportMode mode = ATransportMode::aRadiance);
 
 	public:
-		float t;
 		AVector2f uv;
 		AVector3f dpdu, dpdv;
 

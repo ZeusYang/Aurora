@@ -583,6 +583,27 @@ namespace Aurora
 		return (tMin < ray.m_tMax) && (tMax > 0);
 	}
 
+	template <typename Predicate>
+	int findInterval(int size, const Predicate &pred) 
+	{
+		int first = 0, len = size;
+		while (len > 0) 
+		{
+			int half = len >> 1, middle = first + half;
+			// Bisect range based on value of _pred_ at _middle_
+			if (pred(middle)) 
+			{
+				first = middle + 1;
+				len -= half + 1;
+			}
+			else
+			{
+				len = half;
+			}
+		}
+		return clamp(first - 1, 0, size - 2);
+	}
+
 	inline AVector3f reflect(const AVector3f &wo, const AVector3f &n) { return -wo + 2 * dot(wo, n) * n; }
 
 	inline bool refract(const AVector3f &wi, const AVector3f &n, Float eta, AVector3f &wt)
@@ -625,7 +646,7 @@ namespace Aurora
 	{
 		float r1 = drand48();
 		float r2 = drand48();
-		float z = sqrt(1 - r2);
+		float z = glm::sqrt(1 - r2);
 		float phi = 2 * aPi * r1;
 		float x = glm::cos(phi) * 2 * glm::sqrt(r2);
 		float y = glm::sin(phi) * 2 * glm::sqrt(r2);

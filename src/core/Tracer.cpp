@@ -122,19 +122,21 @@ namespace Aurora
 		return tmp;
 	}
 
-	ASpectrum Tracer::tracing(const ARay &r, Hitable *world, int depth)
+	ASpectrum Tracer::tracing(const ARay &r, Hitable *scene, int depth)
 	{
 		HitRecord rec;
-		if (world->hit(r, rec))
+		if (scene->hit(r, rec))
 		{
 			ScatterRecord srec;
+
 			Material* material = rec.m_material;
 			ASpectrum emitted = material->emitted(r, rec, rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);
+
 			if (depth < m_maxDepth && material->scatter(r, rec, srec))
 			{
 				if (srec.m_isSpecular)
 				{
-					return srec.m_attenuation * tracing(srec.m_scatterRay, world, depth + 1);
+					return srec.m_attenuation * tracing(srec.m_scatterRay, scene, depth + 1);
 				}
 				else
 				{
@@ -145,7 +147,7 @@ namespace Aurora
 					ARay scattered = ARay(rec.m_position, normalize(dir));
 
 					return emitted + srec.m_attenuation * material->scattering_pdf(r, rec, scattered)
-						* tracing(scattered, world, depth + 1) / pdf_val;
+						* tracing(scattered, scene, depth + 1) / pdf_val;
 				}
 			}
 			else
@@ -161,4 +163,46 @@ namespace Aurora
 			return bg;
 		}
 	}
+
+	//ASpectrum Tracer::tracing(const ARay &r, Hitable *scene, int depth)
+	//{
+	//	HitRecord rec;
+	//	if (scene->hit(r, rec))
+	//	{
+	//		ScatterRecord srec;
+
+	//		Material* material = rec.m_material;
+	//		ASpectrum emitted = material->emitted(r, rec, rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);
+
+	//		if (depth < m_maxDepth && material->scatter(r, rec, srec))
+	//		{
+	//			if (srec.m_isSpecular)
+	//			{
+	//				return srec.m_attenuation * tracing(srec.m_scatterRay, scene, depth + 1);
+	//			}
+	//			else
+	//			{
+	//				AVector3f dir;
+	//				Float pdf_val;
+	//				dir = srec.m_pdf->generate();
+	//				pdf_val = srec.m_pdf->value(dir);
+	//				ARay scattered = ARay(rec.m_position, normalize(dir));
+
+	//				return emitted + srec.m_attenuation * material->scattering_pdf(r, rec, scattered)
+	//					* tracing(scattered, scene, depth + 1) / pdf_val;
+	//			}
+	//		}
+	//		else
+	//			return emitted;
+	//	}
+	//	else
+	//	{
+	//		// background color.
+	//		Float t = 0.5f * (r.direction().y + 1.0f);
+	//		auto tmp = AVector3f(1.0f, 1.0f, 1.0f) * (1.0f - t) + AVector3f(0.5f, 0.7f, 1.0f) * t;
+	//		Float rgb[3] = { tmp.x, tmp.y, tmp.z };
+	//		ASpectrum bg = ARGBSpectrum::fromRGB(rgb);
+	//		return bg;
+	//	}
+	//}
 }

@@ -1,8 +1,8 @@
 #include "ArInteraction.h"
 
 #include "ArSpectrum.h"
-//#include "ArHitable.h"
-//#include "ArBxDF.h"
+#include "ArHitable.h"
+#include "ArBSDF.h"
 
 namespace Aurora
 {
@@ -12,16 +12,14 @@ namespace Aurora
 
 	ASpectrum ASurfaceInteraction::Le(const AVector3f &w) const
 	{
-		//const AAreaLight *area = hitable->getAreaLight();
-		//return area != nullptr ? area->L(*this, w) : ASpectrum(0.f);
-		return ASpectrum(0.f);
+		const AAreaLight *area = hitable->getAreaLight();
+		return area != nullptr ? area->L(*this, w) : ASpectrum(0.f);
 	}
 
 	void ASurfaceInteraction::computeScatteringFunctions(const ARay &ray, MemoryArena &arena,
 		bool allowMultipleLobes, ATransportMode mode)
 	{
-		//hitable->computeScatteringFunctions(*this, arena, mode, allowMultipleLobes);
-		return;
+		hitable->computeScatteringFunctions(*this, arena, mode, allowMultipleLobes);
 	}
 
 }
