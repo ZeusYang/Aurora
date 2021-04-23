@@ -35,10 +35,93 @@ namespace Aurora
 		return f;
 	}
 
-	ASpectrum ABSDF::sample_f(const AVector3f &wo, AVector3f &wi, const AVector2f &u, Float &pdf,
-		ABxDFType &sampledType, ABxDFType type) const
+	ASpectrum ABSDF::sample_f(const AVector3f &woWorld, AVector3f &wiWorld, const AVector2f &u,
+		Float &pdf, ABxDFType &sampledType, ABxDFType type) const
 	{
-		return ASpectrum(1.0f);
+		// Choose which _BxDF_ to sample
+		int matchingComps = numComponents(type);
+		if (matchingComps == 0) 
+		{
+			pdf = 0;
+			if (sampledType)
+			{
+				sampledType = ABxDFType(0);
+			}
+			return ASpectrum(0);
+		}
+		int comp = glm::min((int)glm::floor(u[0] * matchingComps), matchingComps - 1);
+
+		// Get _BxDF_ pointer for chosen component
+		ABxDF *bxdf = nullptr;
+		int count = comp;
+		for (int i = 0; i < m_nBxDFs; ++i) 
+		{
+			if (m_bxdfs[i]->matchesFlags(type) && count-- == 0) 
+			{
+				bxdf = m_bxdfs[i];
+				break;
+			}
+		}
+		//CHECK(bxdf != nullptr);
+		//VLOG(2) << "BSDF::Sample_f chose comp = " << comp << " / matching = " <<
+		//	matchingComps << ", bxdf: " << bxdf->ToString();
+
+		// Remap _BxDF_ sample _u_ to $[0,1)^2$
+		AVector2f uRemapped(glm::min(u[0] * matchingComps - comp, aOneMinusEpsilon), u[1]);
+
+		// Sample chosen _BxDF_
+		AVector3f wi, wo = worldToLocal(woWorld);
+		if (wo.z == 0) 
+			return 0.;
+		
+		pdf = 0;
+		if (sampledType) 
+			sampledType = bxdf->m_type;
+		ASpectrum f = bxdf->sample_f(wo, wi, uRemapped, pdf, sampledType);
+		//VLOG(2) << "For wo = " << wo << ", sampled f = " << f << ", pdf = "
+		//	<< *pdf << ", ratio = " << ((*pdf > 0) ? (f / *pdf) : Spectrum(0.))
+		//	<< ", wi = " << wi;
+		if (pdf == 0) 
+		{
+			if (sampledType) 
+				sampledType = ABxDFType(0);
+			return 0;
+		}
+
+		wiWorld = localToWorld(wi);
+
+		// Compute overall PDF with all matching _BxDF_s
+		if (!(bxdf->m_type & BSDF_SPECULAR) && matchingComps > 1)
+		{
+			for (int i = 0; i < m_nBxDFs; ++i)
+			{
+				if (m_bxdfs[i] != bxdf && m_bxdfs[i]->matchesFlags(type))
+					pdf += m_bxdfs[i]->pdf(wo, wi);
+			}
+		}
+		if (matchingComps > 1)
+		{
+			pdf /= matchingComps;
+		}
+
+		// Compute value of BSDF for sampled direction
+		if (!(bxdf->m_type & BSDF_SPECULAR)) 
+		{
+			bool reflect = dot(wiWorld, m_ns) * dot(woWorld, m_ns) > 0;
+			f = 0.;
+			for (int i = 0; i < m_nBxDFs; ++i)
+			{
+				if (m_bxdfs[i]->matchesFlags(type) &&
+					((reflect && (m_bxdfs[i]->m_type & BSDF_REFLECTION)) ||
+					(!reflect && (m_bxdfs[i]->m_type & BSDF_TRANSMISSION))))
+				{
+					f += m_bxdfs[i]->f(wo, wi);
+				}
+			}
+		}
+		//VLOG(2) << "Overall f = " << f << ", pdf = " << *pdf << ", ratio = "
+		//	<< ((*pdf > 0) ? (f / *pdf) : Spectrum(0.));
+		return f;
 	}
 
 	Float ABSDF::pdf(const AVector3f &woWorld, const AVector3f &wiWorld, ABxDFType flags) const

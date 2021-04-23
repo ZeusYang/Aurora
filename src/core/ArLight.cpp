@@ -68,7 +68,8 @@ namespace Aurora
 		Float &pdf, AVisibilityTester &vis) const
 	{
 		AInteraction pShape = m_shape->sample(ref, u, pdf);
-		if (pdf == 0 || dot((pShape.p - ref.p), (pShape.p - ref.p)) == 0)
+
+		if (pdf == 0 || lengthSquared(pShape.p - ref.p) == 0)
 		{
 			pdf = 0;
 			return 0.f;

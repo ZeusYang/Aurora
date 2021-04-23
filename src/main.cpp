@@ -6,6 +6,7 @@
 #include "ArHitable.h"
 #include "ArMaterial.h"
 #include "ArIntegrator.h"
+#include "ArPathIntegrator.h"
 
 using namespace std;
 using namespace Aurora;
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 	Float green[] = { 0.12, 0.45, 0.15 };
 	Float red[] = { 0.65, 0.05, 0.05 };
 	Float blue[] = { 0.05, 0.05, 0.75 };
-	Float light[] = { 20.0, 20.0, 20.0 };
+	Float light[] = { 15.0, 15.0, 15.0 };
 
 	const ASpectrum white_unit = ASpectrum::fromRGB(white);
 	const ASpectrum green_unit = ASpectrum::fromRGB(green);
@@ -85,15 +86,20 @@ int main(int argc, char *argv[])
 	AHitableEntity::ptr entity12 = std::make_shared<AHitableEntity>(bak2, whiteLambert_mat, nullptr);
 
 	//light
-	AVector3f t11[3] = { AVector3f(-2, 10, -2), AVector3f(+2, 10, -2), AVector3f(-2, 10, +2) };
-	ATriangleShape::ptr lamp1 = std::make_shared<ATriangleShape>(identity, identity, t11);
-	AAreaLight::ptr light1 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp1);
-	AHitableEntity::ptr entity13 = std::make_shared<AHitableEntity>(lamp1, whiteLambert_mat, light1);
+	//AVector3f t11[3] = { AVector3f(-2, 10, -2), AVector3f(+2, 10, -2), AVector3f(-2, 10, +2) };
+	//ATriangleShape::ptr lamp1 = std::make_shared<ATriangleShape>(identity, identity, t11);
+	//AAreaLight::ptr light1 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp1);
+	//AHitableEntity::ptr entity13 = std::make_shared<AHitableEntity>(lamp1, whiteLambert_mat, light1);
 
-	AVector3f t12[3] = { AVector3f(+2, 10, -2), AVector3f(+2, 10, +2), AVector3f(-2, 10, +2) };
-	ATriangleShape::ptr lamp2 = std::make_shared<ATriangleShape>(identity, identity, t12);
-	AAreaLight::ptr light2 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp2);
-	AHitableEntity::ptr entity14 = std::make_shared<AHitableEntity>(lamp2, whiteLambert_mat, light2);
+	//AVector3f t12[3] = { AVector3f(+2, 10, -2), AVector3f(+2, 10, +2), AVector3f(-2, 10, +2) };
+	//ATriangleShape::ptr lamp2 = std::make_shared<ATriangleShape>(identity, identity, t12);
+	//AAreaLight::ptr light2 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp2);
+	//AHitableEntity::ptr entity14 = std::make_shared<AHitableEntity>(lamp2, whiteLambert_mat, light2);
+
+	ATransform trans3 = translate(AVector3f(0, 10, +0));
+	ASphereShape::ptr lamp3 = std::make_shared<ASphereShape>(trans3, inverse(trans3), 1.0f);
+	AAreaLight::ptr light3 = std::make_shared<ADiffuseAreaLight>(trans3, light_unit, 8, lamp3);
+	AHitableEntity::ptr entity15 = std::make_shared<AHitableEntity>(lamp3, whiteLambert_mat, light3);
 
 	//Aggregate
 	AHitableList::ptr aggregate = std::make_shared<AHitableList>();
@@ -109,11 +115,12 @@ int main(int argc, char *argv[])
 	aggregate->addHitable(entity10);
 	aggregate->addHitable(entity11);
 	aggregate->addHitable(entity12);
-	aggregate->addHitable(entity13);
-	aggregate->addHitable(entity14);
+	//aggregate->addHitable(entity13);
+	//aggregate->addHitable(entity14);
+	aggregate->addHitable(entity15);
 
 	//Scene
-	std::vector<ALight::ptr> lights = { light1, light2 };
+	std::vector<ALight::ptr> lights = { /*light1, light2*/light3 };
 	AScene::ptr scene = std::make_shared<AScene>(aggregate, lights);
 
 	int maxDepth = 10;
@@ -122,12 +129,11 @@ int main(int argc, char *argv[])
 	//Film & sampler
 	AVector2i res(width, height);
 	AFilm::ptr film = std::make_shared<AFilm>(res, "../result.png");
-	ASampler::ptr sampler = std::make_shared<ARandomSampler>(8);
+	ASampler::ptr sampler = std::make_shared<ARandomSampler>(256);
 
-	AVector3f eye(0, 5, 18);
-	AVector3f center(0, 5, 0);
 	Float fovy = 45.0f;
-
+	AVector3f eye(0, 5, 18), center(0, 5, 0);
+	
 	//Camera
 	ABounds2f screen;
 	Float frame = (Float)(width) / height;
@@ -149,12 +155,12 @@ int main(int argc, char *argv[])
 	ACamera::ptr camera = std::make_shared<APerspectiveCamera>(cameraToWorld, screen, fovy, film);
 
 	ABounds2i pixelBound(AVector2i(0, 0), AVector2i(width, height));
+
 	AWhittedIntegrator integrator(maxDepth, camera, sampler, pixelBound);
+	//APathIntegrator integrator(maxDepth, camera, sampler, pixelBound, 0.99f);
 
 	integrator.preprocess(*scene, *sampler);
 	integrator.render(*scene);
-
-	std::cout << "Rendering over!\n";
 
 	return 0;
 }

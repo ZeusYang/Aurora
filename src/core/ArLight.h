@@ -20,7 +20,8 @@ namespace Aurora
 
 	inline bool isDeltaLight(int flags)
 	{
-		return flags & (int)ALightFlags::ALightDeltaPosition || flags & (int)ALightFlags::ALightDeltaDirection;
+		return flags & (int)ALightFlags::ALightDeltaPosition 
+			|| flags & (int)ALightFlags::ALightDeltaDirection;
 	}
 
 	class ALight

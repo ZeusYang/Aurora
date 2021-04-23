@@ -49,7 +49,6 @@ namespace Aurora
 		}
 
 		reporter.done();
-
 		m_camera->m_film->writeImageToFile();
 
 	}
@@ -157,7 +156,7 @@ namespace Aurora
 		{
 			// Trace rays for specular reflection and refraction
 			L += specularReflect(ray, isect, scene, sampler, arena, depth);
-			L += specularTransmit(ray, isect, scene, sampler, arena, depth);
+			//L += specularTransmit(ray, isect, scene, sampler, arena, depth);
 		}
 
 		return L;
