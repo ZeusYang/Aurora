@@ -2,27 +2,19 @@
 #define HITABLE_H
 
 #include "Material.h"
+#include "ArShape.h"
 #include "ArMathUtils.h"
 #include <vector>
-
 
 namespace Aurora
 {
 
 	struct HitRecord
 	{
-		Float m_t;
 		AVector2f m_texcoord;
 		AVector3f m_position;
 		AVector3f m_normal;
 		Material* m_material;
-	};
-
-	struct Vertex
-	{
-		AVector3f m_position;
-		AVector3f m_normal;
-		AVector2f m_texcoord;
 	};
 
 	class Hitable
@@ -44,48 +36,25 @@ namespace Aurora
 		virtual AVector3f random(const AVector3f &o) const { return AVector3f(1.0f, 0.0f, 0.0f); }
 	};
 
-	class Sphere final : public Hitable
+	class HitableEntity final : public Hitable
 	{
 	public:
-		typedef std::shared_ptr<Sphere> ptr;
+		typedef std::shared_ptr<HitableEntity> ptr;
 
-		Float m_radius;
-		AVector3f m_center;
+		HitableEntity(const Material::ptr &mat, const AShape::ptr &shape)
+			: Hitable(mat), m_shape(shape) {}
 
-		Sphere(const Material::ptr &mat, const AVector3f &cen, const Float r)
-			:Hitable(mat), m_center(cen), m_radius(r) {}
-		virtual ~Sphere() = default;
+		virtual ~HitableEntity() = default;
 
 		virtual bool hit(const ARay &ray, HitRecord &ret) const override;
-		virtual Float pdfValue(const AVector3f &o, const AVector3f &v) const override;
-		virtual AVector3f random(const AVector3f &o) const override;
-	};
 
-	class Triangle final : public Hitable
-	{
-	public:
-		typedef std::shared_ptr<Triangle> ptr;
-
-		AVector3f m_normal;
-		AVector3f m_p0, m_p1, m_p2;
-
-		Triangle(const Material::ptr &mat, AVector3f p0, AVector3f p1, AVector3f p2)
-			: Hitable(mat), m_p0(p0), m_p1(p1), m_p2(p2)
-		{
-			m_normal = normalize(cross((p1 - p0), (p2 - p0)));
-		}
-
-		virtual ~Triangle() = default;
-
-		virtual bool hit(const ARay &ray, HitRecord &ret) const override;
+	private:
+		AShape::ptr m_shape;
 
 	};
 
 	class HitableList : public Hitable
 	{
-	private:
-		std::vector<Hitable::ptr> m_objects;
-
 	public:
 		typedef std::shared_ptr<HitableList> ptr;
 
@@ -102,9 +71,11 @@ namespace Aurora
 			}
 		}
 
-
 		bool isEmpty() const { return m_objects.empty(); }
 		void addObjects(const Hitable::ptr &object) { m_objects.push_back(object); }
+
+	private:
+		std::vector<Hitable::ptr> m_objects;
 	};
 
 }

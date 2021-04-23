@@ -54,6 +54,7 @@ namespace Aurora
 
 	template<typename T>
 	using AVector2 = glm::vec<2, T>;
+
 	template<typename T>
 	using AVector3 = glm::vec<3, T>;
 
@@ -391,6 +392,18 @@ namespace Aurora
 
 	template <typename T>
 	inline AVector3<T> normalize(const AVector3<T> &v) { return glm::normalize(v); }
+
+	template <typename T>
+	inline T minComponent(const AVector3<T> &v) { return glm::min(v.x, glm::min(v.y, v.z)); }
+
+	template <typename T>
+	inline T maxComponent(const AVector3<T> &v) { return glm::max(v.x, glm::max(v.y, v.z)); }
+
+	template <typename T>
+	inline int maxDimension(const AVector3<T> &v) { return (v.x > v.y) ? ((v.x > v.z) ? 0 : 2) : ((v.y > v.z) ? 1 : 2); }
+
+	template <typename T>
+	inline AVector3<T> permute(const AVector3<T> &v, int x, int y, int z) { return AVector3<T>(v[x], v[y], v[z]); }
 
 	template <typename T>
 	inline AVector3<T> faceforward(const AVector3<T> &n, const AVector3<T> &v) { return (dot(n, v) < 0.f) ? -n : n; }

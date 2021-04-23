@@ -21,7 +21,7 @@ namespace Aurora
 		ACamera(const ATransform &cameraToWorld, AFilm::ptr film);
 		virtual ~ACamera();
 
-		virtual Float rayCasting(const ACameraSample &sample, ARay &ray) const = 0;
+		virtual Float castingRay(const ACameraSample &sample, ARay &ray) const = 0;
 
 		//virtual spectrum We(const ARay &ray, APoint2f *pRaster2 = nullptr) const;
 		//virtual void pdf_We(const ARay &ray, Float *pdfPos, Float *pdfDir) const;
@@ -66,7 +66,7 @@ namespace Aurora
 		APerspectiveCamera(const ATransform &CameraToWorld, const ABounds2f &screenWindow,
 			Float fov, AFilm::ptr film);
 
-		virtual Float rayCasting(const ACameraSample &sample, ARay &ray) const override;
+		virtual Float castingRay(const ACameraSample &sample, ARay &ray) const override;
 
 		//Spectrum We(const Ray &ray, Point2f *pRaster2 = nullptr) const;
 		//void Pdf_We(const Ray &ray, Float *pdfPos, Float *pdfDir) const;

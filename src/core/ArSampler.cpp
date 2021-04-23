@@ -165,4 +165,10 @@ namespace Aurora
 		return r * AVector2f(glm::cos(theta), glm::sin(theta));
 	}
 
+	AVector2f uniformSampleTriangle(const AVector2f &u)
+	{
+		Float su0 = glm::sqrt(u[0]);
+		return AVector2f(1 - su0, u[1] * su0);
+	}
+
 }

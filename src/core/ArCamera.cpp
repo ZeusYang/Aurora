@@ -27,7 +27,7 @@ namespace Aurora
 		A = std::abs((pMax.x - pMin.x) * (pMax.y - pMin.y));
 	}
 
-	Float APerspectiveCamera::rayCasting(const ACameraSample &sample, ARay &ray) const
+	Float APerspectiveCamera::castingRay(const ACameraSample &sample, ARay &ray) const
 	{
 		// Compute raster and camera sample positions
 		AVector3f pFilm = AVector3f(sample.pFilm.x, sample.pFilm.y, 0);

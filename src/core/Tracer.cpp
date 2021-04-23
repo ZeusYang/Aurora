@@ -95,7 +95,7 @@ namespace Aurora
 					
 					//Casting a ray to scene
 					ARay ray;
-					Float rayWeight = m_camera->rayCasting(sample, ray);
+					Float rayWeight = m_camera->castingRay(sample, ray);
 
 					Li += deNan(tracing(ray, m_scene.get(), 0));
 				} while (m_sampler->startNextSample());

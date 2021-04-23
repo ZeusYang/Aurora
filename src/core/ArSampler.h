@@ -83,6 +83,8 @@ namespace Aurora
 
 	AVector2f concentricSampleDisk(const AVector2f &u);
 
+	AVector2f uniformSampleTriangle(const AVector2f &u);
+
 	inline AVector3f cosineSampleHemisphere(const AVector2f &u)
 	{
 		AVector2f d = concentricSampleDisk(u);
