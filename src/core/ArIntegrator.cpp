@@ -3,6 +3,7 @@
 #include "ArBSDF.h"
 #include "ArScene.h"
 #include "ArMemory.h"
+#include "ArReporter.h"
 #include "ArLightDistrib.h"
 
 namespace Aurora
@@ -16,6 +17,7 @@ namespace Aurora
 		auto &sampler = m_sampler;
 
 		MemoryArena arena;
+		AReporter reporter(resolution.x * resolution.y, "Rendering");
 		for (int y = 0; y < resolution.y; ++y)
 		{
 			for (int x = 0; x < resolution.x; ++x)
@@ -42,8 +44,11 @@ namespace Aurora
 				//L = sqrt(L / m_sampler->getSamplingNumber());
 				L /= m_sampler->getSamplingNumber();
 				m_camera->m_film->setSpectrum(pixel, L);
+				reporter.update();
 			}
 		}
+
+		reporter.done();
 
 		m_camera->m_film->writeImageToFile();
 

@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	Float green[] = { 0.12, 0.45, 0.15 };
 	Float red[] = { 0.65, 0.05, 0.05 };
 	Float blue[] = { 0.05, 0.05, 0.75 };
-	Float light[] = { 4.0, 4.0, 4.0 };
+	Float light[] = { 20.0, 20.0, 20.0 };
 
 	const ASpectrum white_unit = ASpectrum::fromRGB(white);
 	const ASpectrum green_unit = ASpectrum::fromRGB(green);
@@ -116,13 +116,13 @@ int main(int argc, char *argv[])
 	std::vector<ALight::ptr> lights = { light1, light2 };
 	AScene::ptr scene = std::make_shared<AScene>(aggregate, lights);
 
-	int maxDepth = 15;
+	int maxDepth = 10;
 	int width = 666, height = 500;
 
 	//Film & sampler
 	AVector2i res(width, height);
 	AFilm::ptr film = std::make_shared<AFilm>(res, "../result.png");
-	ASampler::ptr sampler = std::make_shared<ARandomSampler>(32);
+	ASampler::ptr sampler = std::make_shared<ARandomSampler>(8);
 
 	AVector3f eye(0, 5, 18);
 	AVector3f center(0, 5, 0);

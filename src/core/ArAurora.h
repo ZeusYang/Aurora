@@ -4,8 +4,17 @@
 #include <limits>
 #include <memory>
 
+#if defined(_MSC_VER)
+#define NOMINMAX
+#endif
+
 #define GLM_FORCE_LEFT_HANDED
 #include "glm/glm.hpp"
+
+// Platform-specific definitions
+#if defined(_WIN32) || defined(_WIN64)
+#define AURORA_WINDOWS_OS
+#endif
 
 namespace Aurora
 {
@@ -74,7 +83,33 @@ namespace Aurora
 	// TransportMode Declarations
 	enum class ATransportMode { aRadiance, aImportance };
 
+	inline uint32_t floatToBits(float f) 
+	{
+		uint32_t ui;
+		memcpy(&ui, &f, sizeof(float));
+		return ui;
+	}
 
+	inline float bitsToFloat(uint32_t ui) 
+	{
+		float f;
+		memcpy(&f, &ui, sizeof(uint32_t));
+		return f;
+	}
+
+	inline uint64_t floatToBits(double f) 
+	{
+		uint64_t ui;
+		memcpy(&ui, &f, sizeof(double));
+		return ui;
+	}
+
+	inline double bitsToFloat(uint64_t ui) 
+	{
+		double f;
+		memcpy(&f, &ui, sizeof(uint64_t));
+		return f;
+	}
 
 }
 
