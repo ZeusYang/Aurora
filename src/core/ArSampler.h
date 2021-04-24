@@ -33,7 +33,7 @@ namespace Aurora
 			;
 		virtual bool startNextSample();
 
-		virtual std::unique_ptr<ASampler> Clone(int seed) = 0;
+		virtual std::unique_ptr<ASampler> clone(int seed) = 0;
 		virtual bool setSampleNumber(int64_t sampleNum);
 
 		int64_t currentSampleNumber() const { return m_currentPixelSampleIndex; }
@@ -65,7 +65,7 @@ namespace Aurora
 		virtual Float get1D() override;
 		virtual AVector2f get2D() override;
 
-		virtual std::unique_ptr<ASampler> Clone(int seed) override;
+		virtual std::unique_ptr<ASampler> clone(int seed) override;
 
 	private:
 		ARng m_rng; //Random number generator

@@ -16,37 +16,103 @@ namespace Aurora
 
 		auto &sampler = m_sampler;
 
-		MemoryArena arena;
-		AReporter reporter(resolution.x * resolution.y, "Rendering");
-		for (int y = 0; y < resolution.y; ++y)
-		{
-			for (int x = 0; x < resolution.x; ++x)
-			{
-				AVector2i pixel(x, y);
-				sampler->startPixel(pixel);
+		// Compute number of tiles, _nTiles_, to use for parallel rendering
+		ABounds2i sampleBounds = m_camera->m_film->getSampleBounds();
+		AVector2i sampleExtent = sampleBounds.diagonal();
+		constexpr int tileSize = 16;
+		AVector2i nTiles((sampleExtent.x + tileSize - 1) / tileSize, (sampleExtent.y + tileSize - 1) / tileSize);
 
-				ASpectrum L(0.f);
+		AReporter reporter(nTiles.x * nTiles.y, "Rendering");
+		for (int t = 0; t < nTiles.x * nTiles.y; ++t)
+		{
+			AVector2i tile(t % nTiles.x, t / nTiles.x);
+
+			MemoryArena arena;
+			
+			// Get sampler instance for tile
+			int seed = /*tile.y * nTiles.x + tile.x*/t;
+			std::unique_ptr<ASampler> tileSampler = sampler->clone(seed);
+
+			// Compute sample bounds for tile
+			int x0 = sampleBounds.m_pMin.x + tile.x * tileSize;
+			int x1 = glm::min(x0 + tileSize, sampleBounds.m_pMax.x);
+			int y0 = sampleBounds.m_pMin.y + tile.y * tileSize;
+			int y1 = glm::min(y0 + tileSize, sampleBounds.m_pMax.y);
+			ABounds2i tileBounds(AVector2i(x0, y0), AVector2i(x1, y1));
+
+			// Get _FilmTile_ for tile
+			std::unique_ptr<AFilmTile> filmTile = m_camera->m_film->getFilmTile(tileBounds);
+
+			// Loop over pixels in tile to render them
+			for (AVector2i pixel : tileBounds)
+			{
+				tileSampler->startPixel(pixel);
+				
+				// Do this check after the StartPixel() call; this keeps
+				// the usage of RNG values from (most) Samplers that use
+				// RNGs consistent, which improves reproducability /
+				// debugging.
+				if (!insideExclusive(pixel, m_pixelBounds))
+					continue;
+
 				do
 				{
 					// Initialize _CameraSample_ for current sample
-					ACameraSample cameraSample = sampler->getCameraSample(pixel);
+					ACameraSample cameraSample = tileSampler->getCameraSample(pixel);
 
 					// Generate camera ray for current sample
 					ARay ray;
 					Float rayWeight = m_camera->castingRay(cameraSample, ray);
 
 					// Evaluate radiance along camera ray
-					L += Li(ray, scene, *sampler, arena);
+					ASpectrum L(0.f);
+					if (rayWeight > 0)
+					{
+						L = Li(ray, scene, *tileSampler, arena);
+					}
 
+					// Add camera ray's contribution to image
+					filmTile->addSample(cameraSample.pFilm, L, rayWeight);
+
+					// Free _MemoryArena_ memory from computing image sample value
 					arena.Reset();
-				} while (sampler->startNextSample());
 
-				//L = sqrt(L / m_sampler->getSamplingNumber());
-				L /= m_sampler->getSamplingNumber();
-				m_camera->m_film->setSpectrum(pixel, L);
-				reporter.update();
+				} while (tileSampler->startNextSample());
 			}
+
+			m_camera->m_film->mergeFilmTile(std::move(filmTile));
+			reporter.update();
 		}
+
+		//for (int y = 0; y < resolution.y; ++y)
+		//{
+		//	for (int x = 0; x < resolution.x; ++x)
+		//	{
+		//		AVector2i pixel(x, y);
+		//		sampler->startPixel(pixel);
+
+		//		ASpectrum L(0.f);
+		//		do
+		//		{
+		//			// Initialize _CameraSample_ for current sample
+		//			ACameraSample cameraSample = sampler->getCameraSample(pixel);
+
+		//			// Generate camera ray for current sample
+		//			ARay ray;
+		//			Float rayWeight = m_camera->castingRay(cameraSample, ray);
+
+		//			// Evaluate radiance along camera ray
+		//			L += Li(ray, scene, *sampler, arena);
+
+		//			arena.Reset();
+		//		} while (sampler->startNextSample());
+
+		//		//L = sqrt(L / m_sampler->getSamplingNumber());
+		//		L /= m_sampler->getSamplingNumber();
+		//		m_camera->m_film->setSpectrum(pixel, L);
+		//		reporter.update();
+		//	}
+		//}
 
 		reporter.done();
 		m_camera->m_film->writeImageToFile();

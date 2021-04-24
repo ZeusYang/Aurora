@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	Float green[] = { 0.12f, 0.45f, 0.15f };
 	Float red[] = { 0.65f, 0.05f, 0.05f };
 	Float blue[] = { 0.05f, 0.05f, 0.75f };
-	Float light[] = { 6.0f, 6.0f, 6.0f };
+	Float light[] = { 4.0f, 4.0f, 4.0f };
 
 	const ASpectrum white_unit = ASpectrum::fromRGB(white);
 	const ASpectrum green_unit = ASpectrum::fromRGB(green);
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	//Material
 	AMaterial::ptr whiteLambert_mat = std::make_shared<ALambertianMaterial>(white_unit);
 	AMaterial::ptr greenLambert_mat = std::make_shared<ALambertianMaterial>(green_unit);
-	AMaterial::ptr blueLambert_mat = std::make_shared<ALambertianMaterial>(blue_unit);
+	AMaterial::ptr blueLambert_mat = std::make_shared<AMirrorMaterial>(blue_unit);
 	AMaterial::ptr redLambert_mat = std::make_shared<ALambertianMaterial>(red_unit);
 
 	ATransform trans1 = translate(AVector3f(+1.5, 1.5, +2));
@@ -59,11 +59,11 @@ int main(int argc, char *argv[])
 	AHitableEntity::ptr entity6 = std::make_shared<AHitableEntity>(top2, whiteLambert_mat, nullptr);
 
 	//Left wall
-	AVector3f t5[3] = { AVector3f(-5, 10, +5), AVector3f(-5, 0, +5), AVector3f(-5, 10, -5) };
+	AVector3f t5[3] = { AVector3f(-5, 10, +5), AVector3f(-5, 10, -5), AVector3f(-5, 0, +5) };
 	ATriangleShape::ptr lef1 = std::make_shared<ATriangleShape>(identity, identity, t5);
 	AHitableEntity::ptr entity7 = std::make_shared<AHitableEntity>(lef1, greenLambert_mat, nullptr);
 
-	AVector3f t6[3] = { AVector3f(-5, 10, -5), AVector3f(-5, 0, +5), AVector3f(-5, 0, -5) };
+	AVector3f t6[3] = { AVector3f(-5, 10, -5), AVector3f(-5, 0, -5), AVector3f(-5, 0, +5) };
 	ATriangleShape::ptr lef2 = std::make_shared<ATriangleShape>(identity, identity, t6);
 	AHitableEntity::ptr entity8 = std::make_shared<AHitableEntity>(lef2, greenLambert_mat, nullptr);
 
@@ -77,29 +77,29 @@ int main(int argc, char *argv[])
 	AHitableEntity::ptr entity10 = std::make_shared<AHitableEntity>(rig2, redLambert_mat, nullptr);
 
 	//Back wall
-	AVector3f t9[3] = { AVector3f(-5, 10, -5), AVector3f(-5, 0, -5), AVector3f(+5, 10, -5) };
+	AVector3f t9[3] = { AVector3f(-5, 10, -5), AVector3f(+5, 10, -5), AVector3f(-5, 0, -5) };
 	ATriangleShape::ptr bak1 = std::make_shared<ATriangleShape>(identity, identity, t9);
 	AHitableEntity::ptr entity11 = std::make_shared<AHitableEntity>(bak1, whiteLambert_mat, nullptr);
 
-	AVector3f t10[3] = { AVector3f(+5, 10, -5), AVector3f(-5, 0, -5), AVector3f(+5, 0, -5) };
+	AVector3f t10[3] = { AVector3f(+5, 10, -5), AVector3f(+5, 0, -5), AVector3f(-5, 0, -5) };
 	ATriangleShape::ptr bak2 = std::make_shared<ATriangleShape>(identity, identity, t10);
 	AHitableEntity::ptr entity12 = std::make_shared<AHitableEntity>(bak2, whiteLambert_mat, nullptr);
 
 	//light
-	//AVector3f t11[3] = { AVector3f(-2, 10, -2), AVector3f(+2, 10, -2), AVector3f(-2, 10, +2) };
-	//ATriangleShape::ptr lamp1 = std::make_shared<ATriangleShape>(identity, identity, t11);
-	//AAreaLight::ptr light1 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp1);
-	//AHitableEntity::ptr entity13 = std::make_shared<AHitableEntity>(lamp1, whiteLambert_mat, light1);
+	AVector3f t11[3] = { AVector3f(-2, 10, -2), AVector3f(+2, 10, -2), AVector3f(-2, 10, +2) };
+	ATriangleShape::ptr lamp1 = std::make_shared<ATriangleShape>(identity, identity, t11);
+	AAreaLight::ptr light1 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp1);
+	AHitableEntity::ptr entity13 = std::make_shared<AHitableEntity>(lamp1, whiteLambert_mat, light1);
 
-	//AVector3f t12[3] = { AVector3f(+2, 10, -2), AVector3f(+2, 10, +2), AVector3f(-2, 10, +2) };
-	//ATriangleShape::ptr lamp2 = std::make_shared<ATriangleShape>(identity, identity, t12);
-	//AAreaLight::ptr light2 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp2);
-	//AHitableEntity::ptr entity14 = std::make_shared<AHitableEntity>(lamp2, whiteLambert_mat, light2);
+	AVector3f t12[3] = { AVector3f(+2, 10, -2), AVector3f(+2, 10, +2), AVector3f(-2, 10, +2) };
+	ATriangleShape::ptr lamp2 = std::make_shared<ATriangleShape>(identity, identity, t12);
+	AAreaLight::ptr light2 = std::make_shared<ADiffuseAreaLight>(identity, light_unit, 8, lamp2);
+	AHitableEntity::ptr entity14 = std::make_shared<AHitableEntity>(lamp2, whiteLambert_mat, light2);
 
-	ATransform trans3 = translate(AVector3f(0, 10, +0));
-	ASphereShape::ptr lamp3 = std::make_shared<ASphereShape>(trans3, inverse(trans3), 1.0f);
-	AAreaLight::ptr light3 = std::make_shared<ADiffuseAreaLight>(trans3, light_unit, 8, lamp3);
-	AHitableEntity::ptr entity15 = std::make_shared<AHitableEntity>(lamp3, whiteLambert_mat, light3);
+	//ATransform trans3 = translate(AVector3f(0, 10, +0));
+	//ASphereShape::ptr lamp3 = std::make_shared<ASphereShape>(trans3, inverse(trans3), 1.0f);
+	//AAreaLight::ptr light3 = std::make_shared<ADiffuseAreaLight>(trans3, light_unit, 8, lamp3);
+	//AHitableEntity::ptr entity15 = std::make_shared<AHitableEntity>(lamp3, whiteLambert_mat, light3);
 
 	//Aggregate
 	AHitableList::ptr aggregate = std::make_shared<AHitableList>();
@@ -115,12 +115,12 @@ int main(int argc, char *argv[])
 	aggregate->addHitable(entity10);
 	aggregate->addHitable(entity11);
 	aggregate->addHitable(entity12);
-	//aggregate->addHitable(entity13);
-	//aggregate->addHitable(entity14);
-	aggregate->addHitable(entity15);
+	aggregate->addHitable(entity13);
+	aggregate->addHitable(entity14);
+	//aggregate->addHitable(entity15);
 
 	//Scene
-	std::vector<ALight::ptr> lights = { /*light1, light2*/light3 };
+	std::vector<ALight::ptr> lights = { light1, light2 };
 	AScene::ptr scene = std::make_shared<AScene>(aggregate, lights);
 
 	int maxDepth = 4;
@@ -128,8 +128,10 @@ int main(int argc, char *argv[])
 
 	//Film & sampler
 	AVector2i res(width, height);
-	AFilm::ptr film = std::make_shared<AFilm>(res, "../result.png");
-	ASampler::ptr sampler = std::make_shared<ARandomSampler>(64);
+	std::unique_ptr<AFilter> filter(new ABoxFilter(AVector2f(0.5f, 0.5f)));
+	AFilm::ptr film = std::make_shared<AFilm>(res, ABounds2f(AVector2f(0,0), AVector2f(1,1)),
+		std::move(filter), "../result.png");
+	ASampler::ptr sampler = std::make_shared<ARandomSampler>(32);
 
 	Float fovy = 45.0f;
 	AVector3f eye(0, 5, 18), center(0, 5, 0);

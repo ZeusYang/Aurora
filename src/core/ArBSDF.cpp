@@ -10,8 +10,12 @@ namespace Aurora
 	{
 		int num = 0;
 		for (int i = 0; i < m_nBxDFs; ++i)
+		{
 			if (m_bxdfs[i]->matchesFlags(flags))
+			{
 				++num;
+			}
+		}
 		return num;
 	}
 
@@ -133,12 +137,16 @@ namespace Aurora
 	Float ABSDF::pdf(const AVector3f &woWorld, const AVector3f &wiWorld, ABxDFType flags) const
 	{
 		if (m_nBxDFs == 0)
+		{
 			return 0.f;
+		}
 
 		AVector3f wo = worldToLocal(woWorld), wi = worldToLocal(wiWorld);
 
 		if (wo.z == 0)
+		{
 			return 0.;
+		}
 
 		Float pdf = 0.f;
 		int matchingComps = 0;

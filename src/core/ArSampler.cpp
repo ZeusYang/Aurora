@@ -80,7 +80,7 @@ namespace Aurora
 		return { m_rng.uniformFloat(), m_rng.uniformFloat() };
 	}
 
-	std::unique_ptr<ASampler> ARandomSampler::Clone(int seed)
+	std::unique_ptr<ASampler> ARandomSampler::clone(int seed)
 	{
 		ARandomSampler *rs = new ARandomSampler(*this);
 		rs->m_rng.setSequence(seed);

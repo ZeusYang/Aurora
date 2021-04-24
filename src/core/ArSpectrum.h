@@ -5,6 +5,23 @@
 
 namespace Aurora
 {
+
+	inline void XYZToRGB(const Float xyz[3], Float rgb[3]) 
+	{
+		rgb[0] = 3.240479f * xyz[0] - 1.537150f * xyz[1] - 0.498535f * xyz[2];
+		rgb[1] = -0.969256f * xyz[0] + 1.875991f * xyz[1] + 0.041556f * xyz[2];
+		rgb[2] = 0.055648f * xyz[0] - 0.204043f * xyz[1] + 1.057311f * xyz[2];
+	}
+
+	inline void RGBToXYZ(const Float rgb[3], Float xyz[3]) 
+	{
+		xyz[0] = 0.412453f * rgb[0] + 0.357580f * rgb[1] + 0.180423f * rgb[2];
+		xyz[1] = 0.212671f * rgb[0] + 0.715160f * rgb[1] + 0.072169f * rgb[2];
+		xyz[2] = 0.019334f * rgb[0] + 0.119193f * rgb[1] + 0.950227f * rgb[2];
+	}
+
+	enum class ASpectrumType { Reflectance, Illuminant };
+
 	template <int nSpectrumSamples>
 	class ACoefficientSpectrum
 	{
@@ -208,7 +225,15 @@ namespace Aurora
 			rgb[2] = c[2];
 		}
 
+		void toXYZ(Float xyz[3]) const { RGBToXYZ(c, xyz); }
 		const ARGBSpectrum &toRGBSpectrum() const { return *this; }
+		
+		static ARGBSpectrum fromXYZ(const Float xyz[3], ASpectrumType type = ASpectrumType::Reflectance) 
+		{
+			ARGBSpectrum r;
+			XYZToRGB(xyz, r.c);
+			return r;
+		}
 
 		Float y() const
 		{
@@ -222,9 +247,11 @@ namespace Aurora
 	inline ACoefficientSpectrum<nSpectrumSamples> pow(
 		const ACoefficientSpectrum<nSpectrumSamples> &s, Float e) 
 	{
-		CoefficientSpectrum<nSpectrumSamples> ret;
-		for (int i = 0; i < nSpectrumSamples; ++i) ret.c[i] = std::pow(s.c[i], e);
-		DCHECK(!ret.HasNaNs());
+		ACoefficientSpectrum<nSpectrumSamples> ret;
+		for (int i = 0; i < nSpectrumSamples; ++i)
+		{
+			ret.c[i] = glm::pow(s.c[i], e);
+		}
 		return ret;
 	}
 }

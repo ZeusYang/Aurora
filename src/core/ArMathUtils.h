@@ -273,6 +273,70 @@ namespace Aurora
 	typedef ABounds3<Float> ABounds3f;
 	typedef ABounds3<int> ABounds3i;
 
+	class ABounds2iIterator : public std::forward_iterator_tag 
+	{
+	public:
+		ABounds2iIterator(const ABounds2i &b, const AVector2i &pt)
+			: p(pt), bounds(&b) {}
+
+		ABounds2iIterator operator++() 
+		{
+			advance();
+			return *this;
+		}
+
+		ABounds2iIterator operator++(int) 
+		{
+			ABounds2iIterator old = *this;
+			advance();
+			return old;
+		}
+
+		bool operator==(const ABounds2iIterator &bi) const 
+		{
+			return p == bi.p && bounds == bi.bounds;
+		}
+
+		bool operator!=(const ABounds2iIterator &bi) const 
+		{
+			return p != bi.p || bounds != bi.bounds;
+		}
+
+		AVector2i operator*() const { return p; }
+
+	private:
+		void advance() 
+		{
+			++p.x;
+			if (p.x == bounds->m_pMax.x) 
+			{
+				p.x = bounds->m_pMin.x;
+				++p.y;
+			}
+		}
+
+		AVector2i p;
+		const ABounds2i *bounds;
+	};
+
+	inline ABounds2iIterator begin(const ABounds2i &b) 
+	{
+		return ABounds2iIterator(b, b.m_pMin);
+	}
+
+	inline ABounds2iIterator end(const ABounds2i &b) 
+	{
+		// Normally, the ending point is at the minimum x value and one past
+		// the last valid y value.
+		AVector2i pEnd(b.m_pMin.x, b.m_pMax.y);
+		// However, if the bounds are degenerate, override the end point to
+		// equal the start point so that any attempt to iterate over the bounds
+		// exits out immediately.
+		if (b.m_pMin.x >= b.m_pMax.x || b.m_pMin.y >= b.m_pMax.y)
+			pEnd = b.m_pMin;
+		return ABounds2iIterator(b, pEnd);
+	}
+
 	//-------------------------------------------ARay-------------------------------------
 
 	class ARay
@@ -367,19 +431,19 @@ namespace Aurora
 	inline Float distanceSquared(const AVector2<T> &p1, const AVector2<T> &p2) { return glm::dot(p1 - p2, p1 - p2); }
 
 	template <typename T>
-	inline AVector2<T> floor(const AVector2<T> &p) { return APoint2<T>(glm::floor(p.x), glm::floor(p.y)); }
+	inline AVector2<T> floor(const AVector2<T> &p) { return AVector2<T>(glm::floor(p.x), glm::floor(p.y)); }
 
 	template <typename T>
-	inline AVector2<T> ceil(const AVector2<T> &p) { return APoint2<T>(glm::ceil(p.x), glm::ceil(p.y)); }
+	inline AVector2<T> ceil(const AVector2<T> &p) { return AVector2<T>(glm::ceil(p.x), glm::ceil(p.y)); }
 
 	template <typename T>
 	inline AVector2<T> lerp(Float t, const AVector2<T> &v0, const AVector2<T> &v1) { return (1 - t) * v0 + t * v1; }
 
 	template <typename T>
-	inline AVector2<T> min(const AVector2<T> &pa, const AVector2<T> &pb) { return APoint2<T>(glm::min(pa.x, pb.x), glm::min(pa.y, pb.y)); }
+	inline AVector2<T> min(const AVector2<T> &pa, const AVector2<T> &pb) { return AVector2<T>(glm::min(pa.x, pb.x), glm::min(pa.y, pb.y)); }
 
 	template <typename T>
-	inline AVector2<T> max(const AVector2<T> &pa, const AVector2<T> &pb) { return APoint2<T>(glm::max(pa.x, pb.x), glm::max(pa.y, pb.y)); }
+	inline AVector2<T> max(const AVector2<T> &pa, const AVector2<T> &pb) { return AVector2<T>(glm::max(pa.x, pb.x), glm::max(pa.y, pb.y)); }
 
 	template <typename T>
 	inline T dot(const AVector3<T> &n1, const AVector3<T> &v2) { return glm::dot(n1, v2); }
@@ -519,6 +583,12 @@ namespace Aurora
 	inline bool inside(const AVector2<T> &pt, const ABounds2<T> &b)
 	{
 		return (pt.x >= b.m_pMin.x && pt.x <= b.m_pMax.x && pt.y >= b.m_pMin.y && pt.y <= b.m_pMax.y);
+	}
+
+	template <typename T>
+	bool insideExclusive(const AVector2<T> &pt, const ABounds2<T> &b) 
+	{
+		return (pt.x >= b.m_pMin.x && pt.x < b.m_pMax.x && pt.y >= b.m_pMin.y && pt.y < b.m_pMax.y);
 	}
 
 	template <typename T>

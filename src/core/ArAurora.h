@@ -16,6 +16,8 @@
 #define AURORA_WINDOWS_OS
 #endif
 
+#define ALLOCA(TYPE, COUNT) (TYPE *) alloca((COUNT) * sizeof(TYPE))
+
 namespace Aurora
 {
 
@@ -44,6 +46,20 @@ namespace Aurora
 	inline Float lerp(Float t, Float v1, Float v2) { return (1 - t) * v1 + t * v2; }
 	inline Float gamma(int n) { return (n * aMachineEpsilon) / (1 - n * aMachineEpsilon); }
 
+	inline Float gammaCorrect(Float value) 
+	{
+		if (value <= 0.0031308f)
+			return 12.92f * value;
+		return 1.055f * glm::pow(value, (Float)(1.f / 2.4f)) - 0.055f;
+	}
+
+	inline Float inverseGammaCorrect(Float value) 
+	{
+		if (value <= 0.04045f) 
+			return value * 1.f / 12.92f;
+		return glm::pow((value + 0.055f) * 1.f / 1.055f, (Float)2.4f);
+	}
+
 	template <typename T, typename U, typename V>
 	inline T clamp(T val, U low, V high)
 	{
@@ -64,6 +80,7 @@ namespace Aurora
 	class AScene;
 	class ACamera;
 	class AHitable;
+	class AFilmTile;
 	class ASampler;
 	class AMaterial;
 	class AAreaLight;
