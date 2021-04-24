@@ -14,10 +14,10 @@ using namespace Aurora;
 int main(int argc, char *argv[])
 {
 	Float white[] = { 0.73f, 0.73f, 0.73f };
-	Float green[] = { 0.12, 0.45, 0.15 };
-	Float red[] = { 0.65, 0.05, 0.05 };
-	Float blue[] = { 0.05, 0.05, 0.75 };
-	Float light[] = { 15.0, 15.0, 15.0 };
+	Float green[] = { 0.12f, 0.45f, 0.15f };
+	Float red[] = { 0.65f, 0.05f, 0.05f };
+	Float blue[] = { 0.05f, 0.05f, 0.75f };
+	Float light[] = { 6.0f, 6.0f, 6.0f };
 
 	const ASpectrum white_unit = ASpectrum::fromRGB(white);
 	const ASpectrum green_unit = ASpectrum::fromRGB(green);
@@ -123,13 +123,13 @@ int main(int argc, char *argv[])
 	std::vector<ALight::ptr> lights = { /*light1, light2*/light3 };
 	AScene::ptr scene = std::make_shared<AScene>(aggregate, lights);
 
-	int maxDepth = 10;
+	int maxDepth = 4;
 	int width = 666, height = 500;
 
 	//Film & sampler
 	AVector2i res(width, height);
 	AFilm::ptr film = std::make_shared<AFilm>(res, "../result.png");
-	ASampler::ptr sampler = std::make_shared<ARandomSampler>(256);
+	ASampler::ptr sampler = std::make_shared<ARandomSampler>(64);
 
 	Float fovy = 45.0f;
 	AVector3f eye(0, 5, 18), center(0, 5, 0);

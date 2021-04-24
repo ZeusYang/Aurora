@@ -71,20 +71,26 @@ namespace Aurora
 
 		// Sample chosen _BxDF_
 		AVector3f wi, wo = worldToLocal(woWorld);
-		if (wo.z == 0) 
-			return 0.;
+		if (wo.z == 0)
+		{
+			return 0.f;
+		}
 		
 		pdf = 0;
-		if (sampledType) 
+		if (sampledType)
+		{
 			sampledType = bxdf->m_type;
+		}
 		ASpectrum f = bxdf->sample_f(wo, wi, uRemapped, pdf, sampledType);
 		//VLOG(2) << "For wo = " << wo << ", sampled f = " << f << ", pdf = "
 		//	<< *pdf << ", ratio = " << ((*pdf > 0) ? (f / *pdf) : Spectrum(0.))
 		//	<< ", wi = " << wi;
 		if (pdf == 0) 
 		{
-			if (sampledType) 
+			if (sampledType)
+			{
 				sampledType = ABxDFType(0);
+			}
 			return 0;
 		}
 
@@ -136,7 +142,8 @@ namespace Aurora
 
 		Float pdf = 0.f;
 		int matchingComps = 0;
-		for (int i = 0; i < m_nBxDFs; ++i) {
+		for (int i = 0; i < m_nBxDFs; ++i) 
+		{
 			if (m_bxdfs[i]->matchesFlags(flags))
 			{
 				++matchingComps;
@@ -155,7 +162,9 @@ namespace Aurora
 		// Cosine-sample the hemisphere, flipping the direction if necessary
 		wi = cosineSampleHemisphere(sample);
 		if (wo.z < 0)
+		{
 			wi.z *= -1;
+		}
 
 		pdf = this->pdf(wo, wi);
 
