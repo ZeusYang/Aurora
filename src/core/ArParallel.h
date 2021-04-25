@@ -117,6 +117,9 @@ namespace Aurora
 			func(range);
 		}
 	}
+
+	inline int numSystemCores() { return std::max(1u, std::thread::hardware_concurrency()); }
+
 }
 
 #endif
