@@ -75,6 +75,7 @@ namespace Aurora
 
 		int64_t operator-(const ARng &other) const
 		{
+			CHECK_EQ(inc, other.inc);
 			uint64_t cur_mult = PCG32_MULT, cur_plus = inc, cur_state = other.state,
 				the_bit = 1u, distance = 0u;
 			while (state != cur_state)
@@ -84,6 +85,7 @@ namespace Aurora
 					cur_state = cur_state * cur_mult + cur_plus;
 					distance |= the_bit;
 				}
+				CHECK_EQ(state & the_bit, cur_state & the_bit);
 				the_bit <<= 1;
 				cur_plus = (cur_mult + 1ULL) * cur_plus;
 				cur_mult *= cur_mult;

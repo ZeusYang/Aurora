@@ -4,11 +4,13 @@ namespace Aurora
 {
 	bool AScene::hit(const ARay &ray, ASurfaceInteraction &isect) const
 	{
+		//DCHECK_NE(ray.direction(), AVector3f(0, 0, 0));
 		return m_aggreShape->hit(ray, isect);
 	}
 
 	bool AScene::hit(const ARay &ray) const
 	{
+		//DCHECK_NE(ray.direction(), AVector3f(0, 0, 0));
 		return m_aggreShape->hit(ray);
 	}
 

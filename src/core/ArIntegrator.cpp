@@ -41,6 +41,7 @@ namespace Aurora
 				int y0 = sampleBounds.m_pMin.y + tile.y * tileSize;
 				int y1 = glm::min(y0 + tileSize, sampleBounds.m_pMax.y);
 				ABounds2i tileBounds(AVector2i(x0, y0), AVector2i(x1, y1));
+				LOG(INFO) << "Starting image tile " << tileBounds;
 
 				// Get _FilmTile_ for tile
 				std::unique_ptr<AFilmTile> filmTile = m_camera->m_film->getFilmTile(tileBounds);
@@ -73,6 +74,36 @@ namespace Aurora
 							L = Li(ray, scene, *tileSampler, arena);
 						}
 
+						// Issue warning if unexpected radiance value returned
+						if (L.hasNaNs()) 
+						{
+							LOG(ERROR) << stringPrintf(
+								"Not-a-number radiance value returned "
+								"for pixel (%d, %d), sample %d. Setting to black.",
+								pixel.x, pixel.y,
+								(int)tileSampler->currentSampleNumber());
+							L = ASpectrum(0.f);
+						}
+						else if (L.y() < -1e-5) 
+						{
+							LOG(ERROR) << stringPrintf(
+								"Negative luminance value, %f, returned "
+								"for pixel (%d, %d), sample %d. Setting to black.",
+								L.y(), pixel.x, pixel.y,
+								(int)tileSampler->currentSampleNumber());
+							L = ASpectrum(0.f);
+						}
+						else if (std::isinf(L.y())) 
+						{
+							LOG(ERROR) << stringPrintf(
+								"Infinite luminance value returned "
+								"for pixel (%d, %d), sample %d. Setting to black.",
+								pixel.x, pixel.y,
+								(int)tileSampler->currentSampleNumber());
+							L = ASpectrum(0.f);
+						}
+						VLOG(1) << "Camera sample: " << cameraSample << " -> ray: " << ray << " -> L = " << L;
+
 						// Add camera ray's contribution to image
 						filmTile->addSample(cameraSample.pFilm, L, rayWeight);
 
@@ -81,6 +112,7 @@ namespace Aurora
 
 					} while (tileSampler->startNextSample());
 				}
+				LOG(INFO) << "Finished image tile " << tileBounds;
 
 				m_camera->m_film->mergeFilmTile(std::move(filmTile));
 				reporter.update();
@@ -88,6 +120,9 @@ namespace Aurora
 		}, AExecutionPolicy::APARALLEL);
 
 		reporter.done();
+
+		LOG(INFO) << "Rendering finished";
+
 		m_camera->m_film->writeImageToFile();
 
 	}

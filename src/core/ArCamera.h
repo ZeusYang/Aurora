@@ -12,6 +12,12 @@ namespace Aurora
 		AVector2f pFilm;
 	};
 
+	inline std::ostream &operator<<(std::ostream &os, const ACameraSample &cs) 
+	{
+		os << "[ pFilm: " << cs.pFilm << " ]";
+		return os;
+	}
+
 	class ACamera
 	{
 	public:

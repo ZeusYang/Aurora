@@ -8,11 +8,15 @@
 #include "ArIntegrator.h"
 #include "ArPathIntegrator.h"
 
+#include "glog/logging.h"
+
 using namespace std;
 using namespace Aurora;
 
 int main(int argc, char *argv[])
 {
+	google::InitGoogleLogging(argv[0]);
+
 	Float white[] = { 0.73f, 0.73f, 0.73f };
 	Float green[] = { 0.12f, 0.45f, 0.15f };
 	Float red[] = { 0.65f, 0.05f, 0.05f };
@@ -131,7 +135,7 @@ int main(int argc, char *argv[])
 	std::unique_ptr<AFilter> filter(new ABoxFilter(AVector2f(0.5f, 0.5f)));
 	AFilm::ptr film = std::make_shared<AFilm>(res, ABounds2f(AVector2f(0,0), AVector2f(1,1)),
 		std::move(filter), "../result.png");
-	ASampler::ptr sampler = std::make_shared<ARandomSampler>(128);
+	ASampler::ptr sampler = std::make_shared<ARandomSampler>(8);
 
 	Float fovy = 45.0f;
 	AVector3f eye(0, 5, 18), center(0, 5, 0);

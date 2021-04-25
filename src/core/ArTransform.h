@@ -76,18 +76,11 @@ namespace Aurora
 	inline AVector3<T> ATransform::operator()(const AVector3<T> &p, const Float &w) const
 	{
 		//Note: w == 1.f -> point, w == 0.f -> vector
-		//T x = p.x, y = p.y, z = p.z;
-		//T xp = m_trans[0][0] * x + m_trans[1][0] * y + m_trans[2][0] * z + m_trans[3][0] * w;
-		//T yp = m_trans[0][1] * x + m_trans[1][1] * y + m_trans[2][1] * z + m_trans[3][1] * w;
-		//T zp = m_trans[0][2] * x + m_trans[1][2] * y + m_trans[2][2] * z + m_trans[3][2] * w;
-		//T wp = m_trans[0][3] * x + m_trans[1][3] * y + m_trans[2][3] * z + m_trans[3][3] * w;
-		//if (w == 0.f)
-		//	return AVector3<T>(xp, yp, zp);
-
 		glm::vec<4, Float> ret = m_trans * glm::vec<4, Float>(p.x, p.y, p.z, w);
 		if (w == 0.f)
 			return AVector3<T>(ret.x, ret.y, ret.z);
 
+		CHECK_NE(ret.w, 0);
 		if (ret.w == 1)
 			return AVector3<T>(ret.x, ret.y, ret.z);
 		else

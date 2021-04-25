@@ -30,10 +30,12 @@ namespace Aurora
 		{
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				c[i] = v;
+			DCHECK(!hasNaNs());
 		}
 
 		ACoefficientSpectrum &operator+=(const ACoefficientSpectrum &s2)
 		{
+			DCHECK(!s2.hasNaNs());
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				c[i] += s2.c[i];
 			return *this;
@@ -41,6 +43,7 @@ namespace Aurora
 
 		ACoefficientSpectrum operator+(const ACoefficientSpectrum &s2) const
 		{
+			DCHECK(!s2.hasNaNs());
 			ACoefficientSpectrum ret = *this;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] += s2.c[i];
@@ -49,6 +52,7 @@ namespace Aurora
 
 		ACoefficientSpectrum operator-(const ACoefficientSpectrum &s2) const
 		{
+			DCHECK(!s2.hasNaNs());
 			ACoefficientSpectrum ret = *this;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] -= s2.c[i];
@@ -57,14 +61,19 @@ namespace Aurora
 
 		ACoefficientSpectrum operator/(const ACoefficientSpectrum &s2) const
 		{
+			DCHECK(!s2.hasNaNs());
 			ACoefficientSpectrum ret = *this;
 			for (int i = 0; i < nSpectrumSamples; ++i)
+			{
+				CHECK_NE(s2.c[i], 0);
 				ret.c[i] /= s2.c[i];
+			}
 			return ret;
 		}
 
 		ACoefficientSpectrum operator*(const ACoefficientSpectrum &sp) const
 		{
+			DCHECK(!sp.hasNaNs());
 			ACoefficientSpectrum ret = *this;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] *= sp.c[i];
@@ -73,6 +82,7 @@ namespace Aurora
 
 		ACoefficientSpectrum &operator*=(const ACoefficientSpectrum &sp)
 		{
+			DCHECK(!sp.hasNaNs());
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				c[i] *= sp.c[i];
 			return *this;
@@ -83,6 +93,7 @@ namespace Aurora
 			ACoefficientSpectrum ret = *this;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] *= a;
+			DCHECK(!ret.hasNaNs());
 			return ret;
 		}
 
@@ -90,24 +101,31 @@ namespace Aurora
 		{
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				c[i] *= a;
+			DCHECK(!hasNaNs());
 			return *this;
 		}
 
 		friend inline ACoefficientSpectrum operator*(Float a, const ACoefficientSpectrum &s)
 		{
+			DCHECK(!glm::isnan(a) && !s.hasNaNs());
 			return s * a;
 		}
 
 		ACoefficientSpectrum operator/(Float a) const
 		{
+			CHECK_NE(a, 0);
+			DCHECK(!glm::isnan(a));
 			ACoefficientSpectrum ret = *this;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] /= a;
+			DCHECK(!ret.hasNaNs());
 			return ret;
 		}
 
 		ACoefficientSpectrum &operator/=(Float a)
 		{
+			CHECK_NE(a, 0);
+			DCHECK(!glm::isnan(a));
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				c[i] /= a;
 			return *this;
@@ -143,6 +161,7 @@ namespace Aurora
 			ACoefficientSpectrum ret;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] = glm::sqrt(s.c[i]);
+			DCHECK(!ret.hasNaNs());
 			return ret;
 		}
 
@@ -162,14 +181,34 @@ namespace Aurora
 			ACoefficientSpectrum ret;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] = glm::exp(s.c[i]);
+			DCHECK(!ret.hasNaNs());
 			return ret;
 		}
 
-		ACoefficientSpectrum clamp(Float low = 0, Float high = Infinity) const
+		friend std::ostream &operator<<(std::ostream &os, const ACoefficientSpectrum &s) 
+		{
+			return os << s.toString();
+		}
+
+		std::string toString() const 
+		{
+			std::string str = "[ ";
+			for (int i = 0; i < nSpectrumSamples; ++i) 
+			{
+				str += stringPrintf("%f", c[i]);
+				if (i + 1 < nSpectrumSamples) 
+					str += ", ";
+			}
+			str += " ]";
+			return str;
+		}
+
+		ACoefficientSpectrum clamp(Float low = 0, Float high = aInfinity) const
 		{
 			ACoefficientSpectrum ret;
 			for (int i = 0; i < nSpectrumSamples; ++i)
 				ret.c[i] = Aurora::clamp(c[i], low, high);
+			DCHECK(!ret.hasNaNs());
 			return ret;
 		}
 
@@ -191,8 +230,17 @@ namespace Aurora
 			return false;
 		}
 
-		Float &operator[](int i) { return c[i]; }
-		Float operator[](int i) const { return c[i]; }
+		Float &operator[](int i) 
+		{
+			DCHECK(i >= 0 && i < nSpectrumSamples);
+			return c[i]; 
+		}
+
+		Float operator[](int i) const 
+		{ 
+			DCHECK(i >= 0 && i < nSpectrumSamples);
+			return c[i]; 
+		}
 
 		static const int nSamples = nSpectrumSamples;
 
@@ -215,6 +263,7 @@ namespace Aurora
 			s.c[0] = rgb[0];
 			s.c[1] = rgb[1];
 			s.c[2] = rgb[2];
+			DCHECK(!s.hasNaNs());
 			return s;
 		}
 
@@ -252,6 +301,7 @@ namespace Aurora
 		{
 			ret.c[i] = glm::pow(s.c[i], e);
 		}
+		DCHECK(!ret.hasNaNs());
 		return ret;
 	}
 }

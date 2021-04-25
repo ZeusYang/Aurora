@@ -76,6 +76,7 @@ namespace Aurora
 
 		APixel &getPixel(const AVector2i &p)
 		{
+			CHECK(insideExclusive(p, m_croppedPixelBounds));
 			int width = m_croppedPixelBounds.m_pMax.x - m_croppedPixelBounds.m_pMin.x;
 			int index = (p.x - m_croppedPixelBounds.m_pMin.x) + (p.y - m_croppedPixelBounds.m_pMin.y) * width;
 			return m_pixels[index];
@@ -144,6 +145,7 @@ namespace Aurora
 
 		AFilmTilePixel &getPixel(const AVector2i &p) 
 		{
+			CHECK(insideExclusive(p, m_pixelBounds));
 			int width = m_pixelBounds.m_pMax.x - m_pixelBounds.m_pMin.x;
 			int index = (p.x - m_pixelBounds.m_pMin.x) + (p.y - m_pixelBounds.m_pMin.y) * width;
 			return m_pixels[index];
@@ -151,6 +153,7 @@ namespace Aurora
 
 		const AFilmTilePixel &getPixel(const AVector2i &p) const 
 		{
+			CHECK(insideExclusive(p, m_pixelBounds));
 			int width =m_pixelBounds.m_pMax.x - m_pixelBounds.m_pMin.x;
 			int index = (p.x - m_pixelBounds.m_pMin.x) + (p.y - m_pixelBounds.m_pMin.y) * width;
 			return m_pixels[index];

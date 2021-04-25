@@ -19,37 +19,6 @@ namespace Aurora
 	template <>
 	inline bool isNaN(const int x) { return false; }
 
-#define rndm 0x100000000LL
-#define rndc 0xB16
-#define rnda 0x5DEECE66DLL
-	static unsigned long long seed = 1;
-	inline Float drand48(void)
-	{
-		seed = (rnda * seed + rndc) & 0xFFFFFFFFFFFFLL;
-		unsigned int x = seed >> 16;
-		return  ((Float)x / (Float)rndm);
-	}
-
-	inline void srand48(unsigned int i)
-	{
-		seed = (((long long int)i) << 16) | rand();
-	}
-
-	inline Float radians(Float angle)
-	{
-		return angle * aPi / 180.0f;
-	}
-
-	inline Float angles(Float radians)
-	{
-		return radians * 180.0f / aPi;
-	}
-
-	inline bool equal(Float a, Float b)
-	{
-		return fabs(a - b) < aMachineEpsilon;
-	}
-
 	//-------------------------------------------Vector/Point/Normal-------------------------------------
 
 	template<typename T>
@@ -134,8 +103,17 @@ namespace Aurora
 				return 1;
 		}
 
-		inline AVector2<T> &operator[](int i) { return (i == 0) ? m_pMin : m_pMax; }
-		inline const AVector2<T> &operator[](int i) const { return (i == 0) ? m_pMin : m_pMax; }
+		inline AVector2<T> &operator[](int i) 
+		{ 
+			DCHECK(i == 0 || i == 1);
+			return (i == 0) ? m_pMin : m_pMax; 
+		}
+
+		inline const AVector2<T> &operator[](int i) const 
+		{
+			DCHECK(i == 0 || i == 1);
+			return (i == 0) ? m_pMin : m_pMax; 
+		}
 
 		bool operator==(const ABounds2<T> &b) const { return b.m_pMin == pMin && b.m_pMax == pMax; }
 		bool operator!=(const ABounds2<T> &b) const { return b.m_pMin != pMin || b.m_pMax != pMax; }
@@ -196,9 +174,10 @@ namespace Aurora
 		bool operator==(const ABounds3<T> &b) const { return b.m_pMin == m_pMin && b.m_pMax == m_pMax; }
 		bool operator!=(const ABounds3<T> &b) const { return b.m_pMin != m_pMin || b.m_pMax != m_pMax; }
 
-		AVector3<T> corner(int corner) const
+		AVector3<T> corner(int cor) const
 		{
-			return AVector3<T>((*this)[(corner & 1)].x, (*this)[(corner & 2) ? 1 : 0].y, (*this)[(corner & 4) ? 1 : 0].z);
+			DCHECK(cor >= 0 && cor < 8);
+			return AVector3<T>((*this)[(cor & 1)].x, (*this)[(cor & 2) ? 1 : 0].y, (*this)[(cor & 4) ? 1 : 0].z);
 		}
 
 		AVector3<T> diagonal() const { return m_pMax - m_pMin; }
@@ -689,38 +668,6 @@ namespace Aurora
 		Float cosThetaT = glm::sqrt(1 - sin2ThetaT);
 		wt = eta * -wi + (eta * cosThetaI - cosThetaT) * AVector3f(n);
 		return true;
-	}
-
-	inline AVector3f randomInUnitSphere()
-	{
-		AVector3f pos;
-		do
-		{
-			pos = AVector3f(drand48(), drand48(), drand48()) * 2.0f - AVector3f(1.0, 1.0, 1.0);
-		} while (lengthSquared(pos) >= 1.0);
-		return pos;
-	}
-
-	inline AVector3f randomToSphere(float radius, float distance_squared)
-	{
-		float r1 = drand48();
-		float r2 = drand48();
-		float z = 1 + r2 * (glm::sqrt(1 - radius * radius / distance_squared) - 1);
-		float phi = 2 * aPi * r1;
-		float x = glm::cos(phi) * glm::sqrt(1 - z * z);
-		float y = glm::sin(phi) * glm::sqrt(1 - z * z);
-		return AVector3f(x, y, z);
-	}
-
-	inline AVector3f randomCosineDir()
-	{
-		float r1 = drand48();
-		float r2 = drand48();
-		float z = glm::sqrt(1 - r2);
-		float phi = 2 * aPi * r1;
-		float x = glm::cos(phi) * 2 * glm::sqrt(r2);
-		float y = glm::sin(phi) * 2 * glm::sqrt(r2);
-		return AVector3f(x, y, z);
 	}
 }
 

@@ -53,8 +53,10 @@ namespace Aurora
 			Float du = u - cdf[offset];
 			if ((cdf[offset + 1] - cdf[offset]) > 0) 
 			{
+				CHECK_GT(cdf[offset + 1], cdf[offset]);
 				du /= (cdf[offset + 1] - cdf[offset]);
 			}
+			DCHECK(!glm::isnan(du));
 
 			// Compute PDF for sampled offset
 			if (pdf) 
@@ -76,14 +78,14 @@ namespace Aurora
 				*pdf = (funcInt > 0) ? func[offset] / (funcInt * count()) : 0;
 			if (uRemapped)
 				*uRemapped = (u - cdf[offset]) / (cdf[offset + 1] - cdf[offset]);
-			//if (uRemapped) 
-			//	CHECK(*uRemapped >= 0.f && *uRemapped <= 1.f);
+			if (uRemapped) 
+				CHECK(*uRemapped >= 0.f && *uRemapped <= 1.f);
 			return offset;
 		}
 
 		Float discretePDF(int index) const 
 		{
-			//CHECK(index >= 0 && index < Count());
+			CHECK(index >= 0 && index < count());
 			return func[index] / (funcInt * count());
 		}
 

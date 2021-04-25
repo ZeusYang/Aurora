@@ -33,8 +33,8 @@ namespace Aurora
 		// time. (Which in turn calls malloc, which isn't allowed in a
 		// signal handler.)
 		//SuspendProfiler();
-		std::shared_ptr<ABarrier> barrier = std::make_shared<ABarrier>(1);
-		m_updateThread = std::thread([this, barrier]() 
+		//std::shared_ptr<ABarrier> barrier = std::make_shared<ABarrier>(0);
+		m_updateThread = std::thread([this/*, barrier*/]() 
 		{
 			//ProfilerWorkerThreadInit();
 			//ProfilerState = 0;

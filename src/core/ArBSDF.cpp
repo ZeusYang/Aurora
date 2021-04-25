@@ -66,9 +66,7 @@ namespace Aurora
 				break;
 			}
 		}
-		//CHECK(bxdf != nullptr);
-		//VLOG(2) << "BSDF::Sample_f chose comp = " << comp << " / matching = " <<
-		//	matchingComps << ", bxdf: " << bxdf->ToString();
+		CHECK(bxdf != nullptr);
 
 		// Remap _BxDF_ sample _u_ to $[0,1)^2$
 		AVector2f uRemapped(glm::min(u[0] * matchingComps - comp, aOneMinusEpsilon), u[1]);
@@ -86,9 +84,7 @@ namespace Aurora
 			sampledType = bxdf->m_type;
 		}
 		ASpectrum f = bxdf->sample_f(wo, wi, uRemapped, pdf, sampledType);
-		//VLOG(2) << "For wo = " << wo << ", sampled f = " << f << ", pdf = "
-		//	<< *pdf << ", ratio = " << ((*pdf > 0) ? (f / *pdf) : Spectrum(0.))
-		//	<< ", wi = " << wi;
+
 		if (pdf == 0) 
 		{
 			if (sampledType)
@@ -129,8 +125,7 @@ namespace Aurora
 				}
 			}
 		}
-		//VLOG(2) << "Overall f = " << f << ", pdf = " << *pdf << ", ratio = "
-		//	<< ((*pdf > 0) ? (f / *pdf) : Spectrum(0.));
+	
 		return f;
 	}
 

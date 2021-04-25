@@ -42,12 +42,14 @@ namespace Aurora
 
 	void ASampler::request1DArray(int n)
 	{
+		CHECK_EQ(roundCount(n), n);
 		m_samples1DArraySizes.push_back(n);
 		m_sampleArray1D.push_back(std::vector<Float>(n * samplesPerPixel));
 	}
 
 	void ASampler::request2DArray(int n)
 	{
+		CHECK_EQ(roundCount(n), n);
 		m_samples2DArraySizes.push_back(n);
 		m_sampleArray2D.push_back(std::vector<AVector2f>(n * samplesPerPixel));
 	}
@@ -56,6 +58,8 @@ namespace Aurora
 	{
 		if (m_array1DOffset == m_sampleArray1D.size())
 			return nullptr;
+		CHECK_EQ(m_samples1DArraySizes[m_array1DOffset], n);
+		CHECK_LT(m_currentPixelSampleIndex, samplesPerPixel);
 		return &m_sampleArray1D[m_array1DOffset++][m_currentPixelSampleIndex * n];
 	}
 
@@ -63,6 +67,8 @@ namespace Aurora
 	{
 		if (m_array2DOffset == m_sampleArray2D.size())
 			return nullptr;
+		CHECK_EQ(m_samples2DArraySizes[m_array2DOffset], n);
+		CHECK_LT(m_currentPixelSampleIndex, samplesPerPixel);
 		return &m_sampleArray2D[m_array2DOffset++][m_currentPixelSampleIndex * n];
 	}
 
@@ -72,11 +78,13 @@ namespace Aurora
 
 	Float ARandomSampler::get1D()
 	{
+		CHECK_LT(m_currentPixelSampleIndex, samplesPerPixel);
 		return m_rng.uniformFloat();
 	}
 
 	AVector2f ARandomSampler::get2D()
 	{
+		CHECK_LT(m_currentPixelSampleIndex, samplesPerPixel);
 		return { m_rng.uniformFloat(), m_rng.uniformFloat() };
 	}
 

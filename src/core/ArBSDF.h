@@ -22,22 +22,6 @@ namespace Aurora
 
 	inline bool sameHemisphere(const AVector3f &w, const AVector3f &wp) { return w.z * wp.z > 0; }
 
-	//inline AVector3f reflect(const AVector3f &wo, const AVector3f &n) { return -wo + 2 * dot(wo, n) * n; }
-
-	//inline bool refract(const AVector3f &wi, const AVector3f &n, Float eta, AVector3f &wt)
-	//{
-	//	// Compute $\cos \theta_\roman{t}$ using Snell's law
-	//	Float cosThetaI = dot(n, wi);
-	//	Float sin2ThetaI = glm::max(Float(0), Float(1 - cosThetaI * cosThetaI));
-	//	Float sin2ThetaT = eta * eta * sin2ThetaI;
-
-	//	// Handle total internal reflection for transmission
-	//	if (sin2ThetaT >= 1) return false;
-	//	Float cosThetaT = std::sqrt(1 - sin2ThetaT);
-	//	wt = eta * -wi + (eta * cosThetaI - cosThetaT) * AVector3f(n);
-	//	return true;
-	//}
-
 	class ABSDF
 	{
 	public:
@@ -49,7 +33,11 @@ namespace Aurora
 
 		~ABSDF() = default;
 
-		void add(ABxDF *b) { m_bxdfs[m_nBxDFs++] = b; }
+		void add(ABxDF *b) 
+		{
+			CHECK_LT(m_nBxDFs, NumMaxBxDFs);
+			m_bxdfs[m_nBxDFs++] = b; 
+		}
 
 		int numComponents(ABxDFType flags = BSDF_ALL) const;
 

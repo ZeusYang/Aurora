@@ -48,6 +48,9 @@ namespace Aurora
 		ATransportMode mode, bool allowMultipleLobes) const
 	{
 		//Note: should not go here at all.
+		LOG(FATAL) <<
+			"AHitableAggregate::computeScatteringFunctions() shouldn't be "
+			"called";
 	}
 
 	//-------------------------------------------AHitableList-------------------------------------

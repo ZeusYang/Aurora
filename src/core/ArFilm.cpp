@@ -18,6 +18,9 @@ namespace Aurora
 					glm::ceil(m_resolution.y * cropWindow.m_pMin.y)),
 				AVector2i(glm::ceil(m_resolution.x * cropWindow.m_pMax.x),
 					glm::ceil(m_resolution.y * cropWindow.m_pMax.y)));
+		LOG(INFO) << "Created film with full resolution " << resolution <<
+			". Crop window of " << cropWindow << " -> croppedPixelBounds " << m_croppedPixelBounds;
+
 		m_pixels = std::unique_ptr<APixel[]>(new APixel[m_croppedPixelBounds.area()]);
 
 		//Precompute filter weight table
@@ -76,6 +79,7 @@ namespace Aurora
 
 	void AFilm::writeImageToFile(Float splatScale)
 	{
+		LOG(INFO) << "Converting image to RGB and computing final weighted pixel values";
 		std::unique_ptr<Float[]> rgb(new Float[3 * m_croppedPixelBounds.area()]);
 		std::unique_ptr<Byte[]>  dst(new Byte[3 * m_croppedPixelBounds.area()]);
 		int offset = 0;
@@ -116,6 +120,7 @@ namespace Aurora
 			++offset;
 		}
 
+		LOG(INFO) << "Writing image " << m_filename << " with bounds " << m_croppedPixelBounds;
 		auto extent = m_croppedPixelBounds.diagonal();
 		stbi_write_png(m_filename.c_str(),
 			extent.x,
@@ -141,6 +146,25 @@ namespace Aurora
 	{
 		//Note:Rather than computing the final pixel value as a weighted
 		//     average of contributing splats, splats are simply summed.
+
+		if (v.hasNaNs()) 
+		{
+			LOG(ERROR) << stringPrintf("Ignoring splatted spectrum with NaN values "
+				"at (%f, %f)", p.x, p.y);
+			return;
+		}
+		else if (v.y() < 0.) 
+		{
+			LOG(ERROR) << stringPrintf("Ignoring splatted spectrum with negative "
+				"luminance %f at (%f, %f)", v.y(), p.x, p.y);
+			return;
+		}
+		else if (glm::isinf(v.y())) 
+		{
+			LOG(ERROR) << stringPrintf("Ignoring splatted spectrum with infinite "
+				"luminance at (%f, %f)", p.x, p.y);
+			return;
+		}
 
 		AVector2i pi = AVector2i(floor(p));
 		if (!insideExclusive(pi, m_croppedPixelBounds)) 

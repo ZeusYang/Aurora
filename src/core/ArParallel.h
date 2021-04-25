@@ -60,8 +60,8 @@ namespace Aurora
 	class ABarrier 
 	{
 	public:
-		ABarrier(int count) : m_count(count) { }
-		~ABarrier() { }
+		ABarrier(int count) : m_count(count) { CHECK_GT(count, 0); }
+		~ABarrier() { CHECK_EQ(m_count, 0); }
 		void wait();
 
 	private:
