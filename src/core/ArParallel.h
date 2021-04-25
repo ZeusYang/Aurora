@@ -8,6 +8,9 @@
 #include <functional>
 #include <condition_variable>
 
+#include "oneapi/tbb/spin_mutex.h"
+#include "oneapi/tbb/parallel_for.h"
+
 namespace Aurora
 {
 	class AAtomicFloat 
@@ -66,6 +69,54 @@ namespace Aurora
 		std::condition_variable m_cv;
 		int m_count;
 	};
+
+	using AFilmMutexType = tbb::spin_mutex;
+
+	//Execution policy tag.
+	enum class AExecutionPolicy { ASERIAL, APARALLEL };
+
+	//parallel for loop with automic chunking
+	template <typename Function>
+	void parallelFor(size_t beginIndex, size_t endIndex,
+		const Function& function, AExecutionPolicy policy = AExecutionPolicy::APARALLEL);
+
+	//parallel for loop with manual chunking
+	template <typename Function>
+	void parallelFor(size_t beginIndex, size_t endIndex, size_t grainSize,
+		const Function& function, AExecutionPolicy policy = AExecutionPolicy::APARALLEL);
+
+	template <typename Function>
+	void parallelFor(size_t start, size_t end, const Function& func, AExecutionPolicy policy)
+	{
+		if (start > end)
+			return;
+		if (policy == AExecutionPolicy::APARALLEL)
+		{
+			tbb::parallel_for(start, end, func);
+		}
+		else
+		{
+			for (auto i = start; i < end; ++i)
+				func(i);
+		}
+	}
+
+	template <typename Function>
+	void parallelFor(size_t start, size_t end, size_t grainSize, const Function& func, AExecutionPolicy policy)
+	{
+		if (start > end)
+			return;
+		if (policy == AExecutionPolicy::APARALLEL)
+		{
+			tbb::parallel_for(tbb::blocked_range<size_t>(start, end, grainSize), 
+				func, tbb::simple_partitioner());
+		}
+		else
+		{
+			tbb::blocked_range<size_t> range(start, end, grainSize);
+			func(range);
+		}
+	}
 }
 
 #endif

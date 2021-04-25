@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 	std::unique_ptr<AFilter> filter(new ABoxFilter(AVector2f(0.5f, 0.5f)));
 	AFilm::ptr film = std::make_shared<AFilm>(res, ABounds2f(AVector2f(0,0), AVector2f(1,1)),
 		std::move(filter), "../result.png");
-	ASampler::ptr sampler = std::make_shared<ARandomSampler>(32);
+	ASampler::ptr sampler = std::make_shared<ARandomSampler>(128);
 
 	Float fovy = 45.0f;
 	AVector3f eye(0, 5, 18), center(0, 5, 0);
@@ -159,7 +159,6 @@ int main(int argc, char *argv[])
 	ABounds2i pixelBound(AVector2i(0, 0), AVector2i(width, height));
 
 	AWhittedIntegrator integrator(maxDepth, camera, sampler, pixelBound);
-	//APathIntegrator integrator(maxDepth, camera, sampler, pixelBound, 0.99f);
 
 	integrator.preprocess(*scene, *sampler);
 	integrator.render(*scene);

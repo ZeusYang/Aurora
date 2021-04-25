@@ -65,7 +65,7 @@ namespace Aurora
 		ABounds2i m_croppedPixelBounds;	//actual rendering window
 
 		std::unique_ptr<AFilter> m_filter;
-		std::mutex m_mutex;
+		AFilmMutexType m_mutex;
 
 		//Note: precomputed filter weights table
 		static constexpr int filterTableWidth = 16;

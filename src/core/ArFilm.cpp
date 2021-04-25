@@ -58,7 +58,7 @@ namespace Aurora
 
 	void AFilm::mergeFilmTile(std::unique_ptr<AFilmTile> tile)
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
+		AFilmMutexType::scoped_lock lock(m_mutex);
 		for (AVector2i pixel : tile->getPixelBounds()) 
 		{
 			// Merge _pixel_ into _Film::pixels_

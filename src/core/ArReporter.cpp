@@ -67,7 +67,8 @@ namespace Aurora
 		snprintf(buf.get(), bufLen, "\r%s: [", m_title.c_str());
 		char *curSpace = buf.get() + strlen(buf.get());
 		char *s = curSpace;
-		for (int i = 0; i < totalPlusses; ++i) *s++ = ' ';
+		for (int i = 0; i < totalPlusses; ++i) 
+			*s++ = ' ';
 		*s++ = ']';
 		*s++ = ' ';
 		*s++ = '\0';
