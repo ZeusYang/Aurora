@@ -1,32 +1,79 @@
-# Ray-Tracer
-
-An offline renderer : path tracer. Just a personal toy for learning and playing.
-
-To be refactored...
-
-
-
-
-## Features
-
-- BVH tree for fast intersection detection;
-- Octree for triangle mesh to accelerate intersection detection;
-- Intel TBB multi-threading for rendering acceleration; 
-- Monte Carlo method for important sampling; 
-- Lambertian, dielectric and metal material.  
+<p align="center">
+  <a href="https://github.com/ZeusYang/TinySoftRenderer">
+    <img src="images/logo.jpg" alt="Logo" height="200">
+  </a>
+  <h3 align="center">Aurora</h3>
+<p align="center">
+<img src="images/license.svg">
+</p>
+  <p align="center">
+    An offline ray tracing based renderer for fun
+    <br />
 
 
 
-## Update log
+## About The Project
 
-- 2020.1.8: Add octree data structure for triangle mesh to accelerate intersection detection.
+This project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with some customization and adjustment out of personal habits. I plan to develop this project as a long-term project. Learning by doing!
+
+<img src="images/logo.jpg" alt="Logo" width="100%">
 
 
 
-## Gallery
+### Built With
 
-![result.png](https://github.com/ZeusYang/Ray-Tracer/blob/master/picture/ret1.png)
+This project is built with following third parties.
+* [GLM](https://github.com/g-truc/glm) for fast algebra and math calculation
+* [stb_image](https://github.com/nothings/stb) for image I/O
+* [oneTBB](https://github.com/oneapi-src/oneTBB/releases/tag/v2021.1.1) for cpu-based parallel tiling rendering
 
-![result.png](https://github.com/ZeusYang/Ray-Tracer/blob/master/picture/ret2.png)
 
-![result.png](https://github.com/ZeusYang/Ray-Tracer/blob/master/picture/ret3.png)
+
+## Getting Started
+
+### Prerequisites
+
+ I build this project on Windows platform. Please make sure your system is equipped with the following softwares.  
+
+- [cmake](https://cmake.org/)：at least version 3.5
+
+* Microsoft visual studio 2017 or 2019
+  
+
+### Installation
+
+Please compile the project for **x64 platform**.
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/ZeusYang/Aurora.git
+   ```
+   
+2. Use cmake to build the project：
+   
+   ```
+   cd build
+   cmake ..
+   make
+   ```
+   
+   or using cmake-gui is ok.
+
+
+
+## Usage
+
+To be planned. At present, 
+
+
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+
+
+## Contact
+
+yangwc3@mail2.sysu.edu.cn
+
