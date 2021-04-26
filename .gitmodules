@@ -1,0 +1,6 @@
+[submodule "src/ext/glog"]
+	path = src/ext/glog
+	url = https://github.com/google/glog.git
+[submodule "src/ext/json"]
+	path = src/ext/json
+	url = https://github.com/nlohmann/json.git

@@ -14,7 +14,7 @@
 
 ## About The Project
 
-This project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with some customization and adjustment out of personal habits. I plan to develop this project as a long-term project. Learning by doing!
+Aurora, is a learning-oriented rendering system in the style of PBRT. Hence, this project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with some customization and adjustment out of personal habits. I plan to develop this project as a long-term project. Learning by doing!
 
 <img src="images/logo.jpg" alt="Logo" width="100%">
 
@@ -47,7 +47,7 @@ Please compile the project for **x64 platform**.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/ZeusYang/Aurora.git
+   git clone --recursive-submodules https://github.com/ZeusYang/Aurora.git
    ```
    
 2. Use cmake to build the project：
@@ -59,6 +59,8 @@ Please compile the project for **x64 platform**.
    ```
    
    or using cmake-gui is ok.
+
+Please make sure that clone the reposity with `--recursive-submodules` option. If you foget to run `git clone` with it, just type the command `git submodule update --init --recursive`.
 
 
 

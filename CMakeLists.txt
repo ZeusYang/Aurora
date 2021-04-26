@@ -19,8 +19,8 @@ include_directories(${PROJECT_SOURCE_DIR}/external/include)
 
 link_directories(${PROJECT_SOURCE_DIR}/external/lib)
 
-file(GLOB_RECURSE SRCS ./src/core/*.cpp ./src/math/*.cpp ./src/*.cpp)
-file(GLOB_RECURSE HEADERS ./src/core/*.h ./src/math/*.h)
+file(GLOB SRCS ./src/core/*.cpp ./src/*.cpp)
+file(GLOB HEADERS ./src/core/*.h )
 source_group("Header Files" FILES ${HEADERS})
 
 ###########################################################################
@@ -31,6 +31,7 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
 IF(WIN32)
   ADD_DEFINITIONS( -D GOOGLE_GLOG_DLL_DECL= )
 ENDIF()
+ADD_DEFINITIONS( -D HAVE_SNPRINTF)
 ADD_SUBDIRECTORY(src/ext/glog)
 SET_PROPERTY(TARGET glog logging_unittest demangle_unittest utilities_unittest stl_logging_unittest signalhandler_unittest stacktrace_unittest symbolize_unittest PROPERTY FOLDER "ext")
 INCLUDE_DIRECTORIES (
@@ -38,10 +39,24 @@ INCLUDE_DIRECTORIES (
   ${CMAKE_BINARY_DIR}/src/ext/glog
 )
 
+###########################################################################
+# nlohmann_json
+
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+SET(JSON_BuildTests OFF CACHE INTERNAL "")
+ADD_SUBDIRECTORY(src/ext/json)
+#SET_PROPERTY(TARGET nlohmann_json PROPERTY FOLDER "ext")
+INCLUDE_DIRECTORIES (
+  src/ext/json/include
+  ${CMAKE_BINARY_DIR}/src/ext/json
+)
+
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
 target_link_libraries( ${PROJECT_NAME} 
-    PUBLIC 
+    PRIVATE 
 	tbb
 	glog::glog
+	nlohmann_json::nlohmann_json
 )
