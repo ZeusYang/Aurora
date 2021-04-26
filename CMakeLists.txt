@@ -14,7 +14,6 @@ ENDIF()
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include_directories(src/core/)
-include_directories(src/math/)
 include_directories(${PROJECT_SOURCE_DIR}/external/include)
 
 link_directories(${PROJECT_SOURCE_DIR}/external/lib)
@@ -22,6 +21,13 @@ link_directories(${PROJECT_SOURCE_DIR}/external/lib)
 file(GLOB SRCS ./src/core/*.cpp ./src/*.cpp)
 file(GLOB HEADERS ./src/core/*.h )
 source_group("Header Files" FILES ${HEADERS})
+
+###########################################################################
+# nlohmann_json
+
+INCLUDE_DIRECTORIES (
+  src/ext/nlohmann
+)
 
 ###########################################################################
 # glog
@@ -39,24 +45,10 @@ INCLUDE_DIRECTORIES (
   ${CMAKE_BINARY_DIR}/src/ext/glog
 )
 
-###########################################################################
-# nlohmann_json
-
-# Typically you don't care so much for a third party library's tests to be
-# run from your own project's code.
-SET(JSON_BuildTests OFF CACHE INTERNAL "")
-ADD_SUBDIRECTORY(src/ext/json)
-#SET_PROPERTY(TARGET nlohmann_json PROPERTY FOLDER "ext")
-INCLUDE_DIRECTORIES (
-  src/ext/json/include
-  ${CMAKE_BINARY_DIR}/src/ext/json
-)
-
 add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 
 target_link_libraries( ${PROJECT_NAME} 
     PRIVATE 
 	tbb
 	glog::glog
-	nlohmann_json::nlohmann_json
 )

@@ -13,7 +13,7 @@
 #include "ArMaterial.h"
 #include "ArLight.h"
 
-#include "nlohmann/json.hpp"
+#include "json.hpp" //nlohmann_json
 
 namespace Aurora
 {
