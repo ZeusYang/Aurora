@@ -7,14 +7,15 @@
 <img src="images/license.svg">
 </p>
   <p align="center">
-    An offline ray tracing based renderer for fun
+    An offline ray tracing-based renderer for fun
     <br />
+
 
 
 
 ## About The Project
 
-Aurora, is a learning-oriented rendering system in the style of PBRT. Hence, this project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with some customization and adjustment out of personal habits. I plan to develop this project as a long-term project. Learning by doing!
+Aurora, is a learning-oriented rendering system in the style of PBRT. Hence, this project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with much customization and adjustment out of personal habits. I plan to develop this project as a long-term project. Learning by doing!
 
 <img src="images/logo.jpg" alt="Logo" width="100%">
 
@@ -27,6 +28,7 @@ This project is built with following third parties.
 * [stb_image](https://github.com/nothings/stb) for image I/O
 * [oneTBB](https://github.com/oneapi-src/oneTBB/releases/tag/v2021.1.1) for cpu-based parallel tiling rendering
 * [glog](https://github.com/google/glog) for logging and debuging
+* [nlohmann_json](https://github.com/nlohmann/json) for parsing json file of the scene 
 
 
 
@@ -47,7 +49,7 @@ Please compile the project for **x64 platform**.
 
 1. Clone the repo
    ```sh
-   git clone --recursive-submodules https://github.com/ZeusYang/Aurora.git
+   git clone --recurse-submodules https://github.com/ZeusYang/Aurora.git
    ```
    
 2. Use cmake to build the project：
@@ -60,7 +62,7 @@ Please compile the project for **x64 platform**.
    
    or using cmake-gui is ok.
 
-Please make sure that clone the reposity with `--recursive-submodules` option. If you foget to run `git clone` with it, just type the command `git submodule update --init --recursive`.
+Please make sure that clone the reposity with `--recurse-submodules` option. If you foget to run `git clone` with it, just type the command `git submodule update --init --recursive`.
 
 
 
