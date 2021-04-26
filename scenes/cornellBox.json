@@ -44,8 +44,8 @@
 			"Scale": [1.0, 1.0, 1.0],
 			"Material":
 			{
-				"Type": "Lambertian",
-				"R": [0.05, 0.05, 0.75]
+				"Type": "Mirror",
+				"R": [0.05, 0.75, 0.05]
 			}
         },
 		{
@@ -200,7 +200,7 @@
 			"AreaLight":
 			{
 				"Type": "Diffuse",
-				"Radiance": [4.0, 4.0, 4.0],
+				"Radiance": [4.0, 3.0, 0.0],
 				"LightSamples": 8
 			}
         },
@@ -218,7 +218,7 @@
 			"AreaLight":
 			{
 				"Type": "Diffuse",
-				"Radiance": [4.0, 4.0, 4.0],
+				"Radiance": [4.0, 3.0, 0.0],
 				"LightSamples": 8
 			}
         }
