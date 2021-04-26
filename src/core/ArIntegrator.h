@@ -12,6 +12,8 @@ namespace Aurora
 	class AIntegrator
 	{
 	public:
+		typedef std::shared_ptr<AIntegrator> ptr;
+
 		virtual ~AIntegrator() = default;
 		virtual void render(const AScene &scene) = 0;
 	};
@@ -19,6 +21,7 @@ namespace Aurora
 	class ASamplerIntegrator : public AIntegrator
 	{
 	public:
+		typedef std::shared_ptr<ASamplerIntegrator> ptr;
 
 		// SamplerIntegrator Public Methods
 		ASamplerIntegrator(ACamera::ptr camera, ASampler::ptr sampler, const ABounds2i &pixelBounds)
@@ -48,6 +51,8 @@ namespace Aurora
 	class AWhittedIntegrator : public ASamplerIntegrator
 	{
 	public:
+		typedef std::shared_ptr<AWhittedIntegrator> ptr;
+
 		// WhittedIntegrator Public Methods
 		AWhittedIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
 			const ABounds2i &pixelBounds)

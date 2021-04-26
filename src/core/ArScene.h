@@ -18,6 +18,7 @@ namespace Aurora
 		AScene(const AHitableAggregate::ptr &hitables, const std::vector<ALight::ptr> &lights) 
 			: m_lights(lights), m_aggreShape(hitables)
 		{
+			m_worldBound = m_aggreShape->worldBound();
 			for (const auto &light : lights)
 			{
 				light->preprocess(*this);
