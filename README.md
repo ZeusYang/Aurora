@@ -67,7 +67,32 @@ Please make sure that clone the reposity with `--recurse-submodules` option. If 
 
 ## Usage
 
-To be planned. At present, the basic framework was established.
+After successful compilation, run `Aurora.exe --help` in the command line could get the follwoing prompt:
+
+```C++
+usage: Aurora [<options>] <filename.json...>
+Rendering options:
+  --help               Print this help text.
+
+Logging options:
+  --logdir <dir>       Specify directory that log files should be written to.
+                       Default: system temp directory (e.g. $TMPDIR or /tmp).
+
+  --logtostderr        Print all logging messages to stderr.
+
+  --minloglevel <num>  Log messages at or above this level (0 -> INFO,
+                       1 -> WARNING, 2 -> ERROR, 3-> FATAL). Default: 0.
+
+  --v <verbosity>      Set VLOG verbosity.
+```
+
+For example, in order to set the `scenes/cornellBox.json` as an input scene file, you should type the command as shown below:
+
+````
+Aurora.exe ./scenes/cornellBox.json
+```
+
+More features and scenes are planned.
 
 
 
