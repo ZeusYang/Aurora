@@ -14,7 +14,7 @@
 			"Width": 666,
 			"Height": 500,
 			"CropWindow": [0, 0, 1, 1],
-			"Filename": "../cornellBox.png",
+			"Filename": "cornellBox.png",
 			"Filter":
 			{
 				"Type": "Box",
