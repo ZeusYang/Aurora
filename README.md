@@ -26,7 +26,6 @@ Aurora, is a learning-oriented rendering system in the style of PBRT. Hence, thi
 This project is built with following third parties.
 * [GLM](https://github.com/g-truc/glm) for fast algebra and math calculation
 * [stb_image](https://github.com/nothings/stb) for image I/O
-* [oneTBB](https://github.com/oneapi-src/oneTBB/releases/tag/v2021.1.1) for cpu-based parallel tiling rendering
 * [glog](https://github.com/google/glog) for logging and debuging
 * [nlohmann_json](https://github.com/nlohmann/json) for parsing json file of the scene 
 
