@@ -88,7 +88,7 @@ Logging options:
 
 For example, in order to set the `scenes/cornellBox.json` as an input scene file, you should type the command as shown below:
 
-````
+```C++
 Aurora.exe ./scenes/cornellBox.json
 ```
 
