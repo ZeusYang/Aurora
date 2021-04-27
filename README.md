@@ -54,6 +54,7 @@ Please compile the project for **x64 platform**.
 2. Use cmake to build the project：
    
    ```
+   mkdir build
    cd build
    cmake ..
    make
