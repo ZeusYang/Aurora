@@ -1,7 +1,7 @@
 #include "ArFilm.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "stb/stb_image_write.h"
 
 namespace Aurora
 {
@@ -61,7 +61,7 @@ namespace Aurora
 
 	void AFilm::mergeFilmTile(std::unique_ptr<AFilmTile> tile)
 	{
-		AFilmMutexType::scoped_lock lock(m_mutex);
+		std::lock_guard<std::mutex> lock(m_mutex);
 		for (AVector2i pixel : tile->getPixelBounds()) 
 		{
 			// Merge _pixel_ into _Film::pixels_

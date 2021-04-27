@@ -14,15 +14,12 @@ ENDIF()
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include_directories(src/core/)
-include_directories(${PROJECT_SOURCE_DIR}/external/include)
-
-link_directories(${PROJECT_SOURCE_DIR}/external/lib)
 
 ###########################################################################
-# nlohmann_json
+# header-only libraries
 
 INCLUDE_DIRECTORIES (
-  src/ext/nlohmann
+  src/ext/header_only
 )
 
 ###########################################################################
@@ -54,14 +51,12 @@ add_library(${PROJECT_NAME} STATIC
 
 target_link_libraries( ${PROJECT_NAME} 
     PRIVATE 
-	tbb
 	glog::glog
 )
 
 SET(ALL_AURORA_LIBS
   ${PROJECT_NAME}
   glog
-  tbb
 )
 
 # Aurora renderer executable

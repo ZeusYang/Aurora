@@ -5,11 +5,9 @@
 
 #include <mutex>
 #include <atomic>
+#include <thread>
 #include <functional>
 #include <condition_variable>
-
-#include "oneapi/tbb/spin_mutex.h"
-#include "oneapi/tbb/parallel_for.h"
 
 namespace Aurora
 {
@@ -41,7 +39,6 @@ namespace Aurora
 		}
 
 	private:
-		// AtomicFloat Private Data
 #ifdef AURORA_DOUBLE_AS_FLOAT
 		std::atomic<uint64_t> bits;
 #else
@@ -70,55 +67,100 @@ namespace Aurora
 		int m_count;
 	};
 
-	using AFilmMutexType = tbb::spin_mutex;
-
 	//Execution policy tag.
 	enum class AExecutionPolicy { ASERIAL, APARALLEL };
 
-	//parallel for loop with automic chunking
-	template <typename Function>
-	void parallelFor(size_t beginIndex, size_t endIndex,
-		const Function& function, AExecutionPolicy policy = AExecutionPolicy::APARALLEL);
-
-	//parallel for loop with manual chunking
-	template <typename Function>
-	void parallelFor(size_t beginIndex, size_t endIndex, size_t grainSize,
-		const Function& function, AExecutionPolicy policy = AExecutionPolicy::APARALLEL);
-
-	template <typename Function>
-	void parallelFor(size_t start, size_t end, const Function& func, AExecutionPolicy policy)
+	class AParallelUtils
 	{
-		if (start > end)
-			return;
-		if (policy == AExecutionPolicy::APARALLEL)
+	public:
+		
+		//Parallel loop for parallel tiling rendering
+		template <typename Function>
+		static void parallelFor(size_t start, size_t end, const Function& func, AExecutionPolicy policy)
 		{
-			tbb::parallel_for(start, end, func);
+			if (start > end)
+				return;
+			if (policy == AExecutionPolicy::APARALLEL)
+			{
+				AParallelUtils::parallel_for_seize(start, end, func);
+			}
+			else
+			{
+				for (auto i = start; i < end; ++i)
+					func(i);
+			}
 		}
-		else
-		{
-			for (auto i = start; i < end; ++i)
-				func(i);
-		}
-	}
 
-	template <typename Function>
-	void parallelFor(size_t start, size_t end, size_t grainSize, const Function& func, AExecutionPolicy policy)
-	{
-		if (start > end)
-			return;
-		if (policy == AExecutionPolicy::APARALLEL)
-		{
-			tbb::parallel_for(tbb::blocked_range<size_t>(start, end, grainSize), 
-				func, tbb::simple_partitioner());
-		}
-		else
-		{
-			tbb::blocked_range<size_t> range(start, end, grainSize);
-			func(range);
-		}
-	}
+	private:
 
-	inline int numSystemCores() { return std::max(1u, std::thread::hardware_concurrency()); }
+		template<typename Callable>
+		static void parallel_for(size_t start, size_t end, Callable function)
+		{
+			DCHECK(start < end);
+			//Note: this parallel_for split the task in a simple averaging manner
+			//      which is inefficient for inbalance task among threads
+			const int n_threads = std::thread::hardware_concurrency();
+			const size_t n_task = end - start;
+
+			const int n_max_tasks_per_thread = (n_task / n_threads) + (n_task % n_threads == 0 ? 0 : 1);
+			const int n_lacking_tasks = n_max_tasks_per_thread * n_threads - n_task;
+
+			auto inner_loop = [&](const int thread_index)
+			{
+				const int n_lacking_tasks_so_far = std::max(thread_index - n_threads + n_lacking_tasks, 0);
+				const int inclusive_start_index = thread_index * n_max_tasks_per_thread - n_lacking_tasks_so_far;
+				const int exclusive_end_index = inclusive_start_index + n_max_tasks_per_thread
+					- (thread_index - n_threads + n_lacking_tasks >= 0 ? 1 : 0);
+
+				for (int k = inclusive_start_index; k < exclusive_end_index; ++k)
+				{
+					function(k);
+				}
+			};
+			std::vector<std::thread> threads;
+			for (int j = 0; j < n_threads; ++j)
+			{
+				threads.push_back(std::thread(inner_loop, j)); 
+			}
+			for (auto& t : threads) 
+			{ 
+				t.join(); 
+			}
+		}
+
+		template<typename Callable>
+		static void parallel_for_seize(size_t start, size_t end, Callable func)
+		{
+			DCHECK(start < end);
+			//Note: this parallel_for assign the task to thread by atomic 
+			//      opertion over task index which is more efficient in general case
+
+			const int n_threads = std::thread::hardware_concurrency();
+			const size_t n_task = end - start;
+
+			std::atomic<size_t> task_index(start);
+			auto inner_loop = [&](const int thread_index)
+			{
+				size_t index;
+				while ((index = task_index.fetch_add(1)) < end)
+				{
+					func(index);
+				}
+			};
+			std::vector<std::thread> threads;
+			for (int j = 0; j < n_threads; ++j)
+			{
+				threads.push_back(std::thread(inner_loop, j));
+			}
+			for (auto& t : threads)
+			{
+				t.join();
+			}
+		}
+
+	};
+
+	inline int numSystemCores() { return glm::max(1u, std::thread::hardware_concurrency()); }
 
 }
 

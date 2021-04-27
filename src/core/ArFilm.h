@@ -65,7 +65,7 @@ namespace Aurora
 		ABounds2i m_croppedPixelBounds;	//actual rendering window
 
 		std::unique_ptr<AFilter> m_filter;
-		AFilmMutexType m_mutex;
+		std::mutex m_mutex;
 
 		//Note: precomputed filter weights table
 		static constexpr int filterTableWidth = 16;
@@ -83,31 +83,6 @@ namespace Aurora
 		}
 
 	};
-
-	//class AFilmBuilder
-	//{
-	//public:
-
-	//	AFilmBuilder& withResolution(const AVector2i &resolution);
-
-	//	AFilmBuilder& withCropWindow(const ABounds2f &cropWindow);
-
-
-
-	//private:
-	//	/*
-	//	const AVector2i &resolution, const ABounds2f &cropWindow,
-	//		std::unique_ptr<AFilter> filter, const std::string &filename, Float diagonal = 35.f,
-	//		Float scale = 1.f, Float maxSampleLuminance = aInfinity
-	//	*/
-	//	AVector2i _resolution = AVector2i(128, 128);
-	//	ABounds2f _cropWindow = ABounds2f(AVector2f(0, 0), AVector2f(1, 1));
-	//	std::unique_ptr<AFilter> _filter;
-	//	std::string _filename = "./result.png";
-	//	Float _diagnal = 35.f;
-	//	Float _scale = 1.f;
-	//	Float _maxSampleLuminance = aInfinity;
-	//};
 
 	class AFilmTile final
 	{

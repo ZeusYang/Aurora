@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		usage("need set an input file path");
+		usage("need to set an input file path");
 		return 0;
 	}
 
