@@ -70,6 +70,8 @@ namespace Aurora
 	//Execution policy tag.
 	enum class AExecutionPolicy { ASERIAL, APARALLEL };
 
+	inline int numSystemCores() { return glm::max(1u, std::thread::hardware_concurrency()); }
+
 	class AParallelUtils
 	{
 	public:
@@ -99,7 +101,7 @@ namespace Aurora
 			DCHECK(start < end);
 			//Note: this parallel_for split the task in a simple averaging manner
 			//      which is inefficient for inbalance task among threads
-			const int n_threads = std::thread::hardware_concurrency();
+			const int n_threads = numSystemCores();
 			const size_t n_task = end - start;
 
 			const int n_max_tasks_per_thread = (n_task / n_threads) + (n_task % n_threads == 0 ? 0 : 1);
@@ -135,7 +137,7 @@ namespace Aurora
 			//Note: this parallel_for assign the task to thread by atomic 
 			//      opertion over task index which is more efficient in general case
 
-			const int n_threads = std::thread::hardware_concurrency();
+			const int n_threads = numSystemCores();
 			const size_t n_task = end - start;
 
 			std::atomic<size_t> task_index(start);
@@ -159,8 +161,6 @@ namespace Aurora
 		}
 
 	};
-
-	inline int numSystemCores() { return glm::max(1u, std::thread::hardware_concurrency()); }
 
 }
 
