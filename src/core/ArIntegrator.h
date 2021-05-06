@@ -6,16 +6,22 @@
 #include "ArSampler.h"
 #include "ArCamera.h"
 #include "ArHitable.h"
+#include "ArRtti.h"
 
 namespace Aurora
 {
-	class AIntegrator
+	class AIntegrator : public AObject
 	{
 	public:
 		typedef std::shared_ptr<AIntegrator> ptr;
 
 		virtual ~AIntegrator() = default;
+
+		virtual void preprocess(const AScene &scene) = 0;
 		virtual void render(const AScene &scene) = 0;
+
+		virtual AClassType getClassType() const override { return AClassType::AEIntegrator; }
+
 	};
 
 	class ASamplerIntegrator : public AIntegrator
@@ -24,10 +30,10 @@ namespace Aurora
 		typedef std::shared_ptr<ASamplerIntegrator> ptr;
 
 		// SamplerIntegrator Public Methods
-		ASamplerIntegrator(ACamera::ptr camera, ASampler::ptr sampler, const ABounds2i &pixelBounds)
-			: m_camera(camera), m_sampler(sampler), m_pixelBounds(pixelBounds) {}
+		ASamplerIntegrator(ACamera::ptr camera, ASampler::ptr sampler)
+			: m_camera(camera), m_sampler(sampler) {}
 
-		virtual void preprocess(const AScene &scene, ASampler &sampler) {}
+		virtual void preprocess(const AScene &scene) override {}
 
 		virtual void render(const AScene &scene) override;
 
@@ -42,10 +48,7 @@ namespace Aurora
 
 	protected:
 		ACamera::ptr m_camera;
-
-	private:
 		ASampler::ptr m_sampler;
-		const ABounds2i m_pixelBounds;
 	};
 
 	class AWhittedIntegrator : public ASamplerIntegrator
@@ -53,13 +56,20 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<AWhittedIntegrator> ptr;
 
-		// WhittedIntegrator Public Methods
-		AWhittedIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
-			const ABounds2i &pixelBounds)
-			: ASamplerIntegrator(camera, sampler, pixelBounds), m_maxDepth(maxDepth) {}
+		AWhittedIntegrator(const APropertyTreeNode &node);
+		AWhittedIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler)
+			: ASamplerIntegrator(camera, sampler), m_maxDepth(maxDepth) {}
 
 		virtual ASpectrum Li(const ARay &ray, const AScene &scene,
 			ASampler &sampler, MemoryArena &arena, int depth) const override;
+
+		virtual std::string toString() const override { return "WhittedIntegrator[]"; }
+
+		virtual void activate() override
+		{
+			m_sampler->activate();
+			m_camera->activate();
+		}
 
 	private:
 		const int m_maxDepth;

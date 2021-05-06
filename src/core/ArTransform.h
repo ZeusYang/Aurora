@@ -12,7 +12,7 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<ATransform> ptr;
 
-		ATransform() {}
+		ATransform() : m_trans(AMatrix4x4(1.0f)), m_transInv(AMatrix4x4(1.0f)){}
 
 		ATransform(const Float mat[4][4])
 		{

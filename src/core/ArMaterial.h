@@ -4,11 +4,12 @@
 #include "ArAurora.h"
 #include "ArSpectrum.h"
 #include "ArMathUtils.h"
+#include "ArRtti.h"
 
 namespace Aurora
 {
 
-	class AMaterial
+	class AMaterial : public AObject
 	{
 	public:
 		typedef std::shared_ptr<AMaterial> ptr;
@@ -19,6 +20,8 @@ namespace Aurora
 		virtual void computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
 			ATransportMode mode, bool allowMultipleLobes) const = 0;
 
+		virtual AClassType getClassType() const override { return AClassType::AEMaterial; }
+
 	};
 
 	class AMirrorMaterial final : public AMaterial
@@ -26,10 +29,13 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<AMirrorMaterial> ptr;
 
+		AMirrorMaterial(const APropertyTreeNode &node);
 		AMirrorMaterial(const ASpectrum &r) : m_Kr(r) {}
 
 		virtual void computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
 			ATransportMode mode, bool allowMultipleLobes) const override;
+
+		virtual std::string toString() const override { return "MirrorMaterial[]"; }
 
 	private:
 		ASpectrum m_Kr;
@@ -56,10 +62,13 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<ALambertianMaterial> ptr;
 
+		ALambertianMaterial(const APropertyTreeNode &node);
 		ALambertianMaterial(const ASpectrum &r) : m_Kr(r) {}
 
 		virtual void computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
 			ATransportMode mode, bool allowMultipleLobes) const override;
+
+		virtual std::string toString() const override { return "MirrorMaterial[]"; }
 
 	private:
 		ASpectrum m_Kr;

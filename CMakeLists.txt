@@ -38,42 +38,19 @@ INCLUDE_DIRECTORIES (
   ${CMAKE_BINARY_DIR}/src/ext/glog
 )
 
-#add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
-
-file(GLOB SRCS ./src/core/*.cpp)
+file(GLOB SRCS ./src/core/*.cpp ./src/*.cpp)
 file(GLOB HEADERS ./src/core/*.h )
 source_group("Header Files" FILES ${HEADERS})
 
-# Aurora static library
-add_library(${PROJECT_NAME} STATIC 
-    ${SRCS} ${HEADERS}
-)
-
+add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 target_link_libraries( ${PROJECT_NAME} 
     PRIVATE 
 	glog::glog
 )
 
-SET(ALL_AURORA_LIBS
-  ${PROJECT_NAME}
-  glog
-)
-
-# Aurora renderer executable
-add_executable( Aurora_exe src/main/Aurora.cpp )
-SET_TARGET_PROPERTIES ( Aurora_exe PROPERTIES OUTPUT_NAME Aurora )
-TARGET_LINK_LIBRARIES ( Aurora_exe ${ALL_AURORA_LIBS} )
-
 # Installation
-
 INSTALL ( TARGETS
-  Aurora_exe
+  ${PROJECT_NAME}
   DESTINATION
   bin
-  )
-
-INSTALL ( TARGETS
-  ${PROJECT_NAME}
-  DESTINATION
-  lib
   )

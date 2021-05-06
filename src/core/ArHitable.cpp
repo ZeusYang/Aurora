@@ -6,6 +6,44 @@ namespace Aurora
 {
 	//-------------------------------------------AHitableEntity-------------------------------------
 
+	AURORA_REGISTER_CLASS(AHitableEntity, "HitableEntity")
+
+	AHitableEntity::AHitableEntity(const APropertyTreeNode &node)
+	{
+		//Shape
+		{
+			const auto &shapeNode = node.getPropertyChild("Shape");
+			m_shape = AShape::ptr(static_cast<AShape*>(AObjectFactory::createInstance(
+				shapeNode.getTypeName(), shapeNode)));
+		}
+
+		//Material
+		{
+			const auto &materialNode = node.getPropertyChild("Material");
+			m_material = AMaterial::ptr(static_cast<AMaterial*>(AObjectFactory::createInstance(
+				materialNode.getTypeName(), materialNode)));
+		}
+
+		//AreaLight
+		{
+			if (node.hasPropertyChild("Light"))
+			{
+				const auto &lightNode = node.getPropertyChild("Light");
+				m_areaLight = AAreaLight::ptr(static_cast<AAreaLight*>(AObjectFactory::createInstance(
+					lightNode.getTypeName(), lightNode)));
+			}
+			else
+			{
+				m_areaLight = nullptr;
+			}
+		}
+
+		if (m_areaLight != nullptr)
+		{
+			m_areaLight->setParent(this);
+		}
+	}
+
 	AHitableEntity::AHitableEntity(const AShape::ptr &shape, const AMaterial::ptr &material,
 		const AAreaLight::ptr &areaLight)
 		: m_shape(shape), m_material(material), m_areaLight(areaLight) {}
@@ -33,6 +71,8 @@ namespace Aurora
 	}
 
 	ABounds3f AHitableEntity::worldBound() const { return m_shape->worldBound(); }
+
+	AShape* AHitableEntity::getShape() const { return m_shape.get(); }
 
 	const AAreaLight* AHitableEntity::getAreaLight() const { return m_areaLight.get(); }
 

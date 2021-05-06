@@ -5,6 +5,7 @@
 #include "ArMathUtils.h"
 #include "ArLight.h"
 #include "ArHitable.h"
+#include "ArRtti.h"
 
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace Aurora
 			for (const auto &light : lights)
 			{
 				light->preprocess(*this);
-				if (light->flags & (int)ALightFlags::ALightInfinite)
+				if (light->m_flags & (int)ALightFlags::ALightInfinite)
 					m_infiniteLights.push_back(light);
 			}
 		}

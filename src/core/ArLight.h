@@ -7,6 +7,7 @@
 #include "ArSpectrum.h"
 #include "ArTransform.h"
 #include "ArInteraction.h"
+#include "ArRtti.h"
 
 namespace Aurora
 {
@@ -24,13 +25,15 @@ namespace Aurora
 			|| flags & (int)ALightFlags::ALightDeltaDirection;
 	}
 
-	class ALight
+	class ALight : public AObject
 	{
 	public:
 		typedef std::shared_ptr<ALight> ptr;
 
-		virtual ~ALight();
+		ALight(const APropertyList &props);
 		ALight(int flags, const ATransform &LightToWorld, int nSamples = 1);
+
+		virtual ~ALight();
 
 		virtual ASpectrum power() const = 0;
 
@@ -49,13 +52,13 @@ namespace Aurora
 
 		virtual void pdf_Le(const ARay &, const AVector3f &, Float &pdfPos, Float &pdfDir) const = 0;
 
-		// Light Public Data
-		const int flags;
-		const int nSamples;
+		virtual AClassType getClassType() const override { return AClassType::AELight; }
+
+		int m_flags;
+		int m_nSamples;
 
 	protected:
-		// Light Protected Data
-		const ATransform m_lightToWorld, m_worldToLight;
+		ATransform m_lightToWorld, m_worldToLight;
 	};
 
 	class AVisibilityTester final
@@ -81,6 +84,7 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<AAreaLight> ptr;
 
+		AAreaLight(const APropertyList &props);
 		AAreaLight(const ATransform &lightToWorld, int nSamples);
 		virtual ASpectrum L(const AInteraction &intr, const AVector3f &w) const = 0;
 	};
@@ -90,9 +94,10 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<ADiffuseAreaLight> ptr;
 
-		// DiffuseAreaLight Public Methods
+		ADiffuseAreaLight(const APropertyTreeNode &node);
+
 		ADiffuseAreaLight(const ATransform &lightToWorld, const ASpectrum &Le, int nSamples,
-			const AShape::ptr &shape, bool twoSided = false);
+			AShape* shape, bool twoSided = false);
 
 		virtual ASpectrum L(const AInteraction &intr, const AVector3f &w) const override
 		{
@@ -111,15 +116,19 @@ namespace Aurora
 
 		virtual void pdf_Le(const ARay &, const AVector3f &, Float &pdfPos, Float &pdfDir) const override;
 
+		virtual std::string toString() const override { return "DiffuseAreaLight[]"; }
+
+		virtual void setParent(AObject *parent) override;
+
 	protected:
 
-		const ASpectrum m_Lemit;
-		AShape::ptr m_shape;
+		ASpectrum m_Lemit;
+		AShape* m_shape;
 		// Added after book publication: by default, DiffuseAreaLights still
 		// only emit in the hemimsphere around the surface normal.  However,
 		// this behavior can now be overridden to give emission on both sides.
-		const bool m_twoSided;
-		const Float m_area;
+		bool m_twoSided;
+		Float m_area;
 	};
 
 }

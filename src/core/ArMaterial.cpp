@@ -10,6 +10,16 @@ namespace Aurora
 
 	//-------------------------------------------AMirrorMaterial-------------------------------------
 
+	AURORA_REGISTER_CLASS(AMirrorMaterial, "Mirror")
+
+	AMirrorMaterial::AMirrorMaterial(const APropertyTreeNode &node)
+	{
+		const auto &props = node.getPropertyList();
+		AVector3f _kr = props.getVector3f("R");
+		Float _tmp[] = { _kr.x, _kr.y, _kr.z };
+		m_Kr = ASpectrum::fromRGB(_tmp);
+	}
+
 	void AMirrorMaterial::computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
 		ATransportMode mode, bool allowMultipleLobes) const
 	{
@@ -23,6 +33,16 @@ namespace Aurora
 	}
 
 	//-------------------------------------------ALambertianMaterial-------------------------------------
+
+	AURORA_REGISTER_CLASS(ALambertianMaterial, "Lambertian")
+
+	ALambertianMaterial::ALambertianMaterial(const APropertyTreeNode &node)
+	{
+		const auto &props = node.getPropertyList();
+		AVector3f _kr = props.getVector3f("R");
+		Float _tmp[] = { _kr.x, _kr.y, _kr.z };
+		m_Kr = ASpectrum::fromRGB(_tmp);
+	}
 
 	void ALambertianMaterial::computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
 		ATransportMode mode, bool allowMultipleLobes) const

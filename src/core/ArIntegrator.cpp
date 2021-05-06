@@ -50,13 +50,6 @@ namespace Aurora
 			{
 				tileSampler->startPixel(pixel);
 
-				// Do this check after the StartPixel() call; this keeps
-				// the usage of RNG values from (most) Samplers that use
-				// RNGs consistent, which improves reproducability /
-				// debugging.
-				if (!insideExclusive(pixel, m_pixelBounds))
-					continue;
-
 				do
 				{
 					// Initialize _CameraSample_ for current sample
@@ -173,6 +166,23 @@ namespace Aurora
 	}
 
 	//-------------------------------------------AWhittedIntegrator-------------------------------------
+
+	AWhittedIntegrator::AWhittedIntegrator(const APropertyTreeNode &node)
+		:ASamplerIntegrator(nullptr, nullptr), m_maxDepth(node.getPropertyList().getInteger("Depth", 2)) 
+	{
+		//Sampler
+		{
+			const auto &samplerNode = node.getPropertyChild("Sampler");
+			m_sampler = ASampler::ptr(static_cast<ASampler*>(AObjectFactory::createInstance(
+				samplerNode.getTypeName(), samplerNode)));
+		}
+		//Camera
+		{
+			const auto &cameraNode = node.getPropertyChild("Camera");
+			m_camera = ACamera::ptr(static_cast<ACamera*>(AObjectFactory::createInstance(
+				cameraNode.getTypeName(), cameraNode)));
+		}
+	}
 
 	ASpectrum AWhittedIntegrator::Li(const ARay &ray, const AScene &scene,
 		ASampler &sampler, MemoryArena &arena, int depth) const
@@ -334,7 +344,7 @@ namespace Aurora
 				// Add light's contribution to reflected radiance
 				if (!Li.isBlack())
 				{
-					if (isDeltaLight(light.flags))
+					if (isDeltaLight(light.m_flags))
 					{
 						Ld += f * Li / lightPdf;
 					}
@@ -348,7 +358,7 @@ namespace Aurora
 		}
 
 		// Sample BSDF with multiple importance sampling
-		if (!isDeltaLight(light.flags))
+		if (!isDeltaLight(light.m_flags))
 		{
 			ASpectrum f;
 			bool sampledSpecular = false;
@@ -393,4 +403,7 @@ namespace Aurora
 		}
 		return Ld;
 	}
+
+	AURORA_REGISTER_CLASS(AWhittedIntegrator, "Whitted")
+
 }

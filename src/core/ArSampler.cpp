@@ -10,6 +10,8 @@ namespace Aurora
 
 	ASampler::ASampler(int64_t samplesPerPixel) : samplesPerPixel(samplesPerPixel) {}
 
+	ASampler::ASampler(const APropertyList &props) : samplesPerPixel(props.getInteger("SPP", 1)) {}
+
 	ACameraSample ASampler::getCameraSample(const AVector2i &pRaster)
 	{
 		ACameraSample cs;
@@ -73,6 +75,10 @@ namespace Aurora
 	}
 
 	//-------------------------------------------ARandomSampler-------------------------------------
+
+	AURORA_REGISTER_CLASS(ARandomSampler, "Random")
+
+	ARandomSampler::ARandomSampler(const APropertyTreeNode &node) : ASampler(node.getPropertyList()), m_rng(0) {}
 
 	ARandomSampler::ARandomSampler(int ns, int seed) : ASampler(ns), m_rng(seed) {}
 

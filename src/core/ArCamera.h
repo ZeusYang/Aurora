@@ -4,6 +4,7 @@
 #include "ArAurora.h"
 #include "ArFilm.h"
 #include "ArTransform.h"
+#include "ArRtti.h"
 
 namespace Aurora
 {
@@ -18,12 +19,13 @@ namespace Aurora
 		return os;
 	}
 
-	class ACamera
+	class ACamera : public AObject
 	{
 	public:
 		typedef std::shared_ptr<ACamera> ptr;
 
 		// Camera Interface
+		ACamera() = default;
 		ACamera(const ATransform &cameraToWorld, AFilm::ptr film);
 		virtual ~ACamera();
 
@@ -35,9 +37,11 @@ namespace Aurora
 		//virtual Spectrum Sample_Wi(const Interaction &ref, const APoint2f &u,
 		//	AVector3f *wi, Float *pdf, APoint2f *pRaster, VisibilityTester *vis) const;
 
+		virtual AClassType getClassType() const override { return AClassType::AECamera; }
+
 		// Camera Public Data
 		ATransform m_cameraToWorld;
-		AFilm::ptr m_film;
+		AFilm::ptr m_film = nullptr;
 	};
 
 	class AProjectiveCamera : public ACamera
@@ -45,19 +49,12 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<AProjectiveCamera> ptr;
 
-		AProjectiveCamera(const ATransform &cameraToWorld,
-			const ATransform &cameraToScreen, const ABounds2f &screenWindow, AFilm::ptr film)
-			: ACamera(cameraToWorld, film), m_cameraToScreen(cameraToScreen)
-		{
-			// Compute projective camera screen transformations
-			auto resolution = film->getResolution();
-			m_screenToRaster = scale(resolution.x, resolution.y, 1) *
-				scale(1 / (screenWindow.m_pMax.x - screenWindow.m_pMin.x),
-					1 / (screenWindow.m_pMin.y - screenWindow.m_pMax.y), 1) *
-				translate(AVector3f(-screenWindow.m_pMin.x, -screenWindow.m_pMax.y, 0));
-			m_rasterToScreen = inverse(m_screenToRaster);
-			m_rasterToCamera = inverse(m_cameraToScreen) * m_rasterToScreen;
-		}
+		AProjectiveCamera() = default;
+		AProjectiveCamera(const ATransform &cameraToWorld, const ATransform &cameraToScreen, AFilm::ptr film)
+			: ACamera(cameraToWorld, film), m_cameraToScreen(cameraToScreen) { }
+
+	protected:
+		virtual void initialize();
 
 	protected:
 		ATransform m_cameraToScreen, m_rasterToCamera;
@@ -69,8 +66,8 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<APerspectiveCamera> ptr;
 
-		APerspectiveCamera(const ATransform &CameraToWorld, const ABounds2f &screenWindow,
-			Float fov, AFilm::ptr film);
+		APerspectiveCamera(const APropertyTreeNode &node);
+		APerspectiveCamera(const ATransform &CameraToWorld, Float fov, AFilm::ptr film);
 
 		virtual Float castingRay(const ACameraSample &sample, ARay &ray) const override;
 
@@ -79,6 +76,17 @@ namespace Aurora
 		//Spectrum Sample_Wi(const Interaction &ref, const Point2f &sample,
 		//	Vector3f *wi, Float *pdf, Point2f *pRaster,
 		//	VisibilityTester *vis) const;
+
+		virtual void activate() override 
+		{ 
+			m_film->activate();
+			initialize();
+		}
+
+		virtual std::string toString() const override { return "PerspectiveCamera[]"; }
+
+	protected:
+		virtual void initialize() override;
 
 	private:
 		//AVector3f dxCamera, dyCamera;

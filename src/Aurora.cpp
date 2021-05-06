@@ -25,13 +25,7 @@ THE SOFTWARE.*/
 #include <iostream>
 
 #include "ArScene.h"
-#include "ArLight.h"
-#include "ArShape.h"
-#include "ArHitable.h"
-#include "ArMaterial.h"
 #include "ArIntegrator.h"
-#include "ArPathIntegrator.h"
-
 #include "ArParser.h"
 
 using namespace std;
@@ -133,16 +127,14 @@ int main(int argc, char *argv[])
 	auto parsing_func = [](const std::string &filename) -> void
 	{
 		AScene::ptr scene = nullptr;
-		ASampler::ptr sampler = nullptr;
-		ASamplerIntegrator::ptr integrator = nullptr;
+		AIntegrator::ptr integrator = nullptr;
 
-		AParser::parser(filename, scene, sampler, integrator);
+		AParser::parser(filename, scene, integrator);
 
 		CHECK_NE(scene, nullptr);
-		CHECK_NE(sampler, nullptr);
 		CHECK_NE(integrator, nullptr);
 
-		integrator->preprocess(*scene, *sampler);
+		integrator->preprocess(*scene);
 		integrator->render(*scene);
 	};
 	

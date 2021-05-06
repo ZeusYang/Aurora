@@ -9,6 +9,14 @@ namespace Aurora
 {
 	//-------------------------------------------AShape-------------------------------------
 
+	AShape::AShape(const APropertyList &props)
+	{
+		AVector3f _trans = props.getVector3f("Translate", AVector3f(0.0f));
+		AVector3f _scale = props.getVector3f("Scale", AVector3f(1.0f));
+		m_objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
+		m_worldToObject = inverse(m_objectToWorld);
+	}
+
 	AShape::AShape(const ATransform &objectToWorld, const ATransform &worldToObject)
 		: m_objectToWorld(objectToWorld), m_worldToObject(worldToObject) {}
 
@@ -81,6 +89,11 @@ namespace Aurora
 	}
 
 	//-------------------------------------------ASphereShape-------------------------------------
+
+	AURORA_REGISTER_CLASS(ASphereShape, "Sphere")
+
+	ASphereShape::ASphereShape(const APropertyTreeNode &node)
+		: AShape(node.getPropertyList()), m_radius(node.getPropertyList().getFloat("Radius", 1.0f)) {}
 
 	ASphereShape::ASphereShape(const ATransform &objectToWorld, const ATransform &worldToObject,
 		const float radius) : AShape(objectToWorld, worldToObject), m_radius(radius) {}
@@ -313,6 +326,17 @@ namespace Aurora
 	}
 
 	//-------------------------------------------ATriangleShape-------------------------------------
+
+	AURORA_REGISTER_CLASS(ATriangleShape, "Triangle")
+
+	ATriangleShape::ATriangleShape(const APropertyTreeNode &node)
+		:AShape(node.getPropertyList())
+	{
+		const auto &props = node.getPropertyList();
+		m_p0 = (props.getVector3f("P0"));
+		m_p1 = (props.getVector3f("P1"));
+		m_p2 = (props.getVector3f("P2"));
+	}
 
 	ATriangleShape::ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject,
 		AVector3f v[3]) : AShape(objectToWorld, worldToObject), m_p0(v[0]), m_p1(v[1]), m_p2(v[2]) {}

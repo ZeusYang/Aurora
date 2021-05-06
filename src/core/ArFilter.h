@@ -3,20 +3,23 @@
 
 #include "ArAurora.h"
 #include "ArMathUtils.h"
+#include "ArRtti.h"
 
 namespace Aurora
 {
-	class AFilter 
+	class AFilter : public AObject
 	{
 	public:
 		
 		virtual ~AFilter() = default;
 
+		AFilter(const APropertyList &props);
 		AFilter(const AVector2f &radius)
 			: m_radius(radius), m_invRadius(AVector2f(1 / radius.x, 1 / radius.y)) {}
 
 		virtual Float evaluate(const AVector2f &p) const = 0;
 
+		virtual AClassType getClassType() const override { return AClassType::AEFilter; }
 
 		const AVector2f m_radius, m_invRadius;
 	};
@@ -24,10 +27,16 @@ namespace Aurora
 	class ABoxFilter final : public AFilter
 	{
 	public:
+
+		ABoxFilter(const APropertyTreeNode &node);
 		ABoxFilter(const AVector2f &radius) : AFilter(radius) {}
 
 		virtual Float evaluate(const AVector2f &p) const override;
+
+		virtual std::string toString() const override { return "BoxFilter[]"; }
+
 	};
+
 }
 
 #endif

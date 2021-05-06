@@ -12,17 +12,13 @@
 
 namespace Aurora
 {
-	struct AFilmTilePixel 
-	{
-		ASpectrum m_contribSum = 0.f;		//sum of the weighted spectrum contributions
-		Float m_filterWeightSum = 0.f;		//sum of the filter weights
-	};
 
-	class AFilm final
+	class AFilm final : public AObject
 	{
 	public:
 		typedef std::shared_ptr<AFilm> ptr;
 
+		AFilm(const APropertyTreeNode &node);
 		AFilm(const AVector2i &resolution, const ABounds2f &cropWindow,
 			std::unique_ptr<AFilter> filter, const std::string &filename, Float diagonal = 35.f,
 			Float scale = 1.f, Float maxSampleLuminance = aInfinity);
@@ -39,6 +35,18 @@ namespace Aurora
 		void addSplat(const AVector2f &p, ASpectrum v);
 
 		void clear();
+
+		virtual void activate() override 
+		{
+			m_filter->activate();
+			initialize(); 
+		}
+
+		virtual AClassType getClassType() const override { return AClassType::AEFilm; }
+		virtual std::string toString() const override { return "Film[]"; }
+
+	private:
+		void initialize();
 
 	private:
 
@@ -57,11 +65,11 @@ namespace Aurora
 			Float m_pad;				//unused, ensure sizeof(APixel) -> 32 bytes
 		};
 
-		const AVector2i m_resolution; //(width, height)
-		const std::string m_filename;
+		AVector2i m_resolution; //(width, height)
+		std::string m_filename;
 		std::unique_ptr<APixel[]> m_pixels;
 
-		const Float m_diagonal;
+		Float m_diagonal;
 		ABounds2i m_croppedPixelBounds;	//actual rendering window
 
 		std::unique_ptr<AFilter> m_filter;
@@ -71,8 +79,8 @@ namespace Aurora
 		static constexpr int filterTableWidth = 16;
 		Float m_filterTable[filterTableWidth * filterTableWidth];
 
-		const Float m_scale;
-		const Float m_maxSampleLuminance;
+		Float m_scale;
+		Float m_maxSampleLuminance;
 
 		APixel &getPixel(const AVector2i &p)
 		{
@@ -82,6 +90,12 @@ namespace Aurora
 			return m_pixels[index];
 		}
 
+	};
+
+	struct AFilmTilePixel
+	{
+		ASpectrum m_contribSum = 0.f;		//sum of the weighted spectrum contributions
+		Float m_filterWeightSum = 0.f;		//sum of the filter weights
 	};
 
 	class AFilmTile final

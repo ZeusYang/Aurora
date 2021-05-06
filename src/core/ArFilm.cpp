@@ -5,6 +5,40 @@
 
 namespace Aurora
 {
+	AURORA_REGISTER_CLASS(AFilm, "Film")
+
+	AFilm::AFilm(const APropertyTreeNode &node)
+	{
+		const auto &props = node.getPropertyList();
+		AVector2f _res = props.getVector2f("Resolution", AVector2f(800, 600));
+		m_resolution = AVector2i(static_cast<int>(_res.x), static_cast<int>(_res.y));
+		m_filename = props.getString("Filename", "rendered.png");
+
+		AVector2f _cropMin = props.getVector2f("CropMin", AVector2f(0.0f));
+		AVector2f _cropMax = props.getVector2f("CropMax", AVector2f(1.0f));
+		//Compute film image bounds
+		//Note: cropWindow range [0,1]x[0,1]
+		m_croppedPixelBounds =
+			ABounds2i(
+				AVector2i(glm::ceil(m_resolution.x * _cropMin.x), glm::ceil(m_resolution.y * _cropMin.y)),
+				AVector2i(glm::ceil(m_resolution.x * _cropMax.x), glm::ceil(m_resolution.y * _cropMax.y)));
+		LOG(INFO) << "Created film with full resolution " << m_resolution <<
+			". Crop window -> croppedPixelBounds " << m_croppedPixelBounds;
+
+		m_diagonal = props.getFloat("Diagonal", 35.f);
+		m_scale = props.getFloat("Scale", 1.0f);
+		m_maxSampleLuminance = props.getFloat("MaxLum", aInfinity);
+
+		//Filter
+		{
+			const auto &filterNode = node.getPropertyChild("Filter");
+			m_filter = std::unique_ptr<AFilter>(static_cast<AFilter*>(AObjectFactory::createInstance(
+				filterNode.getTypeName(), filterNode)));
+		}
+
+		initialize();
+	}
+
 	AFilm::AFilm(const AVector2i &resolution, const ABounds2f &cropWindow, std::unique_ptr<AFilter> filter,
 		const std::string &filename, Float diagonal, Float scale, Float maxSampleLuminance)
 		: m_resolution(resolution), m_filter(std::move(filter)), m_diagonal(diagonal),
@@ -21,15 +55,20 @@ namespace Aurora
 		LOG(INFO) << "Created film with full resolution " << resolution <<
 			". Crop window of " << cropWindow << " -> croppedPixelBounds " << m_croppedPixelBounds;
 
+		initialize();
+	}
+
+	void AFilm::initialize()
+	{
 		m_pixels = std::unique_ptr<APixel[]>(new APixel[m_croppedPixelBounds.area()]);
 
 		//Precompute filter weight table
 		//Note: we assume that filtering function f(x,y)=f(|x|,|y|)
 		//      hence only store values for the positive quadrant of filter offsets.
 		int offset = 0;
-		for (int y = 0; y < filterTableWidth; ++y) 
+		for (int y = 0; y < filterTableWidth; ++y)
 		{
-			for (int x = 0; x < filterTableWidth; ++x, ++offset) 
+			for (int x = 0; x < filterTableWidth; ++x, ++offset)
 			{
 				AVector2f p;
 				p.x = (x + 0.5f) * m_filter->m_radius.x / filterTableWidth;

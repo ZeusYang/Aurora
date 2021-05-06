@@ -5,12 +5,20 @@
 
 namespace Aurora
 {
+	AURORA_REGISTER_CLASS(APathIntegrator, "Path")
+
+	APathIntegrator::APathIntegrator(const APropertyTreeNode &node)
+		: ASamplerIntegrator(nullptr, nullptr), m_maxDepth(node.getPropertyList().getInteger("Depth", 2))
+	{
+
+	}
+
 	APathIntegrator::APathIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
-		const ABounds2i &pixelBounds, Float rrThreshold, const std::string &lightSampleStrategy)
-		: ASamplerIntegrator(camera, sampler, pixelBounds), m_maxDepth(maxDepth),
+		Float rrThreshold, const std::string &lightSampleStrategy)
+		: ASamplerIntegrator(camera, sampler), m_maxDepth(maxDepth),
 		m_rrThreshold(rrThreshold), m_lightSampleStrategy(lightSampleStrategy) {}
 
-	void APathIntegrator::preprocess(const AScene &scene, ASampler &sampler) 
+	void APathIntegrator::preprocess(const AScene &scene) 
 	{
 		m_lightDistribution = createLightSampleDistribution(m_lightSampleStrategy, scene);
 	}

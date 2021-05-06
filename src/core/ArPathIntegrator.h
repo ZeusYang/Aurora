@@ -8,26 +8,30 @@
 
 namespace Aurora
 {
-	class APathIntegrator : public ASamplerIntegrator 
+	class APathIntegrator : public ASamplerIntegrator
 	{
 	public:
 
-		APathIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
-			const ABounds2i &pixelBounds, Float rrThreshold = 1,
-			const std::string &lightSampleStrategy = "spatial");
+		APathIntegrator(const APropertyTreeNode &props);
 
-		virtual void preprocess(const AScene &scene, ASampler &sampler) override;
+		APathIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
+			Float rrThreshold = 1, const std::string &lightSampleStrategy = "spatial");
+
+		virtual void preprocess(const AScene &scene) override;
 		
 		virtual ASpectrum Li(const ARay &ray, const AScene &scene, ASampler &sampler, 
 			MemoryArena &arena, int depth) const override;
 
+		virtual std::string toString() const override { return "PathIntegrator[]"; }
+
 	private:
 		// PathIntegrator Private Data
-		const int m_maxDepth;
-		const Float m_rrThreshold;
-		const std::string m_lightSampleStrategy;
+		int m_maxDepth;
+		Float m_rrThreshold;
+		std::string m_lightSampleStrategy;
 		std::unique_ptr<ALightDistribution> m_lightDistribution;
 	};
+
 }
 
 #endif

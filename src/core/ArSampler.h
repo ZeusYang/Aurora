@@ -3,19 +3,20 @@
 
 #include "ArAurora.h"
 #include "ArMathUtils.h"
-
 #include "ArRng.h"
+#include "ArRtti.h"
 
 #include <vector>
 
 namespace Aurora
 {
-	class ASampler
+	class ASampler : public AObject
 	{
 	public:
 		typedef std::shared_ptr<ASampler> ptr;
 
 		virtual ~ASampler();
+		ASampler(const APropertyList &props);
 		ASampler(int64_t samplesPerPixel);
 
 		virtual void startPixel(const AVector2i &p);
@@ -40,6 +41,8 @@ namespace Aurora
 
 		int64_t getSamplingNumber() const { return samplesPerPixel; }
 
+		virtual AClassType getClassType() const override { return AClassType::AESampler; }
+
 		const int64_t samplesPerPixel; //Number of sampling per pixel
 
 	protected:
@@ -58,6 +61,7 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<ARandomSampler> ptr;
 
+		ARandomSampler(const APropertyTreeNode &node);
 		ARandomSampler(int ns, int seed = 0);
 
 		virtual void startPixel(const AVector2i &) override;
@@ -66,6 +70,8 @@ namespace Aurora
 		virtual AVector2f get2D() override;
 
 		virtual std::unique_ptr<ASampler> clone(int seed) override;
+
+		virtual std::string toString() const override { return "RandomSampler[]"; }
 
 	private:
 		ARng m_rng; //Random number generator

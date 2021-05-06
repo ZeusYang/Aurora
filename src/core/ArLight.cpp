@@ -8,8 +8,13 @@ namespace Aurora
 {
 	//-------------------------------------------ALight-------------------------------------
 
+	ALight::ALight(const APropertyList &props)
+	{
+		m_nSamples = props.getInteger("LightSamples", 1);
+	}
+
 	ALight::ALight(int flags, const ATransform &lightToWorld, int nSamples)
-		: flags(flags), nSamples(glm::max(1, nSamples)), m_lightToWorld(lightToWorld),
+		: m_flags(flags), m_nSamples(glm::max(1, nSamples)), m_lightToWorld(lightToWorld),
 		m_worldToLight(inverse(lightToWorld))
 	{
 		//++numLights;
@@ -49,15 +54,47 @@ namespace Aurora
 
 	//-------------------------------------------AAreaLight-------------------------------------
 
+	AAreaLight::AAreaLight(const APropertyList &props) : ALight(props) { m_flags = (int)ALightFlags::ALightArea; }
+
 	AAreaLight::AAreaLight(const ATransform &lightToWorld, int nSamples)
 		: ALight((int)ALightFlags::ALightArea, lightToWorld, nSamples) { }
 
 	//-------------------------------------------ADiffuseAreaLight-------------------------------------
 
+	AURORA_REGISTER_CLASS(ADiffuseAreaLight, "AreaDiffuse")
+
+	ADiffuseAreaLight::ADiffuseAreaLight(const APropertyTreeNode &node)
+		: AAreaLight(node.getPropertyList()), m_shape(nullptr)
+	{
+		const auto &props = node.getPropertyList();
+		AVector3f _Le = props.getVector3f("Radiance");
+		Float _tmp[] = { _Le.x, _Le.y, _Le.z };
+		m_Lemit = ASpectrum::fromRGB(_tmp);
+
+		m_twoSided = props.getBoolean("TwoSided");
+	}
+
 	ADiffuseAreaLight::ADiffuseAreaLight(const ATransform &lightToWorld, const ASpectrum &Lemit,
-		int nSamples, const AShape::ptr &shape, bool twoSided)
+		int nSamples, AShape* shape, bool twoSided)
 		: AAreaLight(lightToWorld, nSamples), m_Lemit(Lemit), m_shape(shape),
 		m_twoSided(twoSided), m_area(shape->area()) { }
+
+	void ADiffuseAreaLight::setParent(AObject *parent)
+	{
+		switch (parent->getClassType())
+		{
+		case AClassType::AEHitable:
+			m_shape = static_cast<AHitableEntity*>(parent)->getShape();
+			m_area = m_shape->area();
+			m_lightToWorld = m_shape->m_objectToWorld;
+			m_worldToLight = m_shape->m_worldToObject;
+			break;
+		default:
+			LOG(ERROR) << "ADiffuseAreaLight::setParent(" << getClassTypeName(parent->getClassType())
+				<< ") is no supported";
+			break;
+		}
+	}
 
 	ASpectrum ADiffuseAreaLight::power() const
 	{
