@@ -72,6 +72,8 @@ namespace Aurora
 		m_Lemit = ASpectrum::fromRGB(_tmp);
 
 		m_twoSided = props.getBoolean("TwoSided");
+
+		activate();
 	}
 
 	ADiffuseAreaLight::ADiffuseAreaLight(const ATransform &lightToWorld, const ASpectrum &Lemit,

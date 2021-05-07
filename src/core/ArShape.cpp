@@ -93,7 +93,7 @@ namespace Aurora
 	AURORA_REGISTER_CLASS(ASphereShape, "Sphere")
 
 	ASphereShape::ASphereShape(const APropertyTreeNode &node)
-		: AShape(node.getPropertyList()), m_radius(node.getPropertyList().getFloat("Radius", 1.0f)) {}
+		: AShape(node.getPropertyList()), m_radius(node.getPropertyList().getFloat("Radius", 1.0f)) { activate(); }
 
 	ASphereShape::ASphereShape(const ATransform &objectToWorld, const ATransform &worldToObject,
 		const float radius) : AShape(objectToWorld, worldToObject), m_radius(radius) {}
@@ -336,6 +336,7 @@ namespace Aurora
 		m_p0 = (props.getVector3f("P0"));
 		m_p1 = (props.getVector3f("P1"));
 		m_p2 = (props.getVector3f("P2"));
+		activate();
 	}
 
 	ATriangleShape::ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject,

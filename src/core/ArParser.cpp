@@ -36,6 +36,33 @@ namespace Aurora
 		}
 		LOG(INFO) << "Parse the scene file from " << path;
 
+		auto get_func = [](const json_value_type &target) -> std::string
+		{
+			if (target.is_string())
+			{
+				return target.get<std::string>();
+			}
+			else if (target.is_boolean())
+			{
+				bool ret = target.get<bool>();
+				return ret ? "true" : "false";
+			}
+			else if (target.is_number_float())
+			{
+				float ret = target.get<float>();
+				std::stringstream ss;
+				ss << ret;
+				return ss.str();
+			}
+			else
+			{
+				int ret = target.get<int>();
+				std::stringstream ss;
+				ss << ret;
+				return ss.str();
+			}
+		};
+
 		//Build property tree
 		std::function<APropertyTreeNode(const std::string &tag, const json_value_type &jsonData)> build_property_tree_func;
 		build_property_tree_func = [&](const std::string &tag, const json_value_type &jsonData) -> APropertyTreeNode
@@ -49,33 +76,6 @@ namespace Aurora
 					const auto &value = item.value();
 					if (!value.is_object())
 					{
-						auto get_func = [](const json_value_type &target) -> std::string
-						{
-							if (target.is_string())
-							{
-								return target.get<std::string>();
-							}
-							else if (target.is_boolean())
-							{
-								bool ret = target.get<bool>();
-								return ret ? "true" : "false";
-							}
-							else if(target.is_number_float())
-							{
-								float ret = target.get<float>();
-								std::stringstream ss;
-								ss << ret;
-								return ss.str();
-							}
-							else
-							{
-								int ret = target.get<int>();
-								std::stringstream ss;
-								ss << ret;
-								return ss.str();
-							}
-						};
-
 						std::vector<std::string> values;
 						if (value.is_array())
 						{
@@ -110,7 +110,6 @@ namespace Aurora
 			APropertyTreeNode integratorNode = build_property_tree_func("Integrator", _scene_json["Integrator"]);
 			_integrator = AIntegrator::ptr(static_cast<AIntegrator*>(AObjectFactory::createInstance(
 				integratorNode.getTypeName(), integratorNode)));
-			_integrator->activate();
 		}
 
 		std::vector<ALight::ptr> _lights;
@@ -128,7 +127,6 @@ namespace Aurora
 				APropertyTreeNode hitableNode = build_property_tree_func("Hitable", hitables_json[i]);
 				AHitable::ptr hitable = AHitable::ptr(static_cast<AHitable*>(AObjectFactory::createInstance(
 					hitableNode.getTypeName(), hitableNode)));
-				hitable->activate();
 				_aggregate->addHitable(hitable);
 			}
 

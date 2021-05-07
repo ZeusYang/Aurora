@@ -60,6 +60,8 @@ namespace Aurora
 			m_film = AFilm::ptr(static_cast<AFilm*>(AObjectFactory::createInstance(
 				filmNode.getTypeName(), filmNode)));
 		}
+
+		activate();
 	}
 
 	APerspectiveCamera::APerspectiveCamera(const ATransform &cameraToWorld, Float fov, AFilm::ptr film)

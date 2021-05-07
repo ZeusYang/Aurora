@@ -182,6 +182,8 @@ namespace Aurora
 			m_camera = ACamera::ptr(static_cast<ACamera*>(AObjectFactory::createInstance(
 				cameraNode.getTypeName(), cameraNode)));
 		}
+
+		activate();
 	}
 
 	ASpectrum AWhittedIntegrator::Li(const ARay &ray, const AScene &scene,

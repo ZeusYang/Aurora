@@ -18,6 +18,7 @@ namespace Aurora
 		AVector3f _kr = props.getVector3f("R");
 		Float _tmp[] = { _kr.x, _kr.y, _kr.z };
 		m_Kr = ASpectrum::fromRGB(_tmp);
+		activate();
 	}
 
 	void AMirrorMaterial::computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
@@ -42,6 +43,7 @@ namespace Aurora
 		AVector3f _kr = props.getVector3f("R");
 		Float _tmp[] = { _kr.x, _kr.y, _kr.z };
 		m_Kr = ASpectrum::fromRGB(_tmp);
+		activate();
 	}
 
 	void ALambertianMaterial::computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,

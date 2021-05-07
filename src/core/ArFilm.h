@@ -36,11 +36,7 @@ namespace Aurora
 
 		void clear();
 
-		virtual void activate() override 
-		{
-			m_filter->activate();
-			initialize(); 
-		}
+		virtual void activate() override { initialize(); }
 
 		virtual AClassType getClassType() const override { return AClassType::AEFilm; }
 		virtual std::string toString() const override { return "Film[]"; }

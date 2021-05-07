@@ -77,11 +77,7 @@ namespace Aurora
 		//	Vector3f *wi, Float *pdf, Point2f *pRaster,
 		//	VisibilityTester *vis) const;
 
-		virtual void activate() override 
-		{ 
-			m_film->activate();
-			initialize();
-		}
+		virtual void activate() override { initialize(); }
 
 		virtual std::string toString() const override { return "PerspectiveCamera[]"; }
 

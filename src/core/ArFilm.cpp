@@ -36,7 +36,7 @@ namespace Aurora
 				filterNode.getTypeName(), filterNode)));
 		}
 
-		initialize();
+		activate();
 	}
 
 	AFilm::AFilm(const AVector2i &resolution, const ABounds2f &cropWindow, std::unique_ptr<AFilter> filter,

@@ -42,6 +42,8 @@ namespace Aurora
 		{
 			m_areaLight->setParent(this);
 		}
+
+		activate();
 	}
 
 	AHitableEntity::AHitableEntity(const AShape::ptr &shape, const AMaterial::ptr &material,

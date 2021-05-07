@@ -65,11 +65,11 @@ namespace Aurora
 
 		virtual std::string toString() const override { return "WhittedIntegrator[]"; }
 
-		virtual void activate() override
-		{
-			m_sampler->activate();
-			m_camera->activate();
-		}
+		//virtual void activate() override
+		//{
+		//	m_sampler->activate();
+		//	m_camera->activate();
+		//}
 
 	private:
 		const int m_maxDepth;

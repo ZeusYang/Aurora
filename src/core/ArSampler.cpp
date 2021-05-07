@@ -78,7 +78,7 @@ namespace Aurora
 
 	AURORA_REGISTER_CLASS(ARandomSampler, "Random")
 
-	ARandomSampler::ARandomSampler(const APropertyTreeNode &node) : ASampler(node.getPropertyList()), m_rng(0) {}
+	ARandomSampler::ARandomSampler(const APropertyTreeNode &node) : ASampler(node.getPropertyList()), m_rng(0) { activate(); }
 
 	ARandomSampler::ARandomSampler(int ns, int seed) : ASampler(ns), m_rng(seed) {}
 
