@@ -1,3 +1,6 @@
 [submodule "src/ext/glog"]
 	path = src/ext/glog
 	url = git@github.com:google/glog.git
+[submodule "src/ext/assimp"]
+	path = src/ext/assimp
+	url = git@github.com:assimp/assimp.git
