@@ -38,6 +38,15 @@ INCLUDE_DIRECTORIES (
   ${CMAKE_BINARY_DIR}/src/ext/glog
 )
 
+###########################################################################
+# assimp
+ADD_SUBDIRECTORY(src/ext/assimp)
+SET_PROPERTY(TARGET assimp assimp_cmd uninstall unit UpdateAssimpLibsDebugSymbolsAndDLLs zlibstatic PROPERTY FOLDER "ext")
+INCLUDE_DIRECTORIES (
+  src/ext/assimp/include
+  ${CMAKE_BINARY_DIR}/src/ext/assimp
+)
+
 file(GLOB SRCS ./src/core/*.cpp ./src/*.cpp)
 file(GLOB HEADERS ./src/core/*.h )
 source_group("Header Files" FILES ${HEADERS})
@@ -46,6 +55,7 @@ add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
 target_link_libraries( ${PROJECT_NAME} 
     PRIVATE 
 	glog::glog
+	assimp::assimp
 )
 
 # Installation
