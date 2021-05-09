@@ -64,6 +64,14 @@ namespace Aurora
 
 	};
 
+	class AHitableMesh final : public AHitable
+	{
+	public:
+
+	private:
+
+	};
+
 	class AHitableAggregate : public AHitable
 	{
 	public:

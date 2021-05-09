@@ -79,6 +79,29 @@ namespace Aurora
 		float m_radius;
 	};
 
+	class ATriangleMesh
+	{
+	public:
+
+		ATriangleMesh(const ATransform &objectToWorld, const std::string &filename);
+
+		size_t numTriangles() const { return m_indices.size() / 3; }
+		size_t numVertices() const { return m_nVertices; }
+
+		const AVector3f& getPosition(const int &index) const { return m_position[index]; }
+		const AVector3f& getNormal(const int &index) const { return m_normal[index]; }
+		const AVector2f& getUV(const int &index) const { return m_uv[index]; }
+
+	private:
+
+		// TriangleMesh Data
+		std::unique_ptr<AVector3f[]> m_position = nullptr;
+		std::unique_ptr<AVector3f[]> m_normal = nullptr;
+		std::unique_ptr<AVector2f[]> m_uv = nullptr;
+		std::vector<int> m_indices;
+		int m_nVertices;
+	};
+
 	class ATriangleShape final : public AShape
 	{
 	public:

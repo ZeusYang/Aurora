@@ -5,6 +5,10 @@
 
 #include <array>
 
+#include "assimp/scene.h"
+#include "assimp/Importer.hpp"
+#include "assimp/postprocess.h"
+
 namespace Aurora
 {
 	//-------------------------------------------AShape-------------------------------------
@@ -326,6 +330,102 @@ namespace Aurora
 	}
 
 	//-------------------------------------------ATriangleShape-------------------------------------
+
+	ATriangleMesh::ATriangleMesh(const ATransform &objectToWorld, const std::string &filename)
+	{
+		std::vector<AVector3f> gPosition;
+		std::vector<AVector3f> gNormal;
+		std::vector<AVector2f> gUV;
+		std::vector<int> gIndices;
+
+		auto process_mesh = [&](aiMesh *mesh, const aiScene *scene) -> void
+		{
+			// Walk through each of the mesh's vertices
+			std::vector<AVector3f> position;
+			std::vector<AVector3f> normal;
+			std::vector<AVector2f> uv;
+			std::vector<int> indices;
+			for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+			{
+				position.push_back(AVector3f(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+				normal.push_back(AVector3f(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
+				if (mesh->mTextureCoords[0])
+				{
+					uv.push_back(AVector2f(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y));
+				}
+			}
+
+			for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+			{
+				aiFace face = mesh->mFaces[i];
+				// Retrieve all indices of the face and store them in the indices vector
+				for (unsigned int j = 0; j < face.mNumIndices; ++j)
+				{
+					indices.push_back(face.mIndices[j] + gPosition.size());
+				}
+			}
+
+			// Merge to one mesh
+			gPosition.insert(gPosition.end(), position.begin(), position.end());
+			gNormal.insert(gNormal.end(), normal.begin(), normal.end());
+			gUV.insert(gUV.end(), uv.begin(), uv.end());
+			gIndices.insert(gIndices.end(), indices.begin(), indices.end());
+		};
+
+		std::function<void(aiNode *node, const aiScene *scene)> process_node;
+		process_node = [&](aiNode *node, const aiScene *scene) -> void
+		{
+			// Process each mesh located at the current node
+			for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+			{
+				// The node object only contains indices to index the actual objects in the scene. 
+				// The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+				process_mesh(mesh, scene);
+			}
+
+			// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
+			for (unsigned int i = 0; i < node->mNumChildren; i++)
+			{
+				process_node(node->mChildren[i], scene);
+			}
+		};
+		// Import the mesh using ASSIMP
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals
+			| aiProcess_FlipUVs | aiProcess_FixInfacingNormals | aiProcess_OptimizeMeshes);
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+		{
+			LOG(ERROR) << "ERROR::ASSIMP:: " << importer.GetErrorString();
+		}
+
+		// Process the mesh node
+		process_node(scene->mRootNode, scene);
+
+		// Vertex data
+		// Note: we transform the vertex into world space in advance for efficient ray intersection routine
+		m_nVertices = gPosition.size();
+		m_position.reset(new AVector3f[m_nVertices]);
+		m_normal.reset(new AVector3f[m_nVertices]);
+		if (!gUV.empty())
+		{
+			m_uv.reset(new AVector2f[m_nVertices]);
+		}
+
+		for (unsigned int i = 0; i < m_nVertices; ++i)
+		{
+			m_position[i] = objectToWorld(gPosition[i], 1.0f);
+			m_normal[i] = objectToWorld(gNormal[i], 0.0f);
+			if (m_uv != nullptr)
+			{
+				m_uv[i] = gUV[i];
+			}
+		}
+
+		m_indices.resize(gIndices.size());
+		m_indices.assign(gIndices.begin(), gIndices.end());
+
+	}
 
 	AURORA_REGISTER_CLASS(ATriangleShape, "Triangle")
 

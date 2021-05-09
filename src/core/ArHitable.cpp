@@ -6,7 +6,7 @@ namespace Aurora
 {
 	//-------------------------------------------AHitableEntity-------------------------------------
 
-	AURORA_REGISTER_CLASS(AHitableEntity, "HitableEntity")
+	AURORA_REGISTER_CLASS(AHitableEntity, "Entity")
 
 	AHitableEntity::AHitableEntity(const APropertyTreeNode &node)
 	{
