@@ -79,9 +79,10 @@ namespace Aurora
 		float m_radius;
 	};
 
-	class ATriangleMesh
+	class ATriangleMesh final
 	{
 	public:
+		typedef std::shared_ptr<ATriangleMesh> ptr;
 
 		ATriangleMesh(const ATransform &objectToWorld, const std::string &filename);
 

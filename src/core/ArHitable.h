@@ -67,9 +67,28 @@ namespace Aurora
 	class AHitableMesh final : public AHitable
 	{
 	public:
+		typedef std::shared_ptr<AHitableMesh> ptr;
+
+		AHitableMesh(const APropertyTreeNode &node);
+
+		virtual bool hit(const ARay &ray) const override;
+		virtual bool hit(const ARay &ray, ASurfaceInteraction &iset) const override;
+
+		virtual ABounds3f worldBound() const override;
+
+		virtual const AAreaLight *getAreaLight() const override;
+		virtual const AMaterial *getMaterial() const override;
+
+		virtual void computeScatteringFunctions(ASurfaceInteraction &isect, MemoryArena &arena,
+			ATransportMode mode, bool allowMultipleLobes) const override;
+
+		virtual std::string toString() const override { return "HitableMesh[]"; }
 
 	private:
-
+		ATriangleMesh::ptr m_mesh;
+		AMaterial::ptr m_material;
+		ABounds3f m_worldBounds;
+		std::vector<AHitableEntity::ptr> m_triangles;
 	};
 
 	class AHitableAggregate : public AHitable

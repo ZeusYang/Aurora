@@ -80,6 +80,46 @@ namespace Aurora
 
 	const AMaterial* AHitableEntity::getMaterial() const { return m_material.get(); }
 
+	//-------------------------------------------AHitableMesh-------------------------------------
+
+	AURORA_REGISTER_CLASS(AHitableMesh, "MeshEntity")
+
+	AHitableMesh::AHitableMesh(const APropertyTreeNode &node)
+	{
+		//TODO: implement mesh loading
+	}
+
+	bool AHitableMesh::hit(const ARay &ray) const
+	{
+		return false;
+	}
+
+	bool AHitableMesh::hit(const ARay &ray, ASurfaceInteraction &iset) const
+	{
+		return false;
+	}
+
+	ABounds3f AHitableMesh::worldBound() const
+	{
+		return ABounds3f();
+	}
+	
+	const AAreaLight* AHitableMesh::getAreaLight() const 
+	{ 
+		//Note: should not go here at all.
+		LOG(FATAL) << "AHitableMesh::getAreaLight() shouldn't be called";
+		return nullptr;
+	}
+
+	const AMaterial* AHitableMesh::getMaterial() const { return m_material.get(); }
+
+	void AHitableMesh::computeScatteringFunctions(ASurfaceInteraction &isect, MemoryArena &arena,
+		ATransportMode mode, bool allowMultipleLobes) const
+	{
+		LOG(FATAL) << "AHitableMesh::computeScatteringFunctions() shouldn't be " 
+			"called";
+	}
+
 	//-------------------------------------------AHitableAggregate-------------------------------------
 
 	const AAreaLight *AHitableAggregate::getAreaLight() const { return nullptr; }
