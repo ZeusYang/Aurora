@@ -48,7 +48,13 @@ namespace Aurora
 
 	AHitableEntity::AHitableEntity(const AShape::ptr &shape, const AMaterial::ptr &material,
 		const AAreaLight::ptr &areaLight)
-		: m_shape(shape), m_material(material), m_areaLight(areaLight) {}
+		: m_shape(shape), m_material(material), m_areaLight(areaLight) 
+	{
+		if (m_areaLight != nullptr)
+		{
+			m_areaLight->setParent(this);
+		}
+	}
 
 	bool AHitableEntity::hit(const ARay &ray) const { return m_shape->hit(ray); }
 
@@ -87,6 +93,48 @@ namespace Aurora
 	AHitableMesh::AHitableMesh(const APropertyTreeNode &node)
 	{
 		//TODO: implement mesh loading
+		const APropertyList& props = node.getPropertyList();
+		const std::string filename = props.getString("Filename");
+		
+		//Shape
+		ATransform objectToWorld, worldToObject;
+		{
+			const auto &shapeNode = node.getPropertyChild("Shape");
+			const auto &shapeProps = shapeNode.getPropertyList();
+			AVector3f _trans = shapeProps.getVector3f("Translate", AVector3f(0.0f));
+			AVector3f _scale = shapeProps.getVector3f("Scale", AVector3f(1.0f));
+			objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
+			worldToObject = inverse(objectToWorld);
+		}
+
+		//Material
+		{
+			const auto &materialNode = node.getPropertyChild("Material");
+			m_material = AMaterial::ptr(static_cast<AMaterial*>(AObjectFactory::createInstance(
+				materialNode.getTypeName(), materialNode)));
+		}
+
+		//Load each triangle of the mesh as a HitableEntity
+		m_mesh = std::make_shared<ATriangleMesh>(objectToWorld, APropertyTreeNode::m_directory + filename);
+		const auto &meshIndices = m_mesh->getIndices();
+		for (size_t i = 0; i < meshIndices.size(); i += 3)
+		{
+			std::array<int, 3> indices;
+			indices[0] = meshIndices[i + 0];
+			indices[1] = meshIndices[i + 1];
+			indices[2] = meshIndices[i + 2];
+			ATriangleShape::ptr triangle = std::make_shared<ATriangleShape>(objectToWorld, worldToObject, indices, m_mesh.get());
+
+			//Area light
+			AAreaLight::ptr areaLight = nullptr;
+			if (node.hasPropertyChild("Light"))
+			{
+				const auto &lightNode = node.getPropertyChild("Light");
+				areaLight = AAreaLight::ptr(static_cast<AAreaLight*>(AObjectFactory::createInstance(
+					lightNode.getTypeName(), lightNode)));
+			}
+			m_triangles.push_back(std::make_shared<AHitableEntity>(triangle, m_material, areaLight));
+		}
 	}
 
 	bool AHitableMesh::hit(const ARay &ray) const
@@ -101,7 +149,12 @@ namespace Aurora
 
 	ABounds3f AHitableMesh::worldBound() const
 	{
-		return ABounds3f();
+		ABounds3f bound;
+		for (const auto &tri : m_triangles)
+		{
+			bound = unionBounds(bound, tri->worldBound());
+		}
+		return bound;
 	}
 	
 	const AAreaLight* AHitableMesh::getAreaLight() const 

@@ -329,7 +329,7 @@ namespace Aurora
 		return (2 * aPi * (1 - cosTheta));
 	}
 
-	//-------------------------------------------ATriangleShape-------------------------------------
+	//-------------------------------------------ATriangleMesh-------------------------------------
 
 	ATriangleMesh::ATriangleMesh(const ATransform &objectToWorld, const std::string &filename)
 	{
@@ -396,7 +396,7 @@ namespace Aurora
 			| aiProcess_FlipUVs | aiProcess_FixInfacingNormals | aiProcess_OptimizeMeshes);
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
 		{
-			LOG(ERROR) << "ERROR::ASSIMP:: " << importer.GetErrorString();
+			LOG(FATAL) << "ERROR::ASSIMP:: " << importer.GetErrorString();
 		}
 
 		// Process the mesh node
@@ -406,7 +406,10 @@ namespace Aurora
 		// Note: we transform the vertex into world space in advance for efficient ray intersection routine
 		m_nVertices = gPosition.size();
 		m_position.reset(new AVector3f[m_nVertices]);
-		m_normal.reset(new AVector3f[m_nVertices]);
+		if (!gNormal.empty())
+		{
+			m_normal.reset(new AVector3f[m_nVertices]);
+		}
 		if (!gUV.empty())
 		{
 			m_uv.reset(new AVector2f[m_nVertices]);
@@ -415,7 +418,10 @@ namespace Aurora
 		for (unsigned int i = 0; i < m_nVertices; ++i)
 		{
 			m_position[i] = objectToWorld(gPosition[i], 1.0f);
-			m_normal[i] = objectToWorld(gNormal[i], 0.0f);
+			if (m_normal != nullptr)
+			{
+				m_normal[i] = objectToWorld(gNormal[i], 0.0f);
+			}
 			if (m_uv != nullptr)
 			{
 				m_uv[i] = gUV[i];
@@ -427,42 +433,47 @@ namespace Aurora
 
 	}
 
+	//-------------------------------------------ATriangleShape-------------------------------------
+
 	AURORA_REGISTER_CLASS(ATriangleShape, "Triangle")
 
 	ATriangleShape::ATriangleShape(const APropertyTreeNode &node)
 		:AShape(node.getPropertyList())
 	{
-		const auto &props = node.getPropertyList();
-		m_p0 = (props.getVector3f("P0"));
-		m_p1 = (props.getVector3f("P1"));
-		m_p2 = (props.getVector3f("P2"));
-		activate();
+		//const auto &props = node.getPropertyList();
+		//m_p0 = (props.getVector3f("P0"));
+		//m_p1 = (props.getVector3f("P1"));
+		//m_p2 = (props.getVector3f("P2"));
+		//activate();
 	}
 
 	ATriangleShape::ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject,
-		AVector3f v[3]) : AShape(objectToWorld, worldToObject), m_p0(v[0]), m_p1(v[1]), m_p2(v[2]) {}
+		std::array<int, 3> indices, ATriangleMesh *mesh): AShape(objectToWorld, worldToObject), m_indices(indices), m_mesh(mesh) {}
 
 	ABounds3f ATriangleShape::objectBound() const
 	{
 		// Get triangle vertices in _p0_, _p1_, and _p2_
-		return unionBounds(ABounds3f((m_worldToObject)(m_p0, 1.0f), (m_worldToObject)(m_p1, 1.0f)),
-			(m_worldToObject)(m_p2, 1.0f));
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
+		return unionBounds(ABounds3f((m_worldToObject)(p0, 1.0f), (m_worldToObject)(p1, 1.0f)), (m_worldToObject)(p2, 1.0f));
 	}
 
 	ABounds3f ATriangleShape::worldBound() const
 	{
-		const AVector3f &p0 = m_p0;
-		const AVector3f &p1 = m_p1;
-		const AVector3f &p2 = m_p2;
+		// Get triangle vertices in _p0_, _p1_, and _p2_
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
 		return unionBounds(ABounds3f(p0, p1), p2);
 	}
 
 	Float ATriangleShape::area() const 
 	{
 		// Get triangle vertices in _p0_, _p1_, and _p2_
-		const AVector3f &p0 = m_p0;
-		const AVector3f &p1 = m_p1;
-		const AVector3f &p2 = m_p2;
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
 		return 0.5 * length(cross(p1 - p0, p2 - p0));
 	}
 
@@ -470,9 +481,9 @@ namespace Aurora
 	{
 		AVector2f b = uniformSampleTriangle(u);
 		// Get triangle vertices in _p0_, _p1_, and _p2_
-		const AVector3f &p0 = m_p0;
-		const AVector3f &p1 = m_p1;
-		const AVector3f &p2 = m_p2;
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
 		AInteraction it;
 		it.p = b[0] * p0 + b[1] * p1 + (1 - b[0] - b[1]) * p2;
 		// Compute surface normal for sampled point on triangle
@@ -485,9 +496,9 @@ namespace Aurora
 	bool ATriangleShape::hit(const ARay &ray) const
 	{
 		// Get triangle vertices in _p0_, _p1_, and _p2_
-		const AVector3f &p0 = m_p0;
-		const AVector3f &p1 = m_p1;
-		const AVector3f &p2 = m_p2;
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
 
 		// Perform ray--triangle intersection test
 
@@ -591,9 +602,9 @@ namespace Aurora
 	bool ATriangleShape::hit(const ARay &ray, Float &tHit, ASurfaceInteraction &isect) const
 	{
 		// Get triangle vertices in _p0_, _p1_, and _p2_
-		const AVector3f &p0 = m_p0;
-		const AVector3f &p1 = m_p1;
-		const AVector3f &p2 = m_p2;
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
 
 		// Perform ray--triangle intersection test
 
@@ -693,8 +704,19 @@ namespace Aurora
 
 		// Compute triangle partial derivatives
 		AVector3f dpdu, dpdv;
-		AVector2f uv[3] = { AVector2f(0,0), AVector2f(1,0), AVector2f(1,1) };
-		//GetUVs(uv);
+		AVector2f uv[3];
+		if (m_mesh->hasUV())
+		{
+			uv[0] = m_mesh->getUV(m_indices[0]);
+			uv[1] = m_mesh->getUV(m_indices[1]);
+			uv[2] = m_mesh->getUV(m_indices[2]);
+		}
+		else
+		{
+			uv[0] = AVector2f(0, 0);
+			uv[1] = AVector2f(1, 0);
+			uv[2] = AVector2f(1, 1);
+		}
 
 		// Compute deltas for triangle partial derivatives
 		AVector2f duv02 = uv[0] - uv[2], duv12 = uv[1] - uv[2];
@@ -728,6 +750,22 @@ namespace Aurora
 		// Override surface normal in _isect_ for triangle
 		isect.n = AVector3f(normalize(cross(dp02, dp12)));
 		tHit = t;
+
+		if (m_mesh->hasNormal())
+		{
+			AVector3f ns;
+			ns = b0 * m_mesh->getNormal(m_indices[0]) + b1 * m_mesh->getNormal(m_indices[1])
+				+ b2 * m_mesh->getNormal(m_indices[2]);
+			if (lengthSquared(ns) > 0)
+			{
+				ns = normalize(ns);
+			}
+			else
+			{
+				ns = isect.n;
+			}
+			isect.n = ns;
+		}
 	
 		return true;
 	}
@@ -735,7 +773,10 @@ namespace Aurora
 	Float ATriangleShape::solidAngle(const AVector3f &p, int nSamples) const
 	{
 		// Project the vertices into the unit sphere around p.
-		std::array<AVector3f, 3> pSphere = { normalize(m_p0 - p), normalize(m_p1 - p), normalize(m_p2 - p) };
+		const auto &p0 = m_mesh->getPosition(m_indices[0]);
+		const auto &p1 = m_mesh->getPosition(m_indices[1]);
+		const auto &p2 = m_mesh->getPosition(m_indices[2]);
+		std::array<AVector3f, 3> pSphere = { normalize(p0 - p), normalize(p1 - p), normalize(p2 - p) };
 
 		// http://math.stackexchange.com/questions/9819/area-of-a-spherical-triangle
 		// Girard's theorem: surface area of a spherical triangle on a unit
@@ -755,9 +796,12 @@ namespace Aurora
 		// Some of these vectors may be degenerate. In this case, we don't want
 		// to normalize them so that we don't hit an assert. This is fine,
 		// since the corresponding dot products below will be zero.
-		if (lengthSquared(cross01) > 0) cross01 = normalize(cross01);
-		if (lengthSquared(cross12) > 0) cross12 = normalize(cross12);
-		if (lengthSquared(cross20) > 0) cross20 = normalize(cross20);
+		if (lengthSquared(cross01) > 0) 
+			cross01 = normalize(cross01);
+		if (lengthSquared(cross12) > 0) 
+			cross12 = normalize(cross12);
+		if (lengthSquared(cross20) > 0) 
+			cross20 = normalize(cross20);
 
 		// We only need to do three cross products to evaluate the angles at
 		// all three vertices, though, since we can take advantage of the fact

@@ -84,6 +84,8 @@ namespace Aurora
 
 		virtual std::string toString() const override { return "HitableMesh[]"; }
 
+		const std::vector<AHitableEntity::ptr> getTriangles() const { return m_triangles; }
+
 	private:
 		ATriangleMesh::ptr m_mesh;
 		AMaterial::ptr m_material;

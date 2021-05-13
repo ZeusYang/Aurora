@@ -63,6 +63,19 @@ namespace Aurora
 			}
 		};
 
+		//Setup directory path
+		{
+			size_t last_slash_idx = path.rfind('\\');
+			if (last_slash_idx == std::string::npos)
+			{
+				last_slash_idx = path.rfind('/');
+			}
+			if (last_slash_idx != std::string::npos)
+			{
+				APropertyTreeNode::m_directory = path.substr(0, last_slash_idx + 1);
+			}
+		}
+
 		//Build property tree
 		std::function<APropertyTreeNode(const std::string &tag, const json_value_type &jsonData)> build_property_tree_func;
 		build_property_tree_func = [&](const std::string &tag, const json_value_type &jsonData) -> APropertyTreeNode
@@ -113,6 +126,7 @@ namespace Aurora
 		}
 
 		std::vector<ALight::ptr> _lights;
+		std::vector<AHitable::ptr> _hitables;
 		AHitableList::ptr _aggregate = std::make_shared<AHitableList>();
 
 		//Hitables loading
@@ -127,7 +141,22 @@ namespace Aurora
 				APropertyTreeNode hitableNode = build_property_tree_func("Hitable", hitables_json[i]);
 				AHitable::ptr hitable = AHitable::ptr(static_cast<AHitable*>(AObjectFactory::createInstance(
 					hitableNode.getTypeName(), hitableNode)));
-				_aggregate->addHitable(hitable);
+				_hitables.push_back(hitable);
+				auto _mesh = dynamic_cast<AHitableMesh*>(hitable.get());
+				// Note: if it's a mesh, add each HitableEntity to aggregate data structure instead of 
+				//       treating the whole mesh as a single HitableEntity
+				if (_mesh != nullptr)
+				{
+					const auto &triangles = _mesh->getTriangles();
+					for (const auto &tri : triangles)
+					{
+						_aggregate->addHitable(tri);
+					}
+				}
+				else
+				{
+					_aggregate->addHitable(hitable);
+				}
 			}
 
 			const auto& hitables = _aggregate->getHitableList();
@@ -140,7 +169,7 @@ namespace Aurora
 			}
 		}
 
-		_scene = std::make_shared<AScene>(_aggregate, _lights);
+		_scene = std::make_shared<AScene>(_hitables, _aggregate, _lights);
 
 	}
 

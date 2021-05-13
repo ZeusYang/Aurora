@@ -89,9 +89,14 @@ namespace Aurora
 		size_t numTriangles() const { return m_indices.size() / 3; }
 		size_t numVertices() const { return m_nVertices; }
 
+		bool hasUV() const { return m_uv != nullptr; }
+		bool hasNormal() const { return m_normal != nullptr; }
+
 		const AVector3f& getPosition(const int &index) const { return m_position[index]; }
 		const AVector3f& getNormal(const int &index) const { return m_normal[index]; }
 		const AVector2f& getUV(const int &index) const { return m_uv[index]; }
+
+		const std::vector<int>& getIndices() const { return m_indices; }
 
 	private:
 
@@ -109,7 +114,8 @@ namespace Aurora
 		typedef std::shared_ptr<ATriangleShape> ptr;
 
 		ATriangleShape(const APropertyTreeNode &node);
-		ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject, AVector3f v[3]);
+		ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject,
+			std::array<int, 3> indices, ATriangleMesh *mesh);
 
 		virtual ~ATriangleShape() = default;
 
@@ -128,7 +134,8 @@ namespace Aurora
 		virtual std::string toString() const override { return "TriangleShape[]"; }
 
 	private:
-		AVector3f m_p0, m_p1, m_p2;
+		ATriangleMesh *m_mesh;
+		std::array<int, 3> m_indices;
 	};
 
 }

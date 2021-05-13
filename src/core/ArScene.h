@@ -16,8 +16,8 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<AScene> ptr;
 
-		AScene(const AHitableAggregate::ptr &hitables, const std::vector<ALight::ptr> &lights) 
-			: m_lights(lights), m_aggreShape(hitables)
+		AScene(const std::vector<AHitable::ptr> &hitables, const AHitableAggregate::ptr &aggre, const std::vector<ALight::ptr> &lights) 
+			: m_lights(lights), m_aggreShape(aggre), m_hitables(hitables)
 		{
 			m_worldBound = m_aggreShape->worldBound();
 			for (const auto &light : lights)
@@ -43,6 +43,7 @@ namespace Aurora
 		// Scene Private Data
 		ABounds3f m_worldBound;
 		AHitableAggregate::ptr m_aggreShape;
+		std::vector<AHitable::ptr> m_hitables;
 	};
 }
 

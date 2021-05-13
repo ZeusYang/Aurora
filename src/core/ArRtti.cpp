@@ -87,6 +87,8 @@ namespace Aurora
 
 	//----------------------------------------------------APropertyTreeNode-----------------------------------------------------
 
+	std::string APropertyTreeNode::m_directory = "";
+
 	std::string APropertyTreeNode::getTypeName() const 
 	{ 
 		return m_property.getString("Type"); 

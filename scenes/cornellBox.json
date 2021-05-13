@@ -6,14 +6,14 @@
 		"Sampler":
 		{
 			"Type": "Random",
-			"SPP": 32
+			"SPP": 512
 		},
 		"Camera": 
 		{
 			"Type": "Perspective",
-			"Fov": 45.0,
-			"Eye": [0, 5, 18],
-			"Focus": [0, 5, 0],
+			"Fov": 45,
+			"Eye": [278, 273, -800],
+			"Focus": [278, 273, -799],
 			"WorldUp": [0, 1, 0],
 			"Film":
 			{
@@ -32,207 +32,15 @@
     },
 	
 	"Hitables":
-	[
+	[	
 		{
-			"Type": "HitableEntity",
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_luminaire.obj",
 			"Shape":
 			{
-				"Type": "Sphere",
-				"Radius": 1.5,
-				"Translate": [1.5, 1.5, 2],
+				"Type": "Triangle",
+				"Translate": [0, -0.5, 0],
 				"Scale": [1.0, 1.0, 1.0]
-			}, 
-			"Material":
-			{
-				"Type": "Mirror",
-				"R": [0.05, 0.75, 0.05]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Sphere",
-				"Radius": 2.5,
-				"Translate": [-1.5, 2.5, 0],
-				"Scale": [1.0, 1.0, 1.0]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [-5, 0, -5],
-				"P1": [-5, 0, 5],
-				"P2": [5, 0, -5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-	
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [5, 0, -5],
-				"P1": [-5, 0, 5],
-				"P2": [5, 0, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [-5, 10, -5],
-				"P1": [5, 10, -5],
-				"P2": [-5, 10, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [5, 10, -5],
-				"P1": [5, 10, 5],
-				"P2": [-5, 10, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [-5, 10, 5],
-				"P1": [-5, 10, -5],
-				"P2": [-5, 0, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.12, 0.45, 0.15]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [-5, 10, -5],
-				"P1": [-5, 0, -5],
-				"P2": [-5, 0, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.12, 0.45, 0.15]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [5, 10, 5],
-				"P1": [5, 10, -5],
-				"P2": [5, 0, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.65, 0.05, 0.05]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [5, 10, -5],
-				"P1": [5, 0, -5],
-				"P2": [5, 0, 5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.65, 0.05, 0.05]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [-5, 10, -5],
-				"P1": [5, 10, -5],
-				"P2": [-5, 0, -5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [5, 10, -5],
-				"P1": [5, 0, -5],
-				"P2": [-5, 0, -5]
-			},
-			"Material":
-			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
-			}
-		},
-		
-		{
-			"Type": "HitableEntity",
-			"Shape":
-			{
-				"Type": "Triangle",
-				"P0": [-2, 10, -2],
-				"P1": [2, 10, -2],
-				"P2": [-2, 10, 2]
 			},
 			"Material":
 			{
@@ -249,25 +57,114 @@
 		},
 		
 		{
-			"Type": "HitableEntity",
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_floor.obj",
 			"Shape":
 			{
 				"Type": "Triangle",
-				"P0": [2, 10, -2],
-				"P1": [2, 10, 2],
-				"P2": [-2, 10, 2]
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
 			},
 			"Material":
 			{
 				"Type": "Lambertian",
 				"R": [0.73, 0.73, 0.73]
-			},
-			"Light":
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_ceiling.obj",
+			"Shape":
 			{
-				"Type": "AreaDiffuse",
-				"Radiance": [4.0, 3.0, 0.0],
-				"LightSamples": 8,
-				"TwoSided": false
+				"Type": "Triangle",
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_back.obj",
+			"Shape":
+			{
+				"Type": "Triangle",
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_greenwall.obj",
+			"Shape":
+			{
+				"Type": "Triangle",
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.12, 0.45, 0.15]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_redwall.obj",
+			"Shape":
+			{
+				"Type": "Triangle",
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.65, 0.05, 0.05]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_smallbox.obj",
+			"Shape":
+			{
+				"Type": "Triangle",
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_largebox.obj",
+			"Shape":
+			{
+				"Type": "Triangle",
+				"Translate": [0, 0, 0],
+				"Scale": [1.0, 1.0, 1.0]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
 			}
 		}
 	]

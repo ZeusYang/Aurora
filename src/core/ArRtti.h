@@ -146,6 +146,8 @@ namespace Aurora
 		void addProperty(const std::string &name, const std::vector<std::string> &values);
 		void addChild(const APropertyTreeNode &child);
 
+		static std::string m_directory;
+
 	private:
 		std::string m_nodeName;
 		APropertyList m_property;
