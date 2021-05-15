@@ -4,7 +4,7 @@
 #include "ArAurora.h"
 #include "ArMathUtils.h"
 #include "ArLight.h"
-#include "ArHitable.h"
+#include "ArEntity.h"
 #include "ArRtti.h"
 
 #include <vector>
@@ -16,8 +16,9 @@ namespace Aurora
 	public:
 		typedef std::shared_ptr<AScene> ptr;
 
-		AScene(const std::vector<AHitable::ptr> &hitables, const AHitableAggregate::ptr &aggre, const std::vector<ALight::ptr> &lights) 
-			: m_lights(lights), m_aggreShape(aggre), m_hitables(hitables)
+		AScene(const std::vector<AEntity::ptr> &entities, const AHitableAggregate::ptr &aggre,
+			const std::vector<ALight::ptr> &lights)
+			: m_lights(lights), m_aggreShape(aggre), m_entities(entities)
 		{
 			m_worldBound = m_aggreShape->worldBound();
 			for (const auto &light : lights)
@@ -43,7 +44,7 @@ namespace Aurora
 		// Scene Private Data
 		ABounds3f m_worldBound;
 		AHitableAggregate::ptr m_aggreShape;
-		std::vector<AHitable::ptr> m_hitables;
+		std::vector<AEntity::ptr> m_entities;
 	};
 }
 

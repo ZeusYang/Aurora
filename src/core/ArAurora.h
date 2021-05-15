@@ -82,7 +82,7 @@ namespace Aurora
 	class AScene;
 	class ACamera;
 	class AHitable;
-	class AHitableEntity;
+	class AHitableObject;
 	class AFilmTile;
 	class ASampler;
 	class AMaterial;

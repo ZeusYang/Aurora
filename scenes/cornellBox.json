@@ -6,7 +6,7 @@
 		"Sampler":
 		{
 			"Type": "Random",
-			"SPP": 512
+			"SPP": 32
 		},
 		"Camera": 
 		{
@@ -31,16 +31,16 @@
 		}
     },
 	
-	"Hitables":
+	"Entity":
 	[	
 		{
 			"Type": "MeshEntity",
 			"Filename": "meshes/cbox_luminaire.obj",
+			"Translate": [0, -0.5, 0],
+			"Scale": [1.0, 1.0, 1.0],
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, -0.5, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Triangle"
 			},
 			"Material":
 			{

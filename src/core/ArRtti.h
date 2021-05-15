@@ -175,6 +175,7 @@ namespace Aurora
 			AESampler,
 			AEFilter,
 			AEFilm,
+			AEEntity,
 			EClassTypeCount
 		};
 
@@ -229,6 +230,7 @@ namespace Aurora
 				case AESampler:	   return "Sampler";
 				case AEFilter:     return "Filter";
 				case AEFilm:       return "Film";
+				case AEEntity:	   return "Entity";
 				default:           return "Unknown";
 			}
 		}

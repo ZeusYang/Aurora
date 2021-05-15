@@ -33,13 +33,12 @@ namespace Aurora
 
 	};
 
-	class AHitableEntity final : public AHitable
+	class AHitableObject final : public AHitable
 	{
 	public:
-		typedef std::shared_ptr<AHitableEntity> ptr;
+		typedef std::shared_ptr<AHitableObject> ptr;
 
-		AHitableEntity(const APropertyTreeNode &node);
-		AHitableEntity(const AShape::ptr &shape, const AMaterial::ptr &material,
+		AHitableObject(const AShape::ptr &shape, const AMaterial* material,
 			const AAreaLight::ptr &areaLight);
 
 		virtual bool hit(const ARay &ray) const override;
@@ -55,42 +54,13 @@ namespace Aurora
 		virtual void computeScatteringFunctions(ASurfaceInteraction &isect, MemoryArena &arena,
 			ATransportMode mode, bool allowMultipleLobes) const override;
 
-		virtual std::string toString() const override { return "HitableEntity[]"; }
+		virtual std::string toString() const override { return "HitableObject[]"; }
 
 	private:
 		AShape::ptr m_shape;
-		AMaterial::ptr m_material;
 		AAreaLight::ptr m_areaLight;
 
-	};
-
-	class AHitableMesh final : public AHitable
-	{
-	public:
-		typedef std::shared_ptr<AHitableMesh> ptr;
-
-		AHitableMesh(const APropertyTreeNode &node);
-
-		virtual bool hit(const ARay &ray) const override;
-		virtual bool hit(const ARay &ray, ASurfaceInteraction &iset) const override;
-
-		virtual ABounds3f worldBound() const override;
-
-		virtual const AAreaLight *getAreaLight() const override;
-		virtual const AMaterial *getMaterial() const override;
-
-		virtual void computeScatteringFunctions(ASurfaceInteraction &isect, MemoryArena &arena,
-			ATransportMode mode, bool allowMultipleLobes) const override;
-
-		virtual std::string toString() const override { return "HitableMesh[]"; }
-
-		const std::vector<AHitableEntity::ptr> getTriangles() const { return m_triangles; }
-
-	private:
-		ATriangleMesh::ptr m_mesh;
-		AMaterial::ptr m_material;
-		ABounds3f m_worldBounds;
-		std::vector<AHitableEntity::ptr> m_triangles;
+		const AMaterial* m_material;
 	};
 
 	class AHitableAggregate : public AHitable

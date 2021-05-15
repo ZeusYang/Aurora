@@ -16,8 +16,10 @@ namespace Aurora
 		typedef std::shared_ptr<AShape> ptr;
 
 		AShape(const APropertyList &props);
-		AShape(const ATransform &objectToWorld, const ATransform &worldToObject);
+		AShape(ATransform *objectToWorld, ATransform *worldToObject);
 		virtual ~AShape() = default;
+
+		void setTransform(ATransform *objectToWorld, ATransform *worldToObject);
 
 		virtual ABounds3f objectBound() const = 0;
 		virtual ABounds3f worldBound() const;
@@ -46,7 +48,7 @@ namespace Aurora
 
 		virtual AClassType getClassType() const override { return AClassType::AEShape; }
 
-		ATransform m_objectToWorld, m_worldToObject;
+		ATransform *m_objectToWorld = nullptr, *m_worldToObject = nullptr;
 	};
 
 	class ASphereShape final : public AShape
@@ -55,7 +57,7 @@ namespace Aurora
 		typedef std::shared_ptr<ASphereShape> ptr;
 
 		ASphereShape(const APropertyTreeNode &node);
-		ASphereShape(const ATransform &objectToWorld, const ATransform &worldToObject, const float radius);
+		ASphereShape(ATransform *objectToWorld, ATransform *worldToObject, const float radius);
 
 		virtual ~ASphereShape() = default;
 
@@ -83,8 +85,9 @@ namespace Aurora
 	{
 	public:
 		typedef std::shared_ptr<ATriangleMesh> ptr;
+		typedef std::unique_ptr<ATriangleMesh> unique_ptr;
 
-		ATriangleMesh(const ATransform &objectToWorld, const std::string &filename);
+		ATriangleMesh(ATransform *objectToWorld, const std::string &filename);
 
 		size_t numTriangles() const { return m_indices.size() / 3; }
 		size_t numVertices() const { return m_nVertices; }
@@ -114,7 +117,7 @@ namespace Aurora
 		typedef std::shared_ptr<ATriangleShape> ptr;
 
 		ATriangleShape(const APropertyTreeNode &node);
-		ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject,
+		ATriangleShape(ATransform *objectToWorld, ATransform *worldToObject,
 			std::array<int, 3> indices, ATriangleMesh *mesh);
 
 		virtual ~ATriangleShape() = default;

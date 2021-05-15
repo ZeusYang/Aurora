@@ -126,34 +126,27 @@ namespace Aurora
 		}
 
 		std::vector<ALight::ptr> _lights;
-		std::vector<AHitable::ptr> _hitables;
+		std::vector<AEntity::ptr> _entities;
 		AHitableList::ptr _aggregate = std::make_shared<AHitableList>();
 
-		//Hitables loading
+		//Entity loading
 		{
-			if (!_scene_json.contains("Hitables"))
+			if (!_scene_json.contains("Entity"))
 			{
-				LOG(ERROR) << "There is no Hitable in " << path;
+				LOG(ERROR) << "There is no Entity in " << path;
 			}
-			const auto &hitables_json = _scene_json["Hitables"];
-			for (int i = 0; i < hitables_json.size(); ++i)
+			const auto &entities_json = _scene_json["Entity"];
+			for (int i = 0; i < entities_json.size(); ++i)
 			{
-				APropertyTreeNode hitableNode = build_property_tree_func("Hitable", hitables_json[i]);
-				AHitable::ptr hitable = AHitable::ptr(static_cast<AHitable*>(AObjectFactory::createInstance(
-					hitableNode.getTypeName(), hitableNode)));
-				_hitables.push_back(hitable);
-				auto _mesh = dynamic_cast<AHitableMesh*>(hitable.get());
-				// Note: if it's a mesh, add each HitableEntity to aggregate data structure instead of 
-				//       treating the whole mesh as a single HitableEntity
-				if (_mesh != nullptr)
-				{
-					const auto &triangles = _mesh->getTriangles();
-					for (const auto &tri : triangles)
-					{
-						_aggregate->addHitable(tri);
-					}
-				}
-				else
+				APropertyTreeNode entityNode = build_property_tree_func("Entity", entities_json[i]);
+				AEntity::ptr entity = AEntity::ptr(static_cast<AEntity*>(AObjectFactory::createInstance(
+					entityNode.getTypeName(), entityNode)));
+				_entities.push_back(entity);
+			}
+
+			for (auto &entity : _entities)
+			{
+				for (const auto &hitable : entity->getHitables())
 				{
 					_aggregate->addHitable(hitable);
 				}
@@ -164,12 +157,12 @@ namespace Aurora
 			{
 				if (hitables[i]->getAreaLight() != nullptr)
 				{
-					_lights.push_back(ALight::ptr(dynamic_cast<AHitableEntity*>(hitables[i].get())->getAreaLightPtr()));
+					_lights.push_back(ALight::ptr(dynamic_cast<AHitableObject*>(hitables[i].get())->getAreaLightPtr()));
 				}
 			}
 		}
 
-		_scene = std::make_shared<AScene>(_hitables, _aggregate, _lights);
+		_scene = std::make_shared<AScene>(_entities, _aggregate, _lights);
 
 	}
 

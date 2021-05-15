@@ -13,15 +13,9 @@ namespace Aurora
 {
 	//-------------------------------------------AShape-------------------------------------
 
-	AShape::AShape(const APropertyList &props)
-	{
-		AVector3f _trans = props.getVector3f("Translate", AVector3f(0.0f));
-		AVector3f _scale = props.getVector3f("Scale", AVector3f(1.0f));
-		m_objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
-		m_worldToObject = inverse(m_objectToWorld);
-	}
+	AShape::AShape(const APropertyList &props) {}
 
-	AShape::AShape(const ATransform &objectToWorld, const ATransform &worldToObject)
+	AShape::AShape(ATransform *objectToWorld, ATransform *worldToObject)
 		: m_objectToWorld(objectToWorld), m_worldToObject(worldToObject) {}
 
 	bool AShape::hit(const ARay &ray) const
@@ -31,7 +25,13 @@ namespace Aurora
 		return hit(ray, tHit, isect);
 	}
 
-	ABounds3f AShape::worldBound() const { return m_objectToWorld(objectBound()); }
+	void AShape::setTransform(ATransform *objectToWorld, ATransform *worldToObject)
+	{
+		m_objectToWorld = objectToWorld;
+		m_worldToObject = worldToObject;
+	}
+
+	ABounds3f AShape::worldBound() const { return (*m_objectToWorld)(objectBound()); }
 
 	AInteraction AShape::sample(const AInteraction &ref, const AVector2f &u, Float &pdf) const
 	{
@@ -99,7 +99,7 @@ namespace Aurora
 	ASphereShape::ASphereShape(const APropertyTreeNode &node)
 		: AShape(node.getPropertyList()), m_radius(node.getPropertyList().getFloat("Radius", 1.0f)) { activate(); }
 
-	ASphereShape::ASphereShape(const ATransform &objectToWorld, const ATransform &worldToObject,
+	ASphereShape::ASphereShape(ATransform *objectToWorld, ATransform *worldToObject,
 		const float radius) : AShape(objectToWorld, worldToObject), m_radius(radius) {}
 
 	ABounds3f ASphereShape::objectBound() const
@@ -115,10 +115,10 @@ namespace Aurora
 		AVector3f pObj = AVector3f(0, 0, 0) + m_radius * uniformSampleSphere(u);
 
 		AInteraction it;
-		it.n = normalize((m_objectToWorld)(pObj, 0.0f));
+		it.n = normalize((*m_objectToWorld)(pObj, 0.0f));
 
 		pObj *= m_radius / distance(pObj, AVector3f(0, 0, 0));
-		it.p = (m_objectToWorld)(pObj, 1.0f);
+		it.p = (*m_objectToWorld)(pObj, 1.0f);
 
 		pdf = 1 / area();
 		return it;
@@ -126,7 +126,7 @@ namespace Aurora
 
 	AInteraction ASphereShape::sample(const AInteraction &ref, const AVector2f &u, Float &pdf) const
 	{
-		AVector3f pCenter = (m_objectToWorld)(AVector3f(0, 0, 0), 1.0f);
+		AVector3f pCenter = (*m_objectToWorld)(AVector3f(0, 0, 0), 1.0f);
 
 		// Sample uniformly on sphere if $\pt{}$ is inside it
 		AVector3f pOrigin = ref.p;
@@ -199,7 +199,7 @@ namespace Aurora
 
 	Float ASphereShape::pdf(const AInteraction &ref, const AVector3f &wi) const
 	{
-		AVector3f pCenter = (m_objectToWorld)(AVector3f(0, 0, 0), 1.0f);
+		AVector3f pCenter = (*m_objectToWorld)(AVector3f(0, 0, 0), 1.0f);
 		// Return uniform PDF if point is inside sphere
 		AVector3f pOrigin = ref.p;
 		if (distanceSquared(pOrigin, pCenter) <= m_radius * m_radius)
@@ -217,7 +217,7 @@ namespace Aurora
 		AVector3f pHit;
 
 		// Transform Ray to object space
-		ARay ray = (m_worldToObject)(r);
+		ARay ray = (*m_worldToObject)(r);
 
 		Float a = dot(ray.direction(), ray.direction());
 		Float b = dot(ray.origin(), ray.direction());
@@ -255,7 +255,7 @@ namespace Aurora
 		AVector3f pHit;
 
 		// Transform Ray to object space
-		ARay ray = (m_worldToObject)(r);
+		ARay ray = (*m_worldToObject)(r);
 
 		Float a = dot(ray.direction(), ray.direction());
 		Float b = dot(ray.origin(), ray.direction());
@@ -309,7 +309,7 @@ namespace Aurora
 		AVector3f dpdu(-2 * aPi * pHit.y, 2 * aPi * pHit.x, 0);
 		AVector3f dpdv = 2 * aPi * AVector3f(pHit.z * cosPhi, pHit.z * sinPhi, -m_radius * glm::sin(theta));
 
-		isect = (m_objectToWorld)(ASurfaceInteraction(pHit, AVector2f(u, v), -ray.direction(),
+		isect = (*m_objectToWorld)(ASurfaceInteraction(pHit, AVector2f(u, v), -ray.direction(),
 			dpdu, dpdv, this));
 
 		isect.n = faceforward(isect.n, isect.wo);
@@ -321,7 +321,7 @@ namespace Aurora
 
 	Float ASphereShape::solidAngle(const AVector3f &p, int nSamples) const
 	{
-		AVector3f pCenter = (m_objectToWorld)(AVector3f(0, 0, 0), 1.0f);
+		AVector3f pCenter = (*m_objectToWorld)(AVector3f(0, 0, 0), 1.0f);
 		if (distanceSquared(p, pCenter) <= m_radius * m_radius)
 			return 4 * aPi;
 		Float sinTheta2 = m_radius * m_radius / distanceSquared(p, pCenter);
@@ -331,7 +331,7 @@ namespace Aurora
 
 	//-------------------------------------------ATriangleMesh-------------------------------------
 
-	ATriangleMesh::ATriangleMesh(const ATransform &objectToWorld, const std::string &filename)
+	ATriangleMesh::ATriangleMesh(ATransform *objectToWorld, const std::string &filename)
 	{
 		std::vector<AVector3f> gPosition;
 		std::vector<AVector3f> gNormal;
@@ -417,10 +417,10 @@ namespace Aurora
 
 		for (unsigned int i = 0; i < m_nVertices; ++i)
 		{
-			m_position[i] = objectToWorld(gPosition[i], 1.0f);
+			m_position[i] = (*objectToWorld)(gPosition[i], 1.0f);
 			if (m_normal != nullptr)
 			{
-				m_normal[i] = objectToWorld(gNormal[i], 0.0f);
+				m_normal[i] = (*objectToWorld)(gNormal[i], 0.0f);
 			}
 			if (m_uv != nullptr)
 			{
@@ -447,7 +447,7 @@ namespace Aurora
 		//activate();
 	}
 
-	ATriangleShape::ATriangleShape(const ATransform &objectToWorld, const ATransform &worldToObject,
+	ATriangleShape::ATriangleShape(ATransform *objectToWorld, ATransform *worldToObject,
 		std::array<int, 3> indices, ATriangleMesh *mesh): AShape(objectToWorld, worldToObject), m_indices(indices), m_mesh(mesh) {}
 
 	ABounds3f ATriangleShape::objectBound() const
@@ -456,7 +456,7 @@ namespace Aurora
 		const auto &p0 = m_mesh->getPosition(m_indices[0]);
 		const auto &p1 = m_mesh->getPosition(m_indices[1]);
 		const auto &p2 = m_mesh->getPosition(m_indices[2]);
-		return unionBounds(ABounds3f((m_worldToObject)(p0, 1.0f), (m_worldToObject)(p1, 1.0f)), (m_worldToObject)(p2, 1.0f));
+		return unionBounds(ABounds3f((*m_worldToObject)(p0, 1.0f), (*m_worldToObject)(p1, 1.0f)), (*m_worldToObject)(p2, 1.0f));
 	}
 
 	ABounds3f ATriangleShape::worldBound() const

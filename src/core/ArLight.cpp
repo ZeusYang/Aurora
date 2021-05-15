@@ -86,10 +86,10 @@ namespace Aurora
 		switch (parent->getClassType())
 		{
 		case AClassType::AEHitable:
-			m_shape = static_cast<AHitableEntity*>(parent)->getShape();
+			m_shape = static_cast<AHitableObject*>(parent)->getShape();
 			m_area = m_shape->area();
-			m_lightToWorld = m_shape->m_objectToWorld;
-			m_worldToLight = m_shape->m_worldToObject;
+			m_lightToWorld = *m_shape->m_objectToWorld;
+			m_worldToLight = *m_shape->m_worldToObject;
 			break;
 		default:
 			LOG(ERROR) << "ADiffuseAreaLight::setParent(" << getClassTypeName(parent->getClassType())
