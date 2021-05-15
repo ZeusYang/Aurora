@@ -56,27 +56,6 @@ namespace Aurora
 		size_t m_array1DOffset, m_array2DOffset;
 	};
 
-	class ARandomSampler final : public ASampler
-	{
-	public:
-		typedef std::shared_ptr<ARandomSampler> ptr;
-
-		ARandomSampler(const APropertyTreeNode &node);
-		ARandomSampler(int ns, int seed = 0);
-
-		virtual void startPixel(const AVector2i &) override;
-
-		virtual Float get1D() override;
-		virtual AVector2f get2D() override;
-
-		virtual std::unique_ptr<ASampler> clone(int seed) override;
-
-		virtual std::string toString() const override { return "RandomSampler[]"; }
-
-	private:
-		ARng m_rng; //Random number generator
-	};
-
 	AVector3f uniformSampleHemisphere(const AVector2f &u);
 	Float uniformHemispherePdf();
 	AVector3f uniformSampleSphere(const AVector2f &u);

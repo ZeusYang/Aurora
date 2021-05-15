@@ -24,19 +24,6 @@ namespace Aurora
 		const AVector2f m_radius, m_invRadius;
 	};
 
-	class ABoxFilter final : public AFilter
-	{
-	public:
-
-		ABoxFilter(const APropertyTreeNode &node);
-		ABoxFilter(const AVector2f &radius) : AFilter(radius) {}
-
-		virtual Float evaluate(const AVector2f &p) const override;
-
-		virtual std::string toString() const override { return "BoxFilter[]"; }
-
-	};
-
 }
 
 #endif

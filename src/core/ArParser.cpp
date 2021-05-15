@@ -9,6 +9,7 @@
 #include "ArCamera.h"
 #include "ArMaterial.h"
 #include "ArLight.h"
+#include "ArHitableList.h"
 
 using namespace nlohmann;
 

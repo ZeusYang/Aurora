@@ -13,7 +13,16 @@ ENDIF()
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
+include_directories(src/accelerators/)
+include_directories(src/cameras/)
 include_directories(src/core/)
+include_directories(src/filters/)
+include_directories(src/integrators/)
+include_directories(src/materials/)
+include_directories(src/samplers/)
+include_directories(src/shapes/)
+include_directories(src/textures/)
+
 
 ###########################################################################
 # header-only libraries
@@ -47,11 +56,41 @@ INCLUDE_DIRECTORIES (
   ${CMAKE_BINARY_DIR}/src/ext/assimp
 )
 
-file(GLOB SRCS ./src/core/*.cpp ./src/*.cpp)
-file(GLOB HEADERS ./src/core/*.h )
-source_group("Header Files" FILES ${HEADERS})
+file(GLOB ACCELECTORS ./src/accelerators/*.h ./src/accelerators/*.cpp)
+source_group("accelectors" FILES ${ACCELECTORS})
 
-add_executable(${PROJECT_NAME} ${SRCS} ${HEADERS})
+file(GLOB CAMERAS ./src/cameras/*.h ./src/cameras/*.cpp)
+source_group("cameras" FILES ${CAMERAS})
+
+file(GLOB CORE ./src/core/*.h ./src/core/*.cpp)
+source_group("core" FILES ${CORE})
+
+file(GLOB FILTERS ./src/filters/*.h ./src/filters/*.cpp)
+source_group("filters" FILES ${FILTERS})
+
+file(GLOB INTEGRATORS ./src/integrators/*.h ./src/integrators/*.cpp)
+source_group("integrators" FILES ${INTEGRATORS})
+
+file(GLOB MATERIALS ./src/materials/*.h ./src/materials/*.cpp)
+source_group("materials" FILES ${MATERIALS})
+
+file(GLOB SAMPLERS ./src/samplers/*.h ./src/samplers/*.cpp)
+source_group("samplers" FILES ${SAMPLERS})
+
+file(GLOB SHAPES ./src/shapes/*.h ./src/shapes/*.cpp)
+source_group("shapes" FILES ${SHAPES})
+
+file(GLOB LIGHTS ./src/lights/*.h ./src/lights/*.cpp)
+source_group("lights" FILES ${LIGHTS})
+
+file(GLOB TEXTURES ./src/textures/*.h ./src/textures/*.cpp)
+source_group("textures" FILES ${TEXTURES})
+
+file(GLOB SRCS ./src/*.cpp)
+
+add_executable(${PROJECT_NAME} ${ACCELECTORS} ${CAMERAS} ${CORE} ${FILTERS}
+		 ${INTEGRATORS} ${MATERIALS} ${SAMPLERS} ${SHAPES} ${LIGHTS} ${TEXTURES} ${SRCS})
+
 target_link_libraries( ${PROJECT_NAME} 
     PRIVATE 
 	glog::glog

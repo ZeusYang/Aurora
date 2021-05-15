@@ -51,30 +51,6 @@ namespace Aurora
 		ASampler::ptr m_sampler;
 	};
 
-	class AWhittedIntegrator : public ASamplerIntegrator
-	{
-	public:
-		typedef std::shared_ptr<AWhittedIntegrator> ptr;
-
-		AWhittedIntegrator(const APropertyTreeNode &node);
-		AWhittedIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler)
-			: ASamplerIntegrator(camera, sampler), m_maxDepth(maxDepth) {}
-
-		virtual ASpectrum Li(const ARay &ray, const AScene &scene,
-			ASampler &sampler, MemoryArena &arena, int depth) const override;
-
-		virtual std::string toString() const override { return "WhittedIntegrator[]"; }
-
-		//virtual void activate() override
-		//{
-		//	m_sampler->activate();
-		//	m_camera->activate();
-		//}
-
-	private:
-		const int m_maxDepth;
-	};
-
 	ASpectrum uiformSampleAllLights(const AInteraction &it, const AScene &scene,
 		MemoryArena &arena, ASampler &sampler, const std::vector<int> &nLightSamples);
 

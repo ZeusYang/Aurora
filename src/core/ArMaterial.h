@@ -24,23 +24,6 @@ namespace Aurora
 
 	};
 
-	class AMirrorMaterial final : public AMaterial
-	{
-	public:
-		typedef std::shared_ptr<AMirrorMaterial> ptr;
-
-		AMirrorMaterial(const APropertyTreeNode &node);
-		AMirrorMaterial(const ASpectrum &r) : m_Kr(r) {}
-
-		virtual void computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
-			ATransportMode mode, bool allowMultipleLobes) const override;
-
-		virtual std::string toString() const override { return "MirrorMaterial[]"; }
-
-	private:
-		ASpectrum m_Kr;
-	};
-
 	//class AGlassMaterial final : public AMaterial
 	//{
 	//public:
@@ -56,23 +39,6 @@ namespace Aurora
 	//	ASpectrum m_Kr, m_Kt;
 	//	Float m_uRoughness, m_vRoughness, m_index;
 	//};
-
-	class ALambertianMaterial final : public AMaterial
-	{
-	public:
-		typedef std::shared_ptr<ALambertianMaterial> ptr;
-
-		ALambertianMaterial(const APropertyTreeNode &node);
-		ALambertianMaterial(const ASpectrum &r) : m_Kr(r) {}
-
-		virtual void computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
-			ATransportMode mode, bool allowMultipleLobes) const override;
-
-		virtual std::string toString() const override { return "MirrorMaterial[]"; }
-
-	private:
-		ASpectrum m_Kr;
-	};
 
 }
 

@@ -5,6 +5,7 @@
 #include "ArMathUtils.h"
 #include "ArRtti.h"
 #include "ArHitable.h"
+#include "ArTriangleShape.h"
 
 namespace Aurora
 {
