@@ -2,17 +2,15 @@
 
 namespace Aurora
 {
-	//-------------------------------------------AHitableList-------------------------------------
+	ABounds3f ALinearAggregate::worldBound() const { return m_worldBounds; }
 
-	ABounds3f AHitableList::worldBound() const { return m_worldBounds; }
-
-	void AHitableList::addHitable(AHitable::ptr entity)
+	void ALinearAggregate::addHitable(AHitable::ptr entity)
 	{
 		m_hitableList.push_back(entity);
 		m_worldBounds = unionBounds(m_worldBounds, entity->worldBound());
 	}
 
-	bool AHitableList::hit(const ARay &ray) const
+	bool ALinearAggregate::hit(const ARay &ray) const
 	{
 		for (int i = 0; i < m_hitableList.size(); i++)
 		{
@@ -24,7 +22,7 @@ namespace Aurora
 		return false;
 	}
 
-	bool AHitableList::hit(const ARay &ray, ASurfaceInteraction &ret) const
+	bool ALinearAggregate::hit(const ARay &ray, ASurfaceInteraction &ret) const
 	{
 		ASurfaceInteraction temp_rec;
 		bool hit_anything = false;

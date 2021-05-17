@@ -5,12 +5,12 @@
 
 namespace Aurora
 {
-	class AHitableList final : public AHitableAggregate
+	class ALinearAggregate final : public AHitableAggregate
 	{
 	public:
-		typedef std::shared_ptr<AHitableList> ptr;
+		typedef std::shared_ptr<ALinearAggregate> ptr;
 
-		AHitableList() = default;
+		ALinearAggregate() = default;
 		virtual bool hit(const ARay &ray) const override;
 		virtual bool hit(const ARay &ray, ASurfaceInteraction &iset) const override;
 
@@ -20,7 +20,7 @@ namespace Aurora
 		void addHitable(AHitable::ptr entity);
 		const std::vector<AHitable::ptr>& getHitableList() const { return m_hitableList; }
 
-		virtual std::string toString() const override { return "HitableList[]"; }
+		virtual std::string toString() const override { return "LinearAggregate[]"; }
 
 	private:
 		using AHitableBuffer = std::vector<AHitable::ptr>;

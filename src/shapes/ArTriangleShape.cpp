@@ -119,7 +119,7 @@ namespace Aurora
 
 	AURORA_REGISTER_CLASS(ATriangleShape, "Triangle")
 
-		ATriangleShape::ATriangleShape(const APropertyTreeNode &node)
+	ATriangleShape::ATriangleShape(const APropertyTreeNode &node)
 		:AShape(node.getPropertyList())
 	{
 		//const auto &props = node.getPropertyList();

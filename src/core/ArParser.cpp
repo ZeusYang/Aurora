@@ -128,7 +128,7 @@ namespace Aurora
 
 		std::vector<ALight::ptr> _lights;
 		std::vector<AEntity::ptr> _entities;
-		AHitableList::ptr _aggregate = std::make_shared<AHitableList>();
+		ALinearAggregate::ptr _aggregate = std::make_shared<ALinearAggregate>();
 
 		//Entity loading
 		{
