@@ -1,14 +1,17 @@
-#include "ArHitableList.h"
+#include "ArLinearAggregate.h"
 
 namespace Aurora
 {
-	ABounds3f ALinearAggregate::worldBound() const { return m_worldBounds; }
-
-	void ALinearAggregate::addHitable(AHitable::ptr entity)
+	ALinearAggregate::ALinearAggregate(const std::vector<AHitable::ptr> &hitables)
+		: m_hitableList(hitables)
 	{
-		m_hitableList.push_back(entity);
-		m_worldBounds = unionBounds(m_worldBounds, entity->worldBound());
+		for (const auto &hitable : m_hitableList)
+		{
+			m_worldBounds = unionBounds(m_worldBounds, hitable->worldBound());
+		}
 	}
+
+	ABounds3f ALinearAggregate::worldBound() const { return m_worldBounds; }
 
 	bool ALinearAggregate::hit(const ARay &ray) const
 	{

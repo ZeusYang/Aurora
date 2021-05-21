@@ -9,7 +9,8 @@
 #include "ArCamera.h"
 #include "ArMaterial.h"
 #include "ArLight.h"
-#include "ArHitableList.h"
+#include "ArKDTree.h"
+#include "ArLinearAggregate.h"
 
 using namespace nlohmann;
 
@@ -128,7 +129,7 @@ namespace Aurora
 
 		std::vector<ALight::ptr> _lights;
 		std::vector<AEntity::ptr> _entities;
-		ALinearAggregate::ptr _aggregate = std::make_shared<ALinearAggregate>();
+		std::vector<AHitable::ptr> _hitables;
 
 		//Entity loading
 		{
@@ -149,20 +150,21 @@ namespace Aurora
 			{
 				for (const auto &hitable : entity->getHitables())
 				{
-					_aggregate->addHitable(hitable);
+					_hitables.push_back(hitable);
 				}
 			}
 
-			const auto& hitables = _aggregate->getHitableList();
-			for (int i = 0; i < hitables.size(); ++i)
+			for (int i = 0; i < _hitables.size(); ++i)
 			{
-				if (hitables[i]->getAreaLight() != nullptr)
+				if (_hitables[i]->getAreaLight() != nullptr)
 				{
-					_lights.push_back(ALight::ptr(dynamic_cast<AHitableObject*>(hitables[i].get())->getAreaLightPtr()));
+					_lights.push_back(ALight::ptr(dynamic_cast<AHitableObject*>(_hitables[i].get())->getAreaLightPtr()));
 				}
 			}
 		}
 
+		AKdTree::ptr _aggregate = std::make_shared<AKdTree>(_hitables);
+		//ALinearAggregate::ptr _aggregate = std::make_shared<ALinearAggregate>(_hitables);
 		_scene = std::make_shared<AScene>(_entities, _aggregate, _lights);
 
 	}
