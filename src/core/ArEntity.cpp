@@ -10,17 +10,18 @@ namespace Aurora
 	{
 		const APropertyList& props = node.getPropertyList();
 
-		// Transform
-		AVector3f _trans = props.getVector3f("Translate", AVector3f(0.0f));
-		AVector3f _scale = props.getVector3f("Scale", AVector3f(1.0f));
-		m_objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
-		m_worldToObject = inverse(m_objectToWorld);
-
 		// Shape
 		const auto &shapeNode = node.getPropertyChild("Shape");
 		AShape::ptr shape = AShape::ptr(static_cast<AShape*>(AObjectFactory::createInstance(
 			shapeNode.getTypeName(), shapeNode)));
 		shape->setTransform(&m_objectToWorld, &m_worldToObject);
+
+		// Transform
+		const auto &shapeProps = shapeNode.getPropertyList();
+		AVector3f _trans = shapeProps.getVector3f("Translate", AVector3f(0.0f));
+		AVector3f _scale = shapeProps.getVector3f("Scale", AVector3f(1.0f));
+		m_objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
+		m_worldToObject = inverse(m_objectToWorld);
 
 		// Material
 		const auto &materialNode = node.getPropertyChild("Material");
@@ -47,14 +48,15 @@ namespace Aurora
 		const APropertyList& props = node.getPropertyList();
 		const std::string filename = props.getString("Filename");
 
-		// Transform
-		AVector3f _trans = props.getVector3f("Translate", AVector3f(0.0f));
-		AVector3f _scale = props.getVector3f("Scale", AVector3f(1.0f));
-		m_objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
-		m_worldToObject = inverse(m_objectToWorld);
-
 		// Shape
 		const auto &shapeNode = node.getPropertyChild("Shape");
+
+		// Transform
+		const auto &shapeProps = shapeNode.getPropertyList();
+		AVector3f _trans = shapeProps.getVector3f("Translate", AVector3f(0.0f));
+		AVector3f _scale = shapeProps.getVector3f("Scale", AVector3f(1.0f));
+		m_objectToWorld = translate(_trans) * scale(_scale.x, _scale.y, _scale.z);
+		m_worldToObject = inverse(m_objectToWorld);
 
 		//Material
 		const auto &materialNode = node.getPropertyChild("Material");
