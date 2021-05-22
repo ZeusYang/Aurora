@@ -20,7 +20,7 @@ namespace Aurora
 			m_flags = axis;
 
 			// Note: The other child, representing space above the splitting plane, will end up somewhere else
-			//       in the array, and m_aboveChild stores its position in the nodes array
+			//       in the array, and m_rightChildIndex stores its position in the nodes array
 			m_rightChildIndex |= (ac << 2);
 		}
 
@@ -34,7 +34,7 @@ namespace Aurora
 		{
 			Float m_split;                 // Split position which is for interior nodes
 			int m_oneHitable;              // Leaf
-			int m_hitableIndicesOffset;  // Leaf
+			int m_hitableIndicesOffset;    // Leaf
 		};
 
 	private:
@@ -175,8 +175,7 @@ namespace Aurora
 		Float oldCost = m_isectCost * Float(nHitables);
 
 		// Current node surface area
-		const Float totalSA = nodeBounds.surfaceArea();
-		const Float invTotalSA = 1 / totalSA;
+		const Float invTotalSA = 1 / nodeBounds.surfaceArea();
 		AVector3f diagonal = nodeBounds.m_pMax - nodeBounds.m_pMin;
 
 		// Choose which axis to split along
@@ -209,11 +208,12 @@ namespace Aurora
 
 		// Compute cost of all splits for _axis_ to find best
 		int nBelow = 0, nAbove = nHitables;
+		const auto &currentEdge = edges[axis];
 		for (int i = 0; i < 2 * nHitables; ++i)
 		{
-			if (edges[axis][i].m_type == AEdgeType::End)
+			if (currentEdge[i].m_type == AEdgeType::End)
 				--nAbove;
-			Float edgeT = edges[axis][i].m_t;
+			Float edgeT = currentEdge[i].m_t;
 			if (edgeT > nodeBounds.m_pMin[axis] && edgeT < nodeBounds.m_pMax[axis])
 			{
 				// Compute cost for split at _i_th edge
@@ -237,7 +237,7 @@ namespace Aurora
 					bestOffset = i;
 				}
 			}
-			if (edges[axis][i].m_type == AEdgeType::Start)
+			if (currentEdge[i].m_type == AEdgeType::Start)
 				++nBelow;
 		}
 		CHECK(nBelow == nHitables && nAbove == 0);
@@ -276,13 +276,14 @@ namespace Aurora
 		ABounds3f bounds0 = nodeBounds, bounds1 = nodeBounds;
 		bounds0.m_pMax[bestAxis] = bounds1.m_pMin[bestAxis] = tSplit;
 
-		// Left subtree node
+		// below subtree node
 		buildTree(nodeIndex + 1, bounds0, allHitableBounds, leftNodeRoom, lnHitables, depth - 1, edges,
 			leftNodeRoom, rightNodeRoom + nHitables, badRefines);
 		int aboveChildIndex = m_nextFreeNode;
+
 		m_nodes[nodeIndex].initInteriorNode(bestAxis, aboveChildIndex, tSplit);
 
-		// Right subtree node
+		// above subtree node
 		buildTree(aboveChildIndex, bounds1, allHitableBounds, rightNodeRoom, rnHitables, depth - 1, edges,
 			leftNodeRoom, rightNodeRoom + nHitables, badRefines);
 	}
@@ -323,8 +324,8 @@ namespace Aurora
 					for (int i = 0; i < nHitables; ++i)
 					{
 						int hitableIndex = m_hitableIndices[currNode->m_hitableIndicesOffset + i];
-						const AHitable::ptr &prim = m_hitables[hitableIndex];
-						if (prim->hit(ray)) 
+						const AHitable::ptr &p = m_hitables[hitableIndex];
+						if (p->hit(ray)) 
 						{
 							return true;
 						}
@@ -334,8 +335,7 @@ namespace Aurora
 				// Grab next node to process from todo list
 				if (todoPos > 0) 
 				{
-					--todoPos;
-					currNode = todo[todoPos].node;
+					currNode = todo[--todoPos].node;
 					tMin = todo[todoPos].tMin;
 					tMax = todo[todoPos].tMax;
 				}
@@ -359,11 +359,11 @@ namespace Aurora
 				if (belowFirst) 
 				{
 					firstChild = currNode + 1;
-					secondChild = &currNode[currNode->aboveChild()];
+					secondChild = &m_nodes[currNode->aboveChild()];
 				}
 				else 
 				{
-					firstChild = &currNode[currNode->aboveChild()];
+					firstChild = &m_nodes[currNode->aboveChild()];
 					secondChild = currNode + 1;
 				}
 
@@ -429,11 +429,11 @@ namespace Aurora
 				if (belowFirst) 
 				{
 					firstChild = currNode + 1;
-					secondChild = &currNode[currNode->aboveChild()];
+					secondChild = &m_nodes[currNode->aboveChild()];
 				}
 				else 
 				{
-					firstChild = &currNode[currNode->aboveChild()];
+					firstChild = &m_nodes[currNode->aboveChild()];
 					secondChild = currNode + 1;
 				}
 
@@ -483,8 +483,7 @@ namespace Aurora
 				// Grab next node to process from todo list
 				if (todoPos > 0) 
 				{
-					--todoPos;
-					currNode = todo[todoPos].node;
+					currNode = todo[--todoPos].node;
 					tMin = todo[todoPos].tMin;
 					tMax = todo[todoPos].tMax;
 				}
