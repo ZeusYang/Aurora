@@ -24,6 +24,8 @@ namespace Aurora
 		void set(const std::string &name, const std::string &value);
 		void set(const std::string &name, const std::vector<std::string> &values);
 
+		bool has(const std::string &name) const;
+
 		bool getBoolean(const std::string &name) const;
 		bool getBoolean(const std::string &name, const bool &defaultValue) const;
 		Float getFloat(const std::string &name) const;
@@ -36,6 +38,8 @@ namespace Aurora
 		AVector2f getVector2f(const std::string &name, const AVector2f &defaultValue) const;
 		AVector3f getVector3f(const std::string &name) const;
 		AVector3f getVector3f(const std::string &name, const AVector3f &defaultValue) const;
+		std::vector<Float> getVectorNf(const std::string &name) const;
+		std::vector<Float> getVectorNf(const std::string &name, const std::vector<Float> &defaultValue) const;
 
 	private:
 
@@ -140,6 +144,7 @@ namespace Aurora
 		const std::string& getNodeName() const { return m_nodeName; }
 		const APropertyTreeNode& getPropertyChild(const std::string &name) const;
 
+		bool hasProperty(const std::string &name) const;
 		bool hasPropertyChild(const std::string &name) const;
 
 		void addProperty(const std::string &name, const std::string &value);

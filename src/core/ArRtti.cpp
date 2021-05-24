@@ -21,6 +21,8 @@ namespace Aurora
 		prop.setValue(values);
 	}
 
+	bool APropertyList::has(const std::string &name) const { return m_properties.find(name) != m_properties.end(); }
+
 	bool APropertyList::getBoolean(const std::string &name) const { return get<bool>(name, 0); }
 	bool APropertyList::getBoolean(const std::string &name, const bool &defaultValue) const { return get<bool>(name, 0, defaultValue); }
 
@@ -85,6 +87,54 @@ namespace Aurora
 		return AVector3f(values[0], values[1], values[2]);
 	}
 
+	std::vector<Float> APropertyList::getVectorNf(const std::string &name) const
+	{
+		auto it = m_properties.find(name);
+		if (it == m_properties.end())
+			LOG(ERROR) << "Property \"" << name << "\" is missing!";
+
+		const auto &prop = it->second;
+
+		std::vector<Float> values(prop.size());
+		auto get_func = [&](const size_t &index) -> Float
+		{
+			auto valueStr = prop[index];
+			std::istringstream iss(valueStr);
+			Float value;
+			iss >> value;
+			return  value;
+		};
+
+		for (size_t i = 0; i < prop.size(); ++i)
+			values[i] = get_func(i);
+
+		return values;
+	}
+
+	std::vector<Float> APropertyList::getVectorNf(const std::string &name, const std::vector<Float> &defaultValue) const
+	{
+		auto it = m_properties.find(name);
+		if (it == m_properties.end())
+			return defaultValue;
+
+		const auto &prop = it->second;
+
+		std::vector<Float> values(prop.size());
+		auto get_func = [&](const size_t &index) -> Float
+		{
+			auto valueStr = prop[index];
+			std::istringstream iss(valueStr);
+			Float value;
+			iss >> value;
+			return  value;
+		};
+
+		for (size_t i = 0; i < prop.size(); ++i)
+			values[i] = get_func(i);
+
+		return values;
+	}
+
 	//----------------------------------------------------APropertyTreeNode-----------------------------------------------------
 
 	std::string APropertyTreeNode::m_directory = "";
@@ -95,6 +145,8 @@ namespace Aurora
 	}
 
 	const APropertyList& APropertyTreeNode::getPropertyList() const { return m_property; }
+
+	bool APropertyTreeNode::hasProperty(const std::string &name) const { return m_property.has(name); }
 
 	bool APropertyTreeNode::hasPropertyChild(const std::string &name) const
 	{

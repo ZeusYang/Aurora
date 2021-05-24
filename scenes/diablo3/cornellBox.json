@@ -2,11 +2,11 @@
     "Integrator":
 	{
 		"Type": "Whitted",
-		"Depth": 4,
+		"Depth": 6,
 		"Sampler":
 		{
 			"Type": "Random",
-			"SPP": 32
+			"SPP": 1024
 		},
 		"Camera": 
 		{
@@ -36,8 +36,6 @@
 		{
 			"Type": "MeshEntity",
 			"Filename": "meshes/cbox_luminaire.obj",
-			"Translate": [0, -0.5, 0],
-			"Scale": [1.0, 1.0, 1.0],
 			"Shape":
 			{
 				"Type": "Triangle"
@@ -61,9 +59,7 @@
 			"Filename": "meshes/cbox_floor.obj",
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Triangle"
 			},
 			"Material":
 			{
@@ -77,9 +73,7 @@
 			"Filename": "meshes/cbox_ceiling.obj",
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Triangle"
 			},
 			"Material":
 			{
@@ -93,9 +87,7 @@
 			"Filename": "meshes/cbox_back.obj",
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Triangle"
 			},
 			"Material":
 			{
@@ -109,9 +101,7 @@
 			"Filename": "meshes/cbox_greenwall.obj",
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Triangle"
 			},
 			"Material":
 			{
@@ -125,9 +115,7 @@
 			"Filename": "meshes/cbox_redwall.obj",
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Triangle"
 			},
 			"Material":
 			{
@@ -137,34 +125,47 @@
 		},
 		
 		{
-			"Type": "MeshEntity",
-			"Filename": "meshes/cbox_smallbox.obj",
+			"Type": "Entity",
 			"Shape":
 			{
-				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Type": "Sphere",
+				"Radius": 35.0,
+				"Transform":
+				[
+					0, 350, 35, 200
+				]
 			},
 			"Material":
 			{
 				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
+				"R": [0.65, 0.45, 0.0]
+			},
+			"Light":
+			{
+				"Type": "AreaDiffuse",
+				"Radiance": [4.0, 4.0, 4.0],
+				"LightSamples": 8,
+				"TwoSided": false
 			}
 		},
 		
 		{
 			"Type": "MeshEntity",
-			"Filename": "meshes/cbox_largebox.obj",
+			"Filename": "meshes/Marry.obj",
 			"Shape":
 			{
 				"Type": "Triangle",
-				"Translate": [0, 0, 0],
-				"Scale": [1.0, 1.0, 1.0]
+				"Transform":
+				[
+					2, 0, 1, 0, 180,
+					1, 100.0, 100.0, 100.0,
+					0, 200, 4, 400
+				]
 			},
 			"Material":
 			{
-				"Type": "Lambertian",
-				"R": [0.73, 0.73, 0.73]
+				"Type": "Mirror",
+				"R": [0, 0.73, 0.73]
 			}
 		}
 	]

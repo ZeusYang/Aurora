@@ -1,0 +1,184 @@
+{	
+    "Integrator":
+	{
+		"Type": "Whitted",
+		"Depth": 4,
+		"Sampler":
+		{
+			"Type": "Random",
+			"SPP": 512
+		},
+		"Camera": 
+		{
+			"Type": "Perspective",
+			"Fov": 45,
+			"Eye": [278, 273, -800],
+			"Focus": [278, 273, -799],
+			"WorldUp": [0, 1, 0],
+			"Film":
+			{
+				"Type": "Film",
+				"Resolution": [666, 500],
+				"CropMin": [0, 0],
+				"CropMax": [1, 1],
+				"Filename": "cornellBox.png",
+				"Filter":
+				{
+					"Type": "Box",
+					"Radius": [0.5, 0.5]
+				}
+			}
+		}
+    },
+	
+	"Entity":
+	[	
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_luminaire.obj",
+			"Shape":
+			{
+				"Type": "Triangle",
+				"Transform":
+				[
+					0, 0, -0.5, 0
+				]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			},
+			"Light":
+			{
+				"Type": "AreaDiffuse",
+				"Radiance": [4.0, 3.0, 0.0],
+				"LightSamples": 8,
+				"TwoSided": false
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_floor.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_ceiling.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_back.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_greenwall.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.12, 0.45, 0.15]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_redwall.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.65, 0.05, 0.05]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_smallbox.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "MeshEntity",
+			"Filename": "meshes/cbox_largebox.obj",
+			"Shape":
+			{
+				"Type": "Triangle"
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "Entity",
+			"Shape":
+			{
+				"Type": "Sphere",
+				"Radius": 35.0,
+				"Transform":
+				[
+					0, 350, 35, 50
+				]
+			},
+			"Material":
+			{
+				"Type": "Lambertian",
+				"R": [0.65, 0.45, 0.0]
+			},
+			"Light":
+			{
+				"Type": "AreaDiffuse",
+				"Radiance": [2.0, 2.0, 2.0],
+				"LightSamples": 8,
+				"TwoSided": false
+			}
+		}
+	]
+}
