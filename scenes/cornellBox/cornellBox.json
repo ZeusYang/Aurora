@@ -1,8 +1,8 @@
 {	
     "Integrator":
 	{
-		"Type": "Whitted",
-		"Depth": 4,
+		"Type": "Path",
+		"Depth": 15,
 		"Sampler":
 		{
 			"Type": "Random",
@@ -11,7 +11,7 @@
 		"Camera": 
 		{
 			"Type": "Perspective",
-			"Fov": 45,
+			"Fov": 39,
 			"Eye": [278, 273, -800],
 			"Focus": [278, 273, -799],
 			"WorldUp": [0, 1, 0],
@@ -52,7 +52,7 @@
 			"Light":
 			{
 				"Type": "AreaDiffuse",
-				"Radiance": [4.0, 3.0, 0.0],
+				"Radiance": [5.0, 4.0, 0.0],
 				"LightSamples": 8,
 				"TwoSided": false
 			}
@@ -153,6 +153,24 @@
 			{
 				"Type": "Lambertian",
 				"R": [0.73, 0.73, 0.73]
+			}
+		},
+		
+		{
+			"Type": "Entity",
+			"Shape":
+			{
+				"Type": "Sphere",
+				"Radius": 65.0,
+				"Transform":
+				[
+					0, 200, 232, 150
+				]
+			},
+			"Material":
+			{
+				"Type": "Mirror",
+				"R": [0.75, 0.75, 0.75]
 			}
 		},
 		

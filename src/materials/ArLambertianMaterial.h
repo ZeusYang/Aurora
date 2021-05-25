@@ -16,7 +16,7 @@ namespace Aurora
 		virtual void computeScatteringFunctions(ASurfaceInteraction &si, MemoryArena &arena,
 			ATransportMode mode, bool allowMultipleLobes) const override;
 
-		virtual std::string toString() const override { return "MirrorMaterial[]"; }
+		virtual std::string toString() const override { return "LambertianMaterial[]"; }
 
 	private:
 		ASpectrum m_Kr;

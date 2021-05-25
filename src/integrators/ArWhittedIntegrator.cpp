@@ -11,17 +11,14 @@ namespace Aurora
 		:ASamplerIntegrator(nullptr, nullptr), m_maxDepth(node.getPropertyList().getInteger("Depth", 2))
 	{
 		//Sampler
-		{
-			const auto &samplerNode = node.getPropertyChild("Sampler");
-			m_sampler = ASampler::ptr(static_cast<ASampler*>(AObjectFactory::createInstance(
-				samplerNode.getTypeName(), samplerNode)));
-		}
+		const auto &samplerNode = node.getPropertyChild("Sampler");
+		m_sampler = ASampler::ptr(static_cast<ASampler*>(AObjectFactory::createInstance(
+			samplerNode.getTypeName(), samplerNode)));
+
 		//Camera
-		{
-			const auto &cameraNode = node.getPropertyChild("Camera");
-			m_camera = ACamera::ptr(static_cast<ACamera*>(AObjectFactory::createInstance(
-				cameraNode.getTypeName(), cameraNode)));
-		}
+		const auto &cameraNode = node.getPropertyChild("Camera");
+		m_camera = ACamera::ptr(static_cast<ACamera*>(AObjectFactory::createInstance(
+			cameraNode.getTypeName(), cameraNode)));
 
 		activate();
 	}

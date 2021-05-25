@@ -9,8 +9,19 @@ namespace Aurora
 
 	APathIntegrator::APathIntegrator(const APropertyTreeNode &node)
 		: ASamplerIntegrator(nullptr, nullptr), m_maxDepth(node.getPropertyList().getInteger("Depth", 2))
+		, m_rrThreshold(1.f), m_lightSampleStrategy("spatial")
 	{
+		//Sampler
+		const auto &samplerNode = node.getPropertyChild("Sampler");
+		m_sampler = ASampler::ptr(static_cast<ASampler*>(AObjectFactory::createInstance(
+			samplerNode.getTypeName(), samplerNode)));
 
+		//Camera
+		const auto &cameraNode = node.getPropertyChild("Camera");
+		m_camera = ACamera::ptr(static_cast<ACamera*>(AObjectFactory::createInstance(
+			cameraNode.getTypeName(), cameraNode)));
+
+		activate();
 	}
 
 	APathIntegrator::APathIntegrator(int maxDepth, ACamera::ptr camera, ASampler::ptr sampler,
@@ -46,17 +57,17 @@ namespace Aurora
 
 			// Intersect _ray_ with scene and store intersection in _isect_
 			ASurfaceInteraction isect;
-			bool foundIntersection = scene.hit(ray, isect);
+			bool hit = scene.hit(ray, isect);
 
 			// Possibly add emitted light at intersection
 			if (bounces == 0 || specularBounce) 
 			{
 				// Add emitted light at path vertex or from the environment
-				if (foundIntersection) 
+				if (hit)
 				{
 					L += beta * isect.Le(-ray.direction());
 				}
-				else 
+				else
 				{
 					for (const auto &light : scene.m_infiniteLights)
 						L += beta * light->Le(ray);
@@ -64,12 +75,15 @@ namespace Aurora
 			}
 
 			// Terminate path if ray escaped or _maxDepth_ was reached
-			if (!foundIntersection || bounces >= m_maxDepth) 
+			if (!hit || bounces >= m_maxDepth)
 				break;
 
 			// Compute scattering functions and skip over medium boundaries
 			isect.computeScatteringFunctions(ray, arena, true);
 
+			// Note: bsdf == nullptr indicates that the current surface has no effect on light,
+			//       and such surfaces are used to represent transitions between participating 
+			//		 media, whose boundaries are themselves optically inactive.
 			if (!isect.bsdf) 
 			{
 				ray = isect.spawnRay(ray.direction());
@@ -87,7 +101,7 @@ namespace Aurora
 				ASpectrum Ld = beta * uniformSampleOneLight(isect, scene, arena, sampler, distrib);
 				//if (Ld.isBlack()) 
 				//	++zeroRadiancePaths;
-				//CHECK_GE(Ld.y(), 0.f);
+				CHECK_GE(Ld.y(), 0.f);
 				L += Ld;
 			}
 
@@ -101,6 +115,9 @@ namespace Aurora
 				break;
 			beta *= f * absDot(wi, isect.n) / pdf;
 
+			CHECK_GE(beta.y(), 0.f);
+			DCHECK(!glm::isinf(beta.y()));
+
 			specularBounce = (flags & BSDF_SPECULAR) != 0;
 			if ((flags & BSDF_SPECULAR) && (flags & BSDF_TRANSMISSION)) 
 			{
@@ -110,6 +127,7 @@ namespace Aurora
 				// medium.
 				etaScale *= (dot(wo, isect.n) > 0) ? (eta * eta) : 1 / (eta * eta);
 			}
+
 			ray = isect.spawnRay(wi);
 
 			// Possibly terminate the path with Russian roulette.
@@ -121,6 +139,7 @@ namespace Aurora
 				if (sampler.get1D() < q) 
 					break;
 				beta /= 1 - q;
+				DCHECK(!glm::isinf(beta.y()));
 			}
 		}
 

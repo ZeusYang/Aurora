@@ -125,9 +125,10 @@ namespace Aurora
 		// Compute specular reflection direction _wi_ and BSDF value
 		AVector3f wo = isect.wo, wi;
 		Float pdf;
+		ABxDFType sampledType;
 		ABxDFType type = ABxDFType(BSDF_REFLECTION | BSDF_SPECULAR);
 
-		ASpectrum f = isect.bsdf->sample_f(wo, wi, sampler.get2D(), pdf, type);
+		ASpectrum f = isect.bsdf->sample_f(wo, wi, sampler.get2D(), pdf, sampledType, type);
 
 		// Return contribution of specular reflection
 		const AVector3f &ns = isect.n;
@@ -151,8 +152,9 @@ namespace Aurora
 		Float pdf;
 		const AVector3f &p = isect.p;
 		const ABSDF &bsdf = *(isect.bsdf);
-		ABxDFType sampledType = ABxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR);
-		ASpectrum f = bsdf.sample_f(wo, wi, sampler.get2D(), pdf, sampledType);
+		ABxDFType type = ABxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR);
+		ABxDFType sampledType;
+		ASpectrum f = bsdf.sample_f(wo, wi, sampler.get2D(), pdf, sampledType, type);
 		ASpectrum L = ASpectrum(0.f);
 		AVector3f ns = isect.n;
 
@@ -209,22 +211,22 @@ namespace Aurora
 		if (nLights == 0)
 			return ASpectrum(0.f);
 
-		int lightNum;
+		int lightSampledIndex;
 		Float lightPdf;
 
 		if (lightDistrib != nullptr) 
 		{
-			lightNum = lightDistrib->sampleDiscrete(sampler.get1D(), &lightPdf);
+			lightSampledIndex = lightDistrib->sampleDiscrete(sampler.get1D(), &lightPdf);
 			if (lightPdf == 0) 
 				return ASpectrum(0.f);
 		}
 		else 
 		{
-			lightNum = glm::min((int)(sampler.get1D() * nLights), nLights - 1);
+			lightSampledIndex = glm::min((int)(sampler.get1D() * nLights), nLights - 1);
 			lightPdf = Float(1) / nLights;
 		}
 
-		const ALight::ptr &light = scene.m_lights[lightNum];
+		const ALight::ptr &light = scene.m_lights[lightSampledIndex];
 		AVector2f uLight = sampler.get2D();
 		AVector2f uScattering = sampler.get2D();
 
@@ -285,7 +287,7 @@ namespace Aurora
 			// Sample scattered direction for surface interactions
 			ABxDFType sampledType;
 			const ASurfaceInteraction &isect = (const ASurfaceInteraction &)it;
-			f = isect.bsdf->sample_f(isect.wo, wi, uScattering, scatteringPdf, bsdfFlags, sampledType);
+			f = isect.bsdf->sample_f(isect.wo, wi, uScattering, scatteringPdf, sampledType, bsdfFlags);
 			f *= absDot(wi, isect.n);
 			sampledSpecular = (sampledType & BSDF_SPECULAR) != 0;
 
@@ -296,7 +298,8 @@ namespace Aurora
 				if (!sampledSpecular)
 				{
 					lightPdf = light.pdf_Li(it, wi);
-					if (lightPdf == 0) return Ld;
+					if (lightPdf == 0) 
+						return Ld;
 					weight = powerHeuristic(1, scatteringPdf, 1, lightPdf);
 				}
 
