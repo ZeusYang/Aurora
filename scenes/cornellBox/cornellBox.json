@@ -6,7 +6,7 @@
 		"Sampler":
 		{
 			"Type": "Random",
-			"SPP": 512
+			"SPP": 64
 		},
 		"Camera": 
 		{

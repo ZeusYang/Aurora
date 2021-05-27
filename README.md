@@ -15,7 +15,7 @@
 
 ## About The Project
 
-Aurora, is a learning-oriented rendering system in the style of PBRT. Hence, this project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with much customization and adjustment out of personal habits. I plan to develop this project as a long-term project. Learning by doing!
+Aurora, is a learning-oriented rendering system in the style of PBRT. Hence, this project were mostly ported from [pbrt-v3](https://github.com/mmp/pbrt-v3) with much customization and adjustment out of personal habits. I plan to develop this project as a long-term project in my personal spare time. Learning by doing!
 
 <img src="images/logo.jpg" alt="Logo" width="100%">
 
